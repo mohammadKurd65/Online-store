@@ -6,6 +6,8 @@ import Wishlist from "../pages/Wishlist";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import AdminPanel from "../pages/AdminPanel";
+import PaymentPage from "../pages/PaymentPage";
+import VerifyPayment from "../pages/VerifyPayment";
 
 export default function AppRoutes() {
 return (
@@ -17,6 +19,8 @@ return (
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
     <Route path="/admin" element={<AdminPanel />} />
+    <Route path="/payment" element={<PaymentPage />} />
+    <Route path="/verify-payment" element={<VerifyPayment />} />
     </Routes>
 );
 }

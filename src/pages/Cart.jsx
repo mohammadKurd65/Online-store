@@ -1,10 +1,16 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 
 export default function Cart() {
 const { state, dispatch } = useContext(CartContext);
+const navigate = useNavigate();
 
 const total = state.cart.reduce((sum, item) => sum + item.price, 0);
+
+const handlePayment = () => {
+    navigate("/payment");
+};
 
 return (
     <div className="container py-10 mx-auto">
@@ -28,6 +34,12 @@ return (
         <div className="mt-4 text-xl font-semibold">
             جمع کل: {total.toLocaleString()} تومان
         </div>
+        <button
+            onClick={handlePayment}
+            className="w-full px-6 py-2 mt-4 text-white bg-green-500 rounded hover:bg-green-600"
+        >
+            پرداخت
+        </button>
         </div>
     )}
     </div>
