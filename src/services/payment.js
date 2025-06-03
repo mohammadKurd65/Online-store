@@ -1,26 +1,13 @@
-export const requestPayment = async (amount, callbackUrl) => {
-  // در حالت واقعی، اینجا یک درخواست POST به API زرین‌پال می‌زنیم
-  // ولی الان فقط یک "Authority" فیک برمی‌گردونیم
+import axios from "axios";
 
-return new Promise((resolve) => {
-    setTimeout(() => {
-    resolve({
-        success: true,
-        authority: "TEST-AUTH-12345",
-        url: `https://sandbox.zarinpal.com/pg/StartPay/TEST-AUTH-12345`, 
-    });
-    }, 500);
-});
+const API_URL = "http://localhost:5000/api/payment";
+
+export const requestPayment = async (amount) => {
+  const res = await axios.post(`${API_URL}/request`, { amount });
+  return res.data;
 };
 
 export const verifyPayment = async (authority, amount) => {
-  // در حالت واقعی، اینجا وضعیت پرداخت رو از زرین‌پال چک می‌کنیم
-return new Promise((resolve) => {
-    setTimeout(() => {
-    resolve({
-        success: true,
-        ref_id: "1234567890",
-    });
-    }, 1000);
-});
+  const res = await axios.post(`${API_URL}/verify`, { authority, amount });
+  return res.data;
 };
