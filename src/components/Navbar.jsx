@@ -27,6 +27,9 @@ return (
             <Link to="/orders" className="text-blue-500 hover:underline">
 سفارشات
 </Link>
+<Link to="/admin/orders" className="text-blue-500 hover:underline">
+پنل ادمین
+</Link>
         </>
         )}
     </div>
