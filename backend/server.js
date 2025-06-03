@@ -16,7 +16,11 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+const orderRoutes = require("./routes/orderRoutes");
+
+// Routes
 app.use("/api/payment", paymentRoutes);
+app.use("/api/orders", orderRoutes); // 👈 اضافه کردیم
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);
