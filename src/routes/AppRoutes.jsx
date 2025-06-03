@@ -8,7 +8,8 @@ import Register from "../pages/Register";
 import AdminPanel from "../pages/AdminPanel";
 import PaymentPage from "../pages/PaymentPage";
 import VerifyPayment from "../pages/VerifyPayment";
-
+import OrdersPage from "../pages/OrdersPage";
+import OrderDetailPage from "../pages/OrderDetailPage";
 export default function AppRoutes() {
 return (
     <Routes>
@@ -21,6 +22,8 @@ return (
     <Route path="/admin" element={<AdminPanel />} />
     <Route path="/payment" element={<PaymentPage />} />
     <Route path="/verify-payment" element={<VerifyPayment />} />
+    <Route path="/orders" element={<OrdersPage />} />
+<Route path="/orders/:id" element={<OrderDetailPage />} />
     </Routes>
 );
 }

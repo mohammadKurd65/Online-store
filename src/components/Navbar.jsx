@@ -24,6 +24,9 @@ return (
             <Link to="/register" className="text-blue-500 hover:underline">
             ثبت‌نام
             </Link>
+            <Link to="/orders" className="text-blue-500 hover:underline">
+سفارشات
+</Link>
         </>
         )}
     </div>
