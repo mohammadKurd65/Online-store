@@ -13,6 +13,8 @@ const authAdmin = require("../middleware/authMiddleware");
 router.post("/login", adminController.loginAdmin);
 router.get("/admins", adminController.getAllAdmins); // 👈 اضافه کردیم
 router.get("/admins", authAdmin, adminController.getAllAdmins);
+// dashbord admin
+router.get("/dashboard", authAdmin, adminController.getDashboardStats);
 // اضافه کردن ادمین جدید
 router.post("/admins", authAdmin, adminController.createAdmin);
 // حذف ادمین
