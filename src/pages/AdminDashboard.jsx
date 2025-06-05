@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function AdminDashboard() {
 const [stats, setStats] = useState({
@@ -26,6 +29,27 @@ useEffect(() => {
     fetchStats();
 }, []);
 
+const [monthlySales, setMonthlySales] = useState([]);
+
+useEffect(() => {
+const fetchMonthlySales = async () => {
+    try {
+    const token = localStorage.getItem("adminToken");
+    const res = await axios.get("http://localhost:5000/api/admin/dashboard/monthly-sales", {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    });
+
+    setMonthlySales(res.data.data);
+    } catch (err) {
+    console.error(err);
+    }
+};
+
+fetchMonthlySales();
+}, []);
+
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">داشبورد پنل ادمین</h2>
@@ -50,6 +74,49 @@ return (
     <div className="p-6 bg-white rounded shadow">
         <h3 className="mb-4 text-xl font-semibold">آخرین سفارشات</h3>
         <OrderList />
+        <div className="p-6 mt-8 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">آمار فروش ماهانه</h3>
+{monthlySales.length === 0 ? (
+<p>آماری یافت نشد.</p>
+) : (
+    <Bar
+    data={{
+        labels: monthlySales.map((item) => `ماه ${item._id.month} (${item._id.year})`),
+        datasets: [
+        {
+            label: "فروش (تومان)",
+            backgroundColor: "rgba(53, 162, 235, 0.5)",
+            borderColor: "rgba(53, 162, 235, 1)",
+            borderWidth: 1,
+            data: monthlySales.map((item) => item.totalSales),
+        },
+        ],
+    }}
+    options={{
+        responsive: true,
+        plugins: {
+        legend: { display: true },
+        tooltip: {
+            callbacks: {
+            label: (context) => `${context.raw.toLocaleString()} تومان`,
+            },
+        },
+        title: {
+            display: true,
+            text: "فروش ماهانه",
+        },
+        },
+        scales: {
+        y: {
+            ticks: {
+            callback: (value) => value.toLocaleString(),
+            },
+        },
+        },
+    }}
+    />
+)}
+</div>
     </div>
     </div>
 );

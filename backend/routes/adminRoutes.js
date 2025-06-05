@@ -15,6 +15,7 @@ router.get("/admins", adminController.getAllAdmins); // 👈 اضافه کردی
 router.get("/admins", authAdmin, adminController.getAllAdmins);
 // dashbord admin
 router.get("/dashboard", authAdmin, adminController.getDashboardStats);
+router.get("/dashboard/monthly-sales", authAdmin, adminController.getMonthlySalesStats);
 // اضافه کردن ادمین جدید
 router.post("/admins", authAdmin, adminController.createAdmin);
 // حذف ادمین

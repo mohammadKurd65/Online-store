@@ -1,5 +1,36 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/AdminModel");
+const order =require("../models/OrderModel");
+// در بالای فایل
+const mongoose = require("mongoose");
+
+// تابع جدید: آمار فروش ماهانه
+exports.getMonthlySalesStats = async (req, res) => {
+try {
+    const monthlySales = await Order.aggregate([
+    { $match: { paymentStatus: "paid" } },
+    {
+        $group: {
+        _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+        },
+        totalSales: { $sum: "$amount" },
+        count: { $sum: 1 },
+        },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+    ]);
+
+    return res.json({
+    success: true,
+    data: monthlySales,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
 
 // ورود ادمین
 exports.loginAdmin = async (req, res) => {
@@ -122,3 +153,4 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
