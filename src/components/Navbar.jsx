@@ -30,6 +30,9 @@ return (
 <Link to="/admin/orders" className="text-blue-500 hover:underline">
 پنل ادمین
 </Link>
+<Link to="/admin/login" className="text-blue-500 hover:underline">
+ورود ادمین
+</Link>
         </>
         )}
     </div>
