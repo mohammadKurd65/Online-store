@@ -3,6 +3,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const paymentRoutes = require("./routes/paymentRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 dotenv.config();
 
@@ -16,11 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-const orderRoutes = require("./routes/orderRoutes");
-
-// Routes
 app.use("/api/payment", paymentRoutes);
-app.use("/api/orders", orderRoutes); // 👈 اضافه کردیم
+app.use("/api/orders", orderRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);
