@@ -39,3 +39,86 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// ایجاد ادمین جدید
+exports.createAdmin = async (Reg, res) => {
+    const {username, password, email} = Reg.body;
+    try {
+        const exidtingAdmin = await Admin.findOne({ username});
+        if (exidtingAdmin) {
+            return res.status(400).json({ success: false, message: "ادمین با این نام کاربری وجود دارد."});
+        }
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: "خطای سرور"});
+    }
+    try {
+        const newAdmin = new Admin({
+            username,
+            password,
+            email,
+        });
+        await newAdmin.save();
+        return res.json({
+            success: true,
+            message: "ادمین جدید با موفقیت ایجاد شد.",
+            data: newAdmin,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false. message: "خطای سرور"});
+    }
+};
+// حذف ادمین جدید
+exports.deleteAdmin = async (Reg, res) => {
+    const {id} = Reg.params;
+    try {
+        const admin = await Admin.findById(id);
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "تدمین یافت نشد."});
+        }
+        await Admin.findByIdAndDeleted(id);
+        return res.json({
+            success: true,
+            message: "ادمین با موفقیت حذف شد.",
+            data: admin,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: "خطای سرور"});
+    }
+}
+// ویرایش ادمین
+
+
+
+
+
+
+
+        
+
+// دریافت آمار داشبورد
+exports.getDashboardStats = async (req, res) => {
+try {
+    const totalOrders = await Order.countDocuments();
+    const totalAdmins = await Admin.countDocuments();
+    const totalRevenue = await Order.aggregate([
+    { $match: { paymentStatus: "paid" } },
+    { $group: { _id: null, total: { $sum: "$amount" } } }
+    ]);
+
+    return res.json({
+    success: true,
+    data: {
+        totalOrders,
+        totalAdmins,
+        totalRevenue: totalRevenue[0]?.total || 0,
+    },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
