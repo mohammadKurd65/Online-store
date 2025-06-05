@@ -12,6 +12,7 @@ import OrdersPage from "../pages/OrdersPage";
 import OrderDetailPage from "../pages/OrderDetailPage";
 import AdminOrdersPage from "../pages/AdminOrdersPage";
 import AdminOrderDetailPage from "../pages/AdminOrderDetailPage";
+import AdminLogin from "../pages/AdminLogin";
 export default function AppRoutes() {
 return (
     <Routes>
@@ -28,6 +29,7 @@ return (
 <Route path="/orders/:id" element={<OrderDetailPage />} />
 <Route path="/admin/orders" element={<AdminOrdersPage />} />
 <Route path="/admin/order/:id" element={<AdminOrderDetailPage />} />
+<Route path="/admin/login" element={<AdminLogin />} />
     </Routes>
 );
 }
