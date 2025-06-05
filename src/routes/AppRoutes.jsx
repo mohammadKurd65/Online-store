@@ -14,6 +14,7 @@ import AdminOrdersPage from "../pages/AdminOrdersPage";
 import AdminOrderDetailPage from "../pages/AdminOrderDetailPage";
 import AdminLogin from "../pages/AdminLogin";
 import AdminUsersPage from "../pages/AdminUsersPage";
+import AddAdminPage from "../pages/AddAdminPage";
 
 export default function AppRoutes() {
 return (
@@ -34,6 +35,7 @@ return (
 <Route path="/admin/login" element={<AdminLogin />} />
 <Route path="/admin/users" element={<AdminUsersPage />} />
 <Route path="*" element={<h1>404 not found</h1>}/>
+<Route path="/admin/add-admin" element={<AddAdminPage />} />
     </Routes>
 );
 }
