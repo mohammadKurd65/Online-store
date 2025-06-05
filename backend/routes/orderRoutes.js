@@ -19,7 +19,7 @@ router.post("/orders", OrderModel.createOrdrer);
 router.get("/orders", authAdmin, orderController.getAllOrders);
 router.get("/orders/:id", authAdmin, orderController.getOrderById);
 // Update order status
-router.put("/orders/:id", authAdmin, orderController.updateOrderStatus);
+router.put("/orders/:id/status", authAdmin, orderController.updateOrderStatus);
 // Delete an order
 router.delete("/orders/:id", authAdmin, orderController.deleteOrder);
 // Get orders by user Id

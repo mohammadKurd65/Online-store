@@ -34,3 +34,29 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// آپدیت وضعیت سفارش
+exports.updateOrderStatus = async (req, res) => {
+const { id } = req.params;
+const { paymentStatus } = req.body;
+
+try {
+    const order = await Order.findByIdAndUpdate(
+    id,
+    { paymentStatus },
+    { new: true }
+    );
+
+    if (!order) {
+    return res.status(404).json({ success: false, message: "سفارش یافت نشد" });
+    }
+
+    return res.json({
+    success: true,
+    data: order,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
