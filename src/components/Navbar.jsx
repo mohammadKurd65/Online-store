@@ -33,6 +33,9 @@ return (
 <Link to="/admin/login" className="text-blue-500 hover:underline">
 ورود ادمین
 </Link>
+<Link to="/admin/users" className="text-blue-500 hover:underline">
+ادمین‌ها
+</Link>
         </>
         )}
     </div>
