@@ -60,3 +60,30 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// اضافه کردن ادمین جدید
+exports.createAdmin = async (req, res) => {
+const { username, password } = req.body;
+
+try {
+    // چک کردن وجود نام کاربری تکراری
+    const existingAdmin = await Admin.findOne({ username });
+    if (existingAdmin) {
+    return res.status(400).json({ success: false, message: "نام کاربری قبلاً استفاده شده" });
+    }
+
+    const newAdmin = new Admin({ username, password });
+    await newAdmin.save();
+
+    return res.status(201).json({
+    success: true,
+    data: {
+        _id: newAdmin._id,
+        username: newAdmin.username,
+    },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

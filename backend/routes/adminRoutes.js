@@ -14,7 +14,7 @@ router.post("/login", adminController.loginAdmin);
 router.get("/admins", adminController.getAllAdmins); // 👈 اضافه کردیم
 router.get("/admins", authAdmin, adminController.getAllAdmins);
 // اضافه کردن ادمین جدید
-router.post("/admins", authAdmin, adminController.addAdmin);
+router.post("/admins", authAdmin, adminController.createAdmin);
 // حذف ادمین
 router.delete("/admins/:id", authAdmin, adminController.deleteAdmin);
 // ویرایش ادمین
