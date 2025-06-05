@@ -3,12 +3,14 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-<AuthProvider>
+ReactDOM.createRoot(document.getElementById("root")).render(
+<ToastProvider>
+    <AuthProvider>
     <CartProvider>
-    <App />
+        <App />
     </CartProvider>
-</AuthProvider>
+    </AuthProvider>
+</ToastProvider>
 );

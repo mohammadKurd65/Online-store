@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 
 export default function AddAdminPage() {
+    const { showToast } = useToast(); // ✅ استفاده از Toast
 const [username, setUsername] = useState("");
 const [password, setPassword] = useState("");
 const [error, setError] = useState("");
@@ -23,10 +25,12 @@ const handleAddAdmin = async (e) => {
         }
     );
 
-    alert("ادمین با موفقیت اضافه شد.");
+      showToast("ادمین با موفقیت اضافه شد.", "success"); // ✅ نمایش نوتیفیکیشن
     navigate("/admin/users");
     } catch (err) {
-    setError(err.response?.data?.message || "خطایی رخ داده است.");
+    const errorMessage = err.response?.data?.message || "خطایی رخ داده است.";
+    setError(errorMessage);
+      showToast(errorMessage, "error"); // ✅ نمایش خطا
     }
 };
 

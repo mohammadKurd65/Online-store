@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useToast } from "../context/ToastContext";
 
 export default function AdminOrderDetailPage() {
 const { id } = useParams();
 const navigate = useNavigate();
+const { showToast } = useToast(); // ✅ استفاده از Toast
 
 const [order, setOrder] = useState(null);
 const [loading, setLoading] = useState(true);
@@ -44,10 +46,10 @@ const handleUpdateStatus = async () => {
         },
         }
     );
-    alert("وضعیت با موفقیت آپدیت شد.");
+    showToast("وضعیت با موفقیت آپدیت شد.", "success");
     setOrder((prev) => ({ ...prev, paymentStatus: status }));
     } catch (err) {
-    alert("خطا در آپدیت وضعیت.");
+    showToast("خطا در آپدیت وضعیت.", "error");
     console.error(err);
     }
 };

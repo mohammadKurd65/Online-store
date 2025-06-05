@@ -154,3 +154,24 @@ try {
 }
 };
 
+
+// حذف ادمین
+exports.deleteAdmin = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const admin = await Admin.findByIdAndDelete(id);
+
+    if (!admin) {
+    return res.status(404).json({ success: false, message: "ادمین یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    message: "ادمین با موفقیت حذف شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
