@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DeleteModal from "../components/DeleteModal";
+import SkeletonLoader from "../components/SkeletonLoader";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -62,6 +63,9 @@ if (loading) {
     return <p>در حال بارگذاری...</p>;
 }
 
+if (loading) {
+return <SkeletonLoader type="table" />;
+}
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-2xl font-bold">لیست ادمین‌ها</h2>
