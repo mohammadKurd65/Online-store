@@ -11,6 +11,11 @@ password: {
     type: String,
     required: true,
 },
+role: {
+    type: String,
+    enum: ["admin", "editor", "viewer"],
+    default: "admin",
+},
 });
 
 // هش کردن پسورد قبل از ذخیره

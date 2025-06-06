@@ -12,6 +12,7 @@ const [totalPages, setTotalPages] = useState(1);
 const [showModal, setShowModal] = useState(false);
 const [selectedAdmin, setSelectedAdmin] = useState(null);
 const [searchTerm, setSearchTerm] = useState("");
+const [roleFilter, setRoleFilter] = useState("");
 
 const filteredAdmins = admins.filter((admin) =>
 admin.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -19,21 +20,24 @@ admin.username.toLowerCase().includes(searchTerm.toLowerCase())
 
 useEffect(() => {
 const fetchAdmins = async () => {
-    try {
+try {
     const token = localStorage.getItem("adminToken");
-    const res = await axios.get(`http://localhost:5000/api/admin/admins?page=${page}&limit=5`, {
+    const res = await axios.get(
+    `http://localhost:5000/api/admin/admins?page=${page}&limit=5&role=${roleFilter}`,
+    {
         headers: {
         Authorization: `Bearer ${token}`,
         },
-    });
+    }
+    );
 
     setAdmins(res.data.data);
     setTotalPages(res.data.pagination.totalPages);
-    } catch (err) {
+} catch (err) {
     console.error(err);
-    } finally {
+} finally {
     setLoading(false);
-    }
+}
 };
 
 fetchAdmins();
@@ -78,7 +82,7 @@ return (
     <h2 className="mb-6 text-2xl font-bold">لیست ادمین‌ها</h2>
 
     {/* فیلد جستجو */}
-    <div className="mb-6">
+    <div className="flex flex-col gap-4 mb-6 md:flex-row">
     <input
         type="text"
         placeholder="جستجوی نام کاربری..."
@@ -86,6 +90,20 @@ return (
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-4 py-2 border rounded md:w-1/2"
     />
+     {/* فیلتر نقش */}
+<select
+    value={roleFilter}
+    onChange={(e) => {
+    setRoleFilter(e.target.value);
+      setPage(1); // ریست کردن صفحه
+    }}
+    className="w-full px-4 py-2 border rounded md:w-1/4"
+>
+    <option value="">همه نقش‌ها</option>
+    <option value="admin">ادمین</option>
+    <option value="editor">ویرایشگر</option>
+    <option value="viewer">مشاهده‌گر</option>
+</select>
     </div>
 
     {/* لیست ادمین‌ها */}
@@ -96,28 +114,30 @@ return (
     ) : (
 <table className="min-w-full bg-white border rounded shadow">
         <thead className="bg-gray-100">
-            <tr>
-            <th className="px-4 py-2 text-left border-b">نام کاربری</th>
-            <th className="px-4 py-2 text-left border-b">شناسه</th>
-            <th className="px-4 py-2 text-left border-b">عملیات</th>
-            </tr>
-        </thead>
+<tr>
+    <th className="px-4 py-2 text-left border-b">نام کاربری</th>
+    <th className="px-4 py-2 text-left border-b">نقش</th>
+    <th className="px-4 py-2 text-left border-b">شناسه</th>
+    <th className="px-4 py-2 text-left border-b">عملیات</th>
+</tr>
+</thead>
         <tbody>
-            {admins.map((admin, index) => (
-            <tr key={index} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b">{admin.username}</td>
-                <td className="px-4 py-2 border-b">{admin._id}</td>
-                <td className="px-4 py-2 border-b">
-                <button
-                    onClick={() => handleDeleteClick(admin)}
-                    className="text-red-500 hover:underline"
-                >
-                    حذف
-                </button>
-                </td>
-            </tr>
-            ))}
-        </tbody>
+{filteredAdmins.map((admin, index) => (
+    <tr key={index} className="hover:bg-gray-50">
+    <td className="px-4 py-2 border-b">{admin.username}</td>
+    <td className="px-4 py-2 capitalize border-b">{admin.role}</td>
+    <td className="px-4 py-2 border-b">{admin._id}</td>
+    <td className="px-4 py-2 border-b">
+        <button
+        onClick={() => handleDeleteClick(admin)}
+        className="text-red-500 hover:underline"
+        >
+        حذف
+        </button>
+    </td>
+    </tr>
+))}
+</tbody>
         </table>
     )}
 

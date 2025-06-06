@@ -61,12 +61,18 @@ try {
 // دریافت تمام ادمین‌ها با صفحه‌بندی
 exports.getAllAdmins = async (req, res) => {
 const page = parseInt(req.query.page) || 1;
-const limit = parseInt(req.query.limit) || 10;
+const limit = parseInt(req.query.limit) || 5;
   const skip = (page - 1) * limit;
+const { role } = req.query;
 
 try {
-    const admins = await Admin.find({}, "-password").skip(skip).limit(limit);
-    const total = await Admin.countDocuments();
+    let query = {};
+    if (role) {
+    query.role = role;
+    }
+
+    const admins = await Admin.find(query, "-password").skip(skip).limit(limit);
+    const total = await Admin.countDocuments(query);
 
     return res.json({
     success: true,
