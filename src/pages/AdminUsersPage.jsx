@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DeleteModal from "../components/DeleteModal";
 import SkeletonLoader from "../components/SkeletonLoader";
+import Pagination from "../components/Pagination"
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
 const [loading, setLoading] = useState(true);
+const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 const [showModal, setShowModal] = useState(false);
 const [selectedAdmin, setSelectedAdmin] = useState(null);
 const [searchTerm, setSearchTerm] = useState("");
@@ -15,24 +18,27 @@ admin.username.toLowerCase().includes(searchTerm.toLowerCase())
 );
 
 useEffect(() => {
-    const fetchAdmins = async () => {
+const fetchAdmins = async () => {
     try {
-        const token = localStorage.getItem("adminToken");
-        const res = await axios.get("http://localhost:5000/api/admin/admins", {
+    const token = localStorage.getItem("adminToken");
+    const res = await axios.get(`http://localhost:5000/api/admin/admins?page=${page}&limit=5`, {
         headers: {
-            Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         },
-        });
-        setAdmins(res.data.data);
-    } catch (err) {
-        console.error(err);
-    } finally {
-        setLoading(false);
-    }
-    };
+    });
 
-    fetchAdmins();
-}, []);
+    setAdmins(res.data.data);
+    setTotalPages(res.data.pagination.totalPages);
+    } catch (err) {
+    console.error(err);
+    } finally {
+    setLoading(false);
+    }
+};
+
+fetchAdmins();
+}, [page]);
+
 
 const handleDeleteClick = (admin) => {
     setSelectedAdmin(admin);
@@ -66,21 +72,28 @@ if (loading) {
 if (loading) {
 return <SkeletonLoader type="table" />;
 }
+
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-2xl font-bold">لیست ادمین‌ها</h2>
 
-    {filteredAdmins.length === 0 ? (
-<p>ادمینی یافت نشد.</p>
+    {/* فیلد جستجو */}
+    <div className="mb-6">
+    <input
+        type="text"
+        placeholder="جستجوی نام کاربری..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full px-4 py-2 border rounded md:w-1/2"
+    />
+    </div>
+
+    {/* لیست ادمین‌ها */}
+    {loading ? (
+    <SkeletonLoader type="table" />
+    ) : filteredAdmins.length === 0 ? (
+    <p>ادمینی یافت نشد.</p>
     ) : (
-        <div className="mb-4">
-            <input
-    type="text"
-    placeholder="جستجوی نام کاربری..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full px-4 py-2 border rounded md:w-1/2"
-/>
 <table className="min-w-full bg-white border rounded shadow">
         <thead className="bg-gray-100">
             <tr>
@@ -106,9 +119,14 @@ return (
             ))}
         </tbody>
         </table>
-        </div>
-        
     )}
+
+     {/* کامپوننت Pagination */}
+        <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={(newPage) => setPage(newPage)}
+        />
 
       {/* مدال حذف */}
     <DeleteModal
@@ -117,6 +135,9 @@ return (
         onConfirm={handleDeleteConfirm}
         itemName={selectedAdmin?.username || "ادمین"}
     />
+    
     </div>
 );
 }
+
+
