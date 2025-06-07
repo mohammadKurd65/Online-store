@@ -4,6 +4,7 @@ import DeleteModal from "../components/DeleteModal";
 import SkeletonLoader from "../components/SkeletonLoader";
 import Pagination from "../components/Pagination";
 import UpdateRoleForm from "../components/UpdateRoleForm";
+import AdvancedFilterForm from "../components/AdvancedFilterForm";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -51,6 +52,25 @@ headers: {
 fetchAdmins();
 }, [page]);
 
+const handleRoleChange = (value) => {
+setRoleFilter(value);
+setPage(1);
+};
+
+const handleStartDateChange = (value) => {
+setStartDate(value);
+setPage(1);
+};
+
+const handleEndDateChange = (value) => {
+setEndDate(value);
+setPage(1);
+};
+
+const handleSearchTermChange = (value) => {
+setSearchTerm(value);
+};
+
 
 const handleDeleteClick = (admin) => {
     setSelectedAdmin(admin);
@@ -90,53 +110,16 @@ return (
     <h2 className="mb-6 text-2xl font-bold">لیست ادمین‌ها</h2>
 
     {/* فیلد جستجو */}
-    <div className="flex flex-col gap-4 mb-6 md:flex-row">
-  {/* جستجو */}
-<input
-    type="text"
-    placeholder="جستجوی نام کاربری..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-full px-4 py-2 border rounded md:w-1/3"
+<AdvancedFilterForm
+role={roleFilter}
+startDate={startDate}
+endDate={endDate}
+searchTerm={searchTerm}
+onRoleChange={handleRoleChange}
+onStartDateChange={handleStartDateChange}
+onEndDateChange={handleEndDateChange}
+onSearchTermChange={handleSearchTermChange}
 />
-
-  {/* فیلتر نقش */}
-<select
-    value={roleFilter}
-    onChange={(e) => {
-    setRoleFilter(e.target.value);
-    setPage(1);
-    }}
-    className="w-full px-4 py-2 border rounded md:w-1/4"
->
-    <option value="">همه نقش‌ها</option>
-    <option value="admin">ادمین</option>
-    <option value="editor">ویرایشگر</option>
-    <option value="viewer">مشاهده‌گر</option>
-</select>
-
-  {/* فیلتر تاریخ شروع */}
-<input
-    type="date"
-    value={startDate}
-    onChange={(e) => {
-    setStartDate(e.target.value);
-    setPage(1);
-    }}
-    className="w-full px-4 py-2 border rounded md:w-1/4"
-/>
-
-  {/* فیلتر تاریخ پایان */}
-<input
-    type="date"
-    value={endDate}
-    onChange={(e) => {
-    setEndDate(e.target.value);
-    setPage(1);
-    }}
-    className="w-full px-4 py-2 border rounded md:w-1/4"
-/>
-</div>
 
     {/* لیست ادمین‌ها */}
     {loading ? (
