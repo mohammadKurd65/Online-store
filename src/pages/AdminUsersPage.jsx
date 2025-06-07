@@ -14,6 +14,16 @@ const [showModal, setShowModal] = useState(false);
 const [selectedAdmin, setSelectedAdmin] = useState(null);
 const [searchTerm, setSearchTerm] = useState("");
 const [roleFilter, setRoleFilter] = useState("");
+const [startDate, setStartDate] = useState("");
+const [endDate, setEndDate] = useState("");
+const params = new URLSearchParams();
+params.append("page", page);
+params.append("limit", 5);
+if (roleFilter) params.append("role", roleFilter);
+if (startDate) params.append("startDate", startDate);
+if (endDate) params.append("endDate", endDate);
+
+
 
 const filteredAdmins = admins.filter((admin) =>
 admin.username.toLowerCase().includes(searchTerm.toLowerCase())
@@ -23,14 +33,11 @@ useEffect(() => {
 const fetchAdmins = async () => {
 try {
     const token = localStorage.getItem("adminToken");
-    const res = await axios.get(
-    `http://localhost:5000/api/admin/admins?page=${page}&limit=5&role=${roleFilter}`,
-    {
-        headers: {
-        Authorization: `Bearer ${token}`,
-        },
-    }
-    );
+    const res = await axios.get(`http://localhost:5000/api/admin/admins?${params}`, {
+headers: {
+    Authorization: `Bearer ${token}`,
+},
+});
 
     setAdmins(res.data.data);
     setTotalPages(res.data.pagination.totalPages);
@@ -84,19 +91,21 @@ return (
 
     {/* فیلد جستجو */}
     <div className="flex flex-col gap-4 mb-6 md:flex-row">
-    <input
-        type="text"
-        placeholder="جستجوی نام کاربری..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-4 py-2 border rounded md:w-1/2"
-    />
-     {/* فیلتر نقش */}
+  {/* جستجو */}
+<input
+    type="text"
+    placeholder="جستجوی نام کاربری..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="w-full px-4 py-2 border rounded md:w-1/3"
+/>
+
+  {/* فیلتر نقش */}
 <select
     value={roleFilter}
     onChange={(e) => {
     setRoleFilter(e.target.value);
-      setPage(1); // ریست کردن صفحه
+    setPage(1);
     }}
     className="w-full px-4 py-2 border rounded md:w-1/4"
 >
@@ -105,7 +114,29 @@ return (
     <option value="editor">ویرایشگر</option>
     <option value="viewer">مشاهده‌گر</option>
 </select>
-    </div>
+
+  {/* فیلتر تاریخ شروع */}
+<input
+    type="date"
+    value={startDate}
+    onChange={(e) => {
+    setStartDate(e.target.value);
+    setPage(1);
+    }}
+    className="w-full px-4 py-2 border rounded md:w-1/4"
+/>
+
+  {/* فیلتر تاریخ پایان */}
+<input
+    type="date"
+    value={endDate}
+    onChange={(e) => {
+    setEndDate(e.target.value);
+    setPage(1);
+    }}
+    className="w-full px-4 py-2 border rounded md:w-1/4"
+/>
+</div>
 
     {/* لیست ادمین‌ها */}
     {loading ? (

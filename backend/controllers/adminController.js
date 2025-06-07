@@ -63,12 +63,23 @@ exports.getAllAdmins = async (req, res) => {
 const page = parseInt(req.query.page) || 1;
 const limit = parseInt(req.query.limit) || 5;
   const skip = (page - 1) * limit;
-const { role } = req.query;
+const { role, startDate, endDate } = req.query;
 
 try {
     let query = {};
+
     if (role) {
-    query.role = role;
+query.role = role;
+    }
+
+    if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+    }
+    if (endDate) {
+        query.createdAt.$lte = new Date(endDate);
+    }
     }
 
     const admins = await Admin.find(query, "-password").skip(skip).limit(limit);
