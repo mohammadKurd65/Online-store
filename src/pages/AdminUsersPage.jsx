@@ -5,6 +5,7 @@ import SkeletonLoader from "../components/SkeletonLoader";
 import Pagination from "../components/Pagination";
 import UpdateRoleForm from "../components/UpdateRoleForm";
 import ReusableFilterForm from "../components/ReusableFilterForm";
+import usePersistedFilter from "../hooks/usePersistedFilter";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -17,7 +18,7 @@ const [searchTerm, setSearchTerm] = useState("");
 const [roleFilter, setRoleFilter] = useState("");
 const [startDate, setStartDate] = useState("");
 const [endDate, setEndDate] = useState("");
-const [filters, setFilters] = useState({
+const [filters, setFilters] = usePersistedFilter("admin-users-filter", {
 searchTerm: "",
 role: "",
 startDate: "",
@@ -30,11 +31,12 @@ if (roleFilter) params.append("role", roleFilter);
 if (startDate) params.append("startDate", startDate);
 if (endDate) params.append("endDate", endDate);
 
-
-
 const filteredAdmins = admins.filter((admin) =>
 admin.username.toLowerCase().includes(searchTerm.toLowerCase())
 );
+
+// قبل از useEffect
+
 
 useEffect(() => {
 const fetchAdmins = async () => {
@@ -62,26 +64,26 @@ try {
 };
 
 fetchAdmins();
-}, [page]);
+}, [page, filters]);
 
-const handleRoleChange = (value) => {
-setRoleFilter(value);
-setPage(1);
-};
+// const handleRoleChange = (value) => {
+// setRoleFilter(value);
+// setPage(1);
+// };
 
-const handleStartDateChange = (value) => {
-setStartDate(value);
-setPage(1);
-};
+// const handleStartDateChange = (value) => {
+// setStartDate(value);
+// setPage(1);
+// };
 
-const handleEndDateChange = (value) => {
-setEndDate(value);
-setPage(1);
-};
+// const handleEndDateChange = (value) => {
+// setEndDate(value);
+// setPage(1);
+// };
 
-const handleSearchTermChange = (value) => {
-setSearchTerm(value);
-};
+// const handleSearchTermChange = (value) => {
+// setSearchTerm(value);
+// };
 
 
 const handleDeleteClick = (admin) => {

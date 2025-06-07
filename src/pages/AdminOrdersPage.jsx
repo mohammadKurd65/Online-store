@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReusableFilterForm from "../components/ReusableFilterForm";
+import usePersistedFilter from "../hooks/usePersistedFilter"
 
 export default function AdminOrdersPage() {
+    const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 const [orders, setOrders] = useState([]);
 const [loading, setLoading] = useState(true);
-const [filters, setFilters] = useState({
+const [filters, setFilters] = usePersistedFilter("admin-orders-filter", {
 searchTerm: "",
 status: "",
 startDate: "",
@@ -38,7 +41,7 @@ try {
 };
 
     fetchOrders();
-}, [filters]);
+}, [page, filters]);
 
 if (loading) {
     return <p>در حال بارگذاری سفارشات...</p>;
