@@ -51,6 +51,8 @@ router.get("/brands", authAdmin, adminController.getBrandStatus);
 router.get("/product-reviews", authAdmin, adminController.getProductReviewStatus);
 // دریافت نظرات کاربران
 router.get("/user-reviews", authAdmin, adminController.getUserReviewStatus);
+router.put("/admins/:id/role", authAdmin, adminController.updateAdminRole);
+
 
 
 

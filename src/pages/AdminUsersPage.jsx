@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import DeleteModal from "../components/DeleteModal";
 import SkeletonLoader from "../components/SkeletonLoader";
-import Pagination from "../components/Pagination"
+import Pagination from "../components/Pagination";
+import UpdateRoleForm from "../components/UpdateRoleForm";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -113,30 +114,42 @@ return (
     <p>ادمینی یافت نشد.</p>
     ) : (
 <table className="min-w-full bg-white border rounded shadow">
-        <thead className="bg-gray-100">
-<tr>
+<thead className="bg-gray-100">
+    <tr>
     <th className="px-4 py-2 text-left border-b">نام کاربری</th>
     <th className="px-4 py-2 text-left border-b">نقش</th>
     <th className="px-4 py-2 text-left border-b">شناسه</th>
+    <th className="px-4 py-2 text-left border-b">آپدیت نقش</th>
     <th className="px-4 py-2 text-left border-b">عملیات</th>
-</tr>
-</thead>
-        <tbody>
-{filteredAdmins.map((admin, index) => (
-    <tr key={index} className="hover:bg-gray-50">
-    <td className="px-4 py-2 border-b">{admin.username}</td>
-    <td className="px-4 py-2 capitalize border-b">{admin.role}</td>
-    <td className="px-4 py-2 border-b">{admin._id}</td>
-    <td className="px-4 py-2 border-b">
-        <button
-        onClick={() => handleDeleteClick(admin)}
-        className="text-red-500 hover:underline"
-        >
-        حذف
-        </button>
-    </td>
     </tr>
-))}
+</thead>
+<tbody>
+    {filteredAdmins.map((admin, index) => (
+    <tr key={index} className="hover:bg-gray-50">
+        <td className="px-4 py-2 border-b">{admin.username}</td>
+        <td className="px-4 py-2 capitalize border-b">{admin.role}</td>
+        <td className="px-4 py-2 border-b">{admin._id}</td>
+        <td className="px-4 py-2 border-b">
+        <UpdateRoleForm
+            admin={admin}
+            onRoleUpdated={(updatedAdmin) => {
+            const updatedList = admins.map((a) =>
+                a._id === updatedAdmin._id ? updatedAdmin : a
+            );
+            setAdmins(updatedList);
+            }}
+        />
+        </td>
+        <td className="px-4 py-2 border-b">
+        <button
+            onClick={() => handleDeleteClick(admin)}
+            className="text-red-500 hover:underline"
+        >
+            حذف
+        </button>
+        </td>
+    </tr>
+    ))}
 </tbody>
         </table>
     )}

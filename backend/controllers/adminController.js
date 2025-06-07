@@ -120,6 +120,33 @@ exports.createAdmin = async (Reg, res) => {
         return res.status(500).json({ success: false. message: "خطای سرور"});
     }
 };
+
+// آپدیت نقش ادمین
+exports.updateAdminRole = async (req, res) => {
+const { id } = req.params;
+const { role } = req.body;
+
+try {
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+    id,
+    { role },
+    { new: true, select: "-password" }
+    );
+
+if (!updatedAdmin) {
+    return res.status(404).json({ success: false, message: "ادمین یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    data: updatedAdmin,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
 // حذف ادمین جدید
 exports.deleteAdmin = async (Reg, res) => {
     const {id} = Reg.params;
