@@ -4,7 +4,7 @@ import DeleteModal from "../components/DeleteModal";
 import SkeletonLoader from "../components/SkeletonLoader";
 import Pagination from "../components/Pagination";
 import UpdateRoleForm from "../components/UpdateRoleForm";
-import AdvancedFilterForm from "../components/AdvancedFilterForm";
+import ReusableFilterForm from "../components/ReusableFilterForm";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -17,6 +17,12 @@ const [searchTerm, setSearchTerm] = useState("");
 const [roleFilter, setRoleFilter] = useState("");
 const [startDate, setStartDate] = useState("");
 const [endDate, setEndDate] = useState("");
+const [filters, setFilters] = useState({
+searchTerm: "",
+role: "",
+startDate: "",
+endDate: "",
+});
 const params = new URLSearchParams();
 params.append("page", page);
 params.append("limit", 5);
@@ -33,12 +39,18 @@ admin.username.toLowerCase().includes(searchTerm.toLowerCase())
 useEffect(() => {
 const fetchAdmins = async () => {
 try {
+    const params = new URLSearchParams();
+    params.append("page", page);
+    if (filters.role) params.append("role", filters.role);
+    if (filters.startDate) params.append("startDate", filters.startDate);
+    if (filters.endDate) params.append("endDate", filters.endDate);
+
     const token = localStorage.getItem("adminToken");
     const res = await axios.get(`http://localhost:5000/api/admin/admins?${params}`, {
-headers: {
-    Authorization: `Bearer ${token}`,
-},
-});
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    });
 
     setAdmins(res.data.data);
     setTotalPages(res.data.pagination.totalPages);
@@ -110,15 +122,11 @@ return (
     <h2 className="mb-6 text-2xl font-bold">لیست ادمین‌ها</h2>
 
     {/* فیلد جستجو */}
-<AdvancedFilterForm
-role={roleFilter}
-startDate={startDate}
-endDate={endDate}
-searchTerm={searchTerm}
-onRoleChange={handleRoleChange}
-onStartDateChange={handleStartDateChange}
-onEndDateChange={handleEndDateChange}
-onSearchTermChange={handleSearchTermChange}
+<ReusableFilterForm
+filters={filters}
+onFilterChange={setFilters}
+showRole={true}
+showDateRange={true}
 />
 
     {/* لیست ادمین‌ها */}

@@ -1,24 +1,44 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import ReusableFilterForm from "../components/ReusableFilterForm";
 
 export default function AdminOrdersPage() {
 const [orders, setOrders] = useState([]);
 const [loading, setLoading] = useState(true);
+const [filters, setFilters] = useState({
+searchTerm: "",
+status: "",
+startDate: "",
+endDate: "",
+});
 
 useEffect(() => {
-    const fetchOrders = async () => {
-    try {
-        const res = await axios.get("http://localhost:5000/api/orders/orders");
-        setOrders(res.data.data);
-    } catch (err) {
-        console.error(err);
-    } finally {
-        setLoading(false);
-    }
-    };
+const fetchOrders = async () => {
+try {
+    const params = new URLSearchParams();
+    params.append("page", page);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.startDate) params.append("startDate", filters.startDate);
+    if (filters.endDate) params.append("endDate", filters.endDate);
+
+    const token = localStorage.getItem("adminToken");
+    const res = await axios.get(`http://localhost:5000/api/orders/orders?${params}`, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    });
+
+    setOrders(res.data.data);
+    setTotalPages(res.data.pagination.totalPages);
+} catch (err) {
+    console.error(err);
+} finally {
+    setLoading(false);
+}
+};
 
     fetchOrders();
-}, []);
+}, [filters]);
 
 if (loading) {
     return <p>در حال بارگذاری سفارشات...</p>;
@@ -27,7 +47,14 @@ if (loading) {
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">پنل مدیریت سفارشات</h2>
-
+     {/* فیلد جستجو */}
+        <ReusableFilterForm
+filters={filters}
+onFilterChange={setFilters}
+showRole={false}
+showDateRange={true}
+  showSearchTerm={false} // اگر جستجوی محلی نداریم
+/>
     {orders.length === 0 ? (
         <p>سفارشی یافت نشد.</p>
     ) : (

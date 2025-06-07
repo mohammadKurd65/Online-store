@@ -55,7 +55,6 @@ fetchMonthlySales();
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">داشبورد پنل ادمین</h2>
-
     <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
         <div className="p-6 text-center bg-white rounded shadow">
         <h3 className="text-lg text-gray-600">تعداد کل سفارشات</h3>
