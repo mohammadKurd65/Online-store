@@ -89,3 +89,31 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.getUserOrders = async (req, res) => {
+const { status, startDate, endDate } = req.query;
+const userId = req.user.id;
+
+try {
+    let query = { user: userId };
+    
+    if (status) {
+    query.paymentStatus = status;
+    }
+
+    if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+    }
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+    return res.json({
+    success: true,
+    data: orders,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

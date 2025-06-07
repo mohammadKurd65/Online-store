@@ -1,10 +1,12 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import { usePersistedFilter } from "../hooks/usePersistedFilter";
 
 export default function Cart() {
 const { state, dispatch } = useContext(CartContext);
 const navigate = useNavigate();
+
 
 const total = state.cart.reduce((sum, item) => sum + item.price, 0);
 

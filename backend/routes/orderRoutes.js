@@ -3,6 +3,7 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const authAdmin = require("../middleware/authMiddleware");
 const OrderModel = require("../models/OrderModel");
+const authMiddleware = require("../middleware/authMiddleware")
 
 // order routes
 
@@ -58,6 +59,7 @@ router.get("orders/sales/minute/:minute", authAdmin, orderController.getTotalSal
 router.get("orders/sales/second/:second", authAdmin, orderController.getTotalSalesBySecond);
 // Get total sales by day
 router.get("orders/sales/day/:day", authAdmin, orderController.getTotalSalesByDay);
+router.get("/user/orders", authMiddleware, orderController.getUserOrders);
 
 
 
