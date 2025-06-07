@@ -56,6 +56,7 @@ filters={filters}
 onFilterChange={setFilters}
 showRole={false}
 showDateRange={true}
+showStatus={true}
   showSearchTerm={false} // اگر جستجوی محلی نداریم
 />
     {orders.length === 0 ? (

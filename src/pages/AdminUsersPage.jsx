@@ -6,6 +6,8 @@ import Pagination from "../components/Pagination";
 import UpdateRoleForm from "../components/UpdateRoleForm";
 import ReusableFilterForm from "../components/ReusableFilterForm";
 import usePersistedFilter from "../hooks/usePersistedFilter";
+import { getStatusLabel, getStatusColor } from "../utils/statusManager";
+import { adminRoles} from "../utils/"
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -66,24 +68,24 @@ try {
 fetchAdmins();
 }, [page, filters]);
 
-// const handleRoleChange = (value) => {
-// setRoleFilter(value);
-// setPage(1);
-// };
+const handleRoleChange = (value) => {
+setRoleFilter(value);
+setPage(1);
+};
 
-// const handleStartDateChange = (value) => {
-// setStartDate(value);
-// setPage(1);
-// };
+const handleStartDateChange = (value) => {
+setStartDate(value);
+setPage(1);
+};
 
-// const handleEndDateChange = (value) => {
-// setEndDate(value);
-// setPage(1);
-// };
+const handleEndDateChange = (value) => {
+setEndDate(value);
+setPage(1);
+};
 
-// const handleSearchTermChange = (value) => {
-// setSearchTerm(value);
-// };
+const handleSearchTermChange = (value) => {
+setSearchTerm(value);
+};
 
 
 const handleDeleteClick = (admin) => {
@@ -128,6 +130,7 @@ return (
 filters={filters}
 onFilterChange={setFilters}
 showRole={true}
+showStatus={true}
 showDateRange={true}
 />
 
@@ -151,8 +154,17 @@ showDateRange={true}
     {filteredAdmins.map((admin, index) => (
     <tr key={index} className="hover:bg-gray-50">
         <td className="px-4 py-2 border-b">{admin.username}</td>
-        <td className="px-4 py-2 capitalize border-b">{admin.role}</td>
+        <td className="px-4 py-2 capitalize border-b">
+                <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(admin.role, "adminRoles")}`}>
+{getStatusLabel(admin.role, "adminRoles")}
+</span>
+        </td>
         <td className="px-4 py-2 border-b">{admin._id}</td>
+        <td className="px-4 py-2 border-b">
+<span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(filters.role, "adminRoles")}`}>
+    {getStatusLabel(filters.role, "adminRoles")}
+</span>
+</td>
         <td className="px-4 py-2 border-b">
         <UpdateRoleForm
             admin={admin}

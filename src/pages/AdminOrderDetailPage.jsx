@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useToast } from "../context/ToastContext";
+import { getStatusLabel, getStatusColor } from "../utils/statusManager";
+import StatusBadge from "../components/StatusBadge"
 
 export default function AdminOrderDetailPage() {
 const { id } = useParams();
@@ -61,15 +63,22 @@ if (loading) {
 if (!order) {
     return <p>سفارشی یافت نشد.</p>;
 }
-
+<StatusBadge status={order.paymentStatus} type="orderStatuses" />
 return (
     <div className="container py-10 mx-auto">
+        
     <h2 className="mb-6 text-2xl font-bold">جزئیات سفارش #{order._id}</h2>
 
     <div className="mb-4">
         <p><strong>وضعیت:</strong> {order.paymentStatus}</p>
         <p><strong>مبلغ:</strong> {order.amount.toLocaleString()} تومان</p>
         <p><strong>تاریخ:</strong> {new Date(order.createdAt).toLocaleDateString("fa-IR")}</p>
+        <p>
+<strong>وضعیت:</strong>{" "}
+<span className={`px-2 py-1 rounded text-sm ${getStatusColor(order.paymentStatus, "orderStatuses")}`}>
+    {getStatusLabel(order.paymentStatus, "orderStatuses")}
+</span>
+</p>
     </div>
 
     <h3 className="mb-2 text-lg font-semibold">تغییر وضعیت</h3>

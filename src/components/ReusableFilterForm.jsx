@@ -1,4 +1,5 @@
 import React from "react";
+import { getStatusLabel } from "../utils/statusManager";
 
 export default function ReusableFilterForm({
 filters,
@@ -6,6 +7,7 @@ onFilterChange,
 showRole = false,
 showDateRange = false,
 showSearchTerm = true,
+showStatus= true
 }) {
 const { role, startDate, endDate, searchTerm } = filters;
 
@@ -75,6 +77,26 @@ return (
             />
         </div>
         )}
+
+        {showStatus && (
+<div>
+    <label className="block mb-1 text-sm text-gray-600">وضعیت سفارش</label>
+    <select
+    value={filters.status || ""}
+    onChange={(e) =>
+        onFilterChange({ ...filters, status: e.target.value })
+    }
+    className="w-full px-3 py-2 text-sm border rounded"
+    >
+    <option value="">همه</option>
+    {["pending", "paid", "failed", "canceled"].map((status) => (
+        <option key={status} value={status}>
+        {getStatusLabel(status, "orderStatuses")}
+        </option>
+    ))}
+    </select>
+</div>
+)}
     </div>
     </div>
 );
