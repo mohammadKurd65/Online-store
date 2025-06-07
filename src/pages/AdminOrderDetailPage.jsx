@@ -4,6 +4,7 @@ import axios from "axios";
 import { useToast } from "../context/ToastContext";
 import { getStatusLabel, getStatusColor } from "../utils/statusManager";
 import StatusBadge from "../components/StatusBadge"
+import UpdateOrderStatusForm from "../components/UpdateOrderStatusForm";
 
 export default function AdminOrderDetailPage() {
 const { id } = useParams();
@@ -63,14 +64,24 @@ if (loading) {
 if (!order) {
     return <p>سفارشی یافت نشد.</p>;
 }
-<StatusBadge status={order.paymentStatus} type="orderStatuses" />
+
 return (
     <div className="container py-10 mx-auto">
         
     <h2 className="mb-6 text-2xl font-bold">جزئیات سفارش #{order._id}</h2>
 
     <div className="mb-4">
-        <p><strong>وضعیت:</strong> {order.paymentStatus}</p>
+        <p><strong>وضعیت:</strong>{""}
+        <StatusBadge status={order.paymentStatus} type="orderStatuses" />
+        </p>
+        {/* فرم آپدیت وضعیت */}
+<UpdateOrderStatusForm
+orderId={order._id}
+currentStatus={order.paymentStatus}
+onUpdate={(updatedOrder) => {
+    setOrder(updatedOrder);
+}}
+/>
         <p><strong>مبلغ:</strong> {order.amount.toLocaleString()} تومان</p>
         <p><strong>تاریخ:</strong> {new Date(order.createdAt).toLocaleDateString("fa-IR")}</p>
         <p>

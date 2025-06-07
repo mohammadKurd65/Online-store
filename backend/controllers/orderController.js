@@ -1,3 +1,5 @@
+
+const Admin = require("../models/AdminModel");
 const Order = require("../models/OrderModel");
 
 // دریافت تمام سفارشات
@@ -35,7 +37,7 @@ try {
 }
 };
 
-// آپدیت وضعیت سفارش
+// آپدیت وضعیت سفارشexports.updateOrderStatus = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
 const { id } = req.params;
 const { paymentStatus } = req.body;
@@ -48,7 +50,7 @@ try {
     );
 
     if (!order) {
-    return res.status(404).json({ success: false, message: "سفارش یافت نشد" });
+    return res.status(404).json({ success: false, message: "سفارش یافت نشد." });
     }
 
     return res.json({
