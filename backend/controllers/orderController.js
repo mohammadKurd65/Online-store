@@ -117,3 +117,24 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// حذف سفارش
+exports.deleteOrder = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const order = await Order.findByIdAndDelete(id);
+
+    if (!order) {
+    return res.status(404).json({ success: false, message: "سفارش یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    message: "سفارش با موفقیت حذف شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
