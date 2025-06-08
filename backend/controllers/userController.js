@@ -74,3 +74,29 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// ویرایش پروفایل کاربر
+exports.updateUserProfile = async (req, res) => {
+const userId = req.user.id;
+const { username, password } = req.body;
+
+try {
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (password) updateData.password = password;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+    select: "-password",
+    });
+
+    return res.json({
+    success: true,
+    data: updatedUser,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

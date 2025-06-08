@@ -20,6 +20,7 @@ import UserLogin from "../pages/UserLogin";
 import UserRegister from "../pages/UserRegister";
 import UserProfilePage from "../pages/UserProfilePage";
 import UserOrderDetailPage from "../pages/UserOrderDetailPage";
+import UserEditProfilePage from "../pages/UserEditProfilePage";
 
 export default function AppRoutes() {
 return (
@@ -58,6 +59,12 @@ return (
 <Route path="/user/profile/:id/cart" element={<UserProfilePage />} />
 <Route path="/user/profile/:id/setting" element={<UserProfilePage />} />
 <Route path="/user/order/:id" element={<UserOrderDetailPage />} />
+<Route path="/user/edit-profile" element={<UserEditProfilePage />} />
+<Route path="/user/edit-profile/:id" element={<UserEditProfilePage />} />
+<Route path="/user/edit-profile/:id/orders" element={<UserEditProfilePage />} />
+<Route path="/user/edit-profile/:id/wishlist" element={<UserEditProfilePage />} />
+<Route path="/user/edit-profile/:id/cart" element={<UserEditProfilePage />} />
+<Route path="/user/edit-profile/:id/setting" element={<UserEditProfilePage />} />
     </Routes>
 );
 }

@@ -58,6 +58,9 @@ return (
     </Link>
 </>
 )}
+<Link to="/user/edit-profile" className="text-blue-500 hover:underline">
+ویرایش پروفایل
+</Link>
         </>
         )}
     </div>
