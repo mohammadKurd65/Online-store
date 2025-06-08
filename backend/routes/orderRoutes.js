@@ -61,6 +61,9 @@ router.get("orders/sales/second/:second", authAdmin, orderController.getTotalSal
 router.get("orders/sales/day/:day", authAdmin, orderController.getTotalSalesByDay);
 router.get("/user/orders", authMiddleware, orderController.getUserOrders);
 
+// فقط کاربر میتونه سفارش خودشو پاک کنه
+router.delete("/user/orders/:id", authMiddleware, orderController.deleteUserOrder);
+
 
 
 module.exports = router;
