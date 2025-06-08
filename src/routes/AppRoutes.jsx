@@ -21,6 +21,7 @@ import UserRegister from "../pages/UserRegister";
 import UserProfilePage from "../pages/UserProfilePage";
 import UserOrderDetailPage from "../pages/UserOrderDetailPage";
 import UserEditProfilePage from "../pages/UserEditProfilePage";
+import UserDashboardPage from "../pages/UserDashboardPage";
 
 export default function AppRoutes() {
 return (
@@ -65,6 +66,16 @@ return (
 <Route path="/user/edit-profile/:id/wishlist" element={<UserEditProfilePage />} />
 <Route path="/user/edit-profile/:id/cart" element={<UserEditProfilePage />} />
 <Route path="/user/edit-profile/:id/setting" element={<UserEditProfilePage />} />
+<Route path="/user/dashboard" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/:id" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/orders" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/wishlist" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/cart" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/setting" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/:id/orders" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/:id/wishlist" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/:id/cart" element={<UserDashboardPage />} />
+<Route path="/user/dashboard/:id/setting" element={<UserDashboardPage />} />
     </Routes>
 );
 }

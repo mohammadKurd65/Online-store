@@ -61,6 +61,9 @@ return (
 <Link to="/user/edit-profile" className="text-blue-500 hover:underline">
 ویرایش پروفایل
 </Link>
+<Link to="/user/dashboard" className="text-blue-500 hover:underline">
+داشبورد
+</Link>
         </>
         )}
     </div>
