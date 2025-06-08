@@ -18,6 +18,7 @@ import AddAdminPage from "../pages/AddAdminPage";
 import AdminDashboard from "../pages/AdminDashboard";
 import UserLogin from "../pages/UserLogin";
 import UserRegister from "../pages/UserRegister";
+import UserProfilePage from "../pages/UserProfilePage";
 
 export default function AppRoutes() {
 return (
@@ -43,6 +44,18 @@ return (
 <Route path="/admin/dashboard" element={<AdminDashboard />} />
 <Route path="/user/login" element={<UserLogin />} />
 <Route path="/user/register" element={<UserRegister />} />
+<Route path="/user/profile" element={<UserProfilePage />} />
+<Route path="/user/profile/:id" element={<UserProfilePage />} />
+<Route path="/user/profile/edit" element={<UserProfilePage />} />
+<Route path="/user/profile/orders" element={<UserProfilePage />} />
+<Route path="/user/profile/wishlist" element={<UserProfilePage />} />
+<Route path="/user/profile/cart" element={<UserProfilePage />} />
+<Route path="/user/profile/setting" element={<UserProfilePage />} />
+<Route path="/user/profile/:id/edit" element={<UserProfilePage />} />
+<Route path="/user/profile/:id/orders" element={<UserProfilePage />} />
+<Route path="/user/profile/:id/wishlist" element={<UserProfilePage />} />
+<Route path="/user/profile/:id/cart" element={<UserProfilePage />} />
+<Route path="/user/profile/:id/setting" element={<UserProfilePage />} />
     </Routes>
 );
 }

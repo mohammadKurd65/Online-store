@@ -48,6 +48,16 @@ return (
 <Link to="/user/register" className="text-blue-500 hover:underline">
 ثبت‌نام کاربر
 </Link>
+{localStorage.getItem("userToken") && (
+<>
+    <Link to="/user/profile" className="text-blue-500 hover:underline">
+    پروفایل
+    </Link>
+    <Link to="/cart" className="text-blue-500 hover:underline">
+    سبد خرید
+    </Link>
+</>
+)}
         </>
         )}
     </div>
