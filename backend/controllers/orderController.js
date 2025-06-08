@@ -136,7 +136,7 @@ try {
 // حذف سفارش کاربر (فقط اگر مال خودش باشه)
 exports.deleteUserOrder = async (req, res) => {
 const { id } = req.params;
-  const userId = req.user.id; // آیدی کاربر از توکن
+const userId = req.user.id;
 
 try {
     const order = await Order.findById(id);
@@ -145,7 +145,7 @@ try {
     return res.status(404).json({ success: false, message: "سفارش یافت نشد." });
     }
 
-    // چک کردن اینکه آیا این سفارش متعلق به این کاربر هست؟
+    // چک کردن مالکیت سفارش
     if (order.user.toString() !== userId) {
     return res.status(403).json({ success: false, message: "دسترسی غیرمجاز" });
     }

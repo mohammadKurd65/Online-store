@@ -2,12 +2,37 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
+import DeleteOrderModal from "../components/DeleteOrderModal"
 
 export default function UserProfilePage() {
 const [user, setUser] = useState(null);
 const [orders, setOrders] = useState([]);
 const [statusFilter, setStatusFilter] = useState("");
 const navigate = useNavigate();
+const [showModal, setShowModal] = useState(false);
+const [selectedOrder, setSelectedOrder] = useState(null);
+
+const handleDeleteClick = (order) => {
+setSelectedOrder(order);
+setShowModal(true);
+};
+
+const handleDeleteConfirm = async () => {
+try {
+    const token = localStorage.getItem("userToken");
+    await axios.delete(`http://localhost:5000/api/orders/user/orders/${selectedOrder._id}`, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    });
+
+    setOrders(orders.filter((o) => o._id !== selectedOrder._id));
+    setShowModal(false);
+} catch (err) {
+    alert("خطا در حذف سفارش.");
+    console.error(err);
+}
+};
 
 useEffect(() => {
 const fetchData = async () => {
@@ -94,8 +119,8 @@ return (
             </tr>
             </thead>
             <tbody>
-            {orders.map((order, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+            {orders.map((order) => (
+                <tr key={ order._id} className="hover:bg-gray-50">
                 <td className="px-4 py-2 border-b">{order._id}</td>
                 <td className="px-4 py-2 border-b">{order.amount.toLocaleString()} تومان</td>
                 <td className="px-4 py-2 border-b">
@@ -110,11 +135,27 @@ return (
                 <a href={`/user/order/${order._id}`} className="text-blue-500 hover:underline">
     مشاهده
                 </a>
-</td>
+                </td>
+                <td className="px-4 py-2 border-b">
+                <button
+            onClick={() => handleDeleteClick(order)}
+            className="text-red-500 hover:underline"
+            >
+            حذف
+            </button>
+        </td>
                 </tr>
             ))}
             </tbody>
         </table>
+
+{/* مدال حذف */}
+<DeleteOrderModal
+isOpen={showModal}
+onClose={() => setShowModal(false)}
+onConfirm={handleDeleteConfirm}
+itemName={`سفارش #${selectedOrder?._id || ""}`}
+/>
         </div>
     )}
     </div>
