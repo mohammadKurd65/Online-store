@@ -45,6 +45,9 @@ return (
 <Link to="/user/login" className="text-blue-500 hover:underline">
 ورود کاربر
 </Link>
+<Link to="/user/register" className="text-blue-500 hover:underline">
+ثبت‌نام کاربر
+</Link>
         </>
         )}
     </div>
