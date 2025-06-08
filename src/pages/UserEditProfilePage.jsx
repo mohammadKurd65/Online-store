@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import DeleteAccountModal from "../components/DeleteAccountModal";
 
 export default function UserEditProfilePage() {
 const [username, setUsername] = useState("");
@@ -9,6 +10,7 @@ const [confirmPassword, setConfirmPassword] = useState("");
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 const navigate = useNavigate();
+const [showModal, setShowModal] = useState(false);
 
 useEffect(() => {
     const fetchUserData = async () => {
@@ -58,6 +60,25 @@ const handleSave = async () => {
     }
 };
 
+const handleDeleteAccount = async () => {
+try {
+    const token = localStorage.getItem("userToken");
+    await axios.delete("http://localhost:5000/api/user/profile", {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    });
+
+    // حذف توکن و ریدایرکت به صفحه اصلی
+    localStorage.removeItem("userToken");
+    alert("حساب شما با موفقیت حذف شد.");
+    navigate("/");
+} catch (err) {
+    alert("خطا در حذف حساب.");
+    console.error(err);
+}
+};
+
 if (loading) return <p>در حال بارگذاری...</p>;
 
 return (
@@ -105,6 +126,21 @@ return (
         >
         ذخیره تغییرات
         </button>
+        <button
+type="button"
+onClick={() => setShowModal(true)}
+className="w-full px-4 py-2 mt-4 text-white bg-red-500 rounded hover:bg-red-600"
+>
+حذف حساب
+</button>
+
+{/* مدال حذف حساب */}
+<DeleteAccountModal
+isOpen={showModal}
+onClose={() => setShowModal(false)}
+onConfirm={handleDeleteAccount}
+/>
+
     </form>
     </div>
 );

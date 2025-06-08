@@ -100,3 +100,20 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// حذف حساب کاربر
+exports.deleteUserProfile = async (req, res) => {
+const userId = req.user.id;
+
+try {
+    await User.findByIdAndDelete(userId);
+
+    return res.json({
+    success: true,
+    message: "حساب کاربری با موفقیت حذف شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
