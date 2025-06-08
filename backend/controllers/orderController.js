@@ -91,7 +91,7 @@ try {
 };
 
 exports.getUserOrders = async (req, res) => {
-const { status, startDate, endDate } = req.query;
+const { status } = req.query;
 const userId = req.user.id;
 
 try {
@@ -99,12 +99,6 @@ try {
     
     if (status) {
     query.paymentStatus = status;
-    }
-
-    if (startDate || endDate) {
-    query.createdAt = {};
-    if (startDate) query.createdAt.$gte = new Date(startDate);
-    if (endDate) query.createdAt.$lte = new Date(endDate);
     }
 
     const orders = await Order.find(query).sort({ createdAt: -1 });

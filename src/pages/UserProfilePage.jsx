@@ -6,35 +6,39 @@ import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 export default function UserProfilePage() {
 const [user, setUser] = useState(null);
 const [orders, setOrders] = useState([]);
+const [statusFilter, setStatusFilter] = useState("");
 const navigate = useNavigate();
 
 useEffect(() => {
-    const fetchData = async () => {
+const fetchData = async () => {
     try {
-        const token = localStorage.getItem("userToken");
-        const userRes = await axios.get("http://localhost:5000/api/user/profile", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
+    const token = localStorage.getItem("userToken");
 
-        const ordersRes = await axios.get("http://localhost:5000/api/orders/user/orders", {
+      // گرفتن اطلاعات کاربر
+    const userRes = await axios.get("http://localhost:5000/api/user/profile", {
         headers: {
-            Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         },
-        });
+    });
 
-        setUser(userRes.data.data);
-        setOrders(ordersRes.data.data);
+      // گرفتن لیست سفارشات با فیلتر
+    const ordersRes = await axios.get(`http://localhost:5000/api/orders/user/orders?status=${statusFilter}`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    });
+
+    setUser(userRes.data.data);
+    setOrders(ordersRes.data.data);
     } catch (err) {
-        console.error(err);
-        alert("خطا در دریافت اطلاعات.");
-        navigate("/user/login");
+    console.error(err);
+    alert("خطا در دریافت اطلاعات.");
+    navigate("/user/login");
     }
-    };
+};
 
-    fetchData();
-}, [navigate]);
+fetchData();
+}, [navigate, statusFilter]);
 
 const handleLogout = () => {
     localStorage.removeItem("userToken");
@@ -59,10 +63,25 @@ return (
         </button>
     </div>
 
+{/* فیلد فیلتر وضعیت */}
+<div className="mb-6">
+<label className="block mb-2 text-gray-700">فیلتر بر اساس وضعیت</label>
+<select
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="w-full px-3 py-2 border rounded md:w-1/2"
+>
+    <option value="">همه</option>
+    <option value="pending">در انتظار</option>
+    <option value="paid">پرداخت شده</option>
+    <option value="failed">ناموفق</option>
+    <option value="canceled">لغو شده</option>
+</select>
+</div>
       {/* لیست سفارشات */}
     <h3 className="mb-4 text-xl font-semibold">سفارشات من</h3>
     {orders.length === 0 ? (
-        <p>هیچ سفارشی یافت نشد.</p>
+        <p>هیچ سفارشی یافت نشد.</p>        
     ) : (
         <div className="overflow-x-auto">
         <table className="min-w-full bg-white border rounded shadow">
@@ -80,10 +99,10 @@ return (
                 <td className="px-4 py-2 border-b">{order._id}</td>
                 <td className="px-4 py-2 border-b">{order.amount.toLocaleString()} تومان</td>
                 <td className="px-4 py-2 border-b">
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(order.paymentStatus, "orderStatuses")}`}>
-                    {getStatusLabel(order.paymentStatus, "orderStatuses")}
-                    </span>
-                </td>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(order.paymentStatus, "orderStatuses")}`}>
+                {getStatusLabel(order.paymentStatus, "orderStatuses")}
+                </span>
+</td>
                 <td className="px-4 py-2 border-b">
                     {new Date(order.createdAt).toLocaleDateString("fa-IR")}
                 </td>
