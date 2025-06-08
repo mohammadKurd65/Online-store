@@ -19,6 +19,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import UserLogin from "../pages/UserLogin";
 import UserRegister from "../pages/UserRegister";
 import UserProfilePage from "../pages/UserProfilePage";
+import UserOrderDetailPage from "../pages/UserOrderDetailPage";
 
 export default function AppRoutes() {
 return (
@@ -56,6 +57,7 @@ return (
 <Route path="/user/profile/:id/wishlist" element={<UserProfilePage />} />
 <Route path="/user/profile/:id/cart" element={<UserProfilePage />} />
 <Route path="/user/profile/:id/setting" element={<UserProfilePage />} />
+<Route path="/user/order/:id" element={<UserOrderDetailPage />} />
     </Routes>
 );
 }

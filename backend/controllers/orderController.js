@@ -167,3 +167,30 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+// دریافت سفارش خاص کاربر
+exports.getUserOrderById = async (req, res) => {
+const { id } = req.params;
+const userId = req.user.id;
+
+try {
+    const order = await Order.findById(id);
+
+    if (!order) {
+    return res.status(404).json({ success: false, message: "سفارش یافت نشد." });
+    }
+
+    // چک کردن اینکه آیا این سفارش متعلق به این کاربر هست؟
+    if (order.user.toString() !== userId) {
+    return res.status(403).json({ success: false, message: "دسترسی غیرمجاز" });
+    }
+
+    return res.json({
+    success: true,
+    data: order,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

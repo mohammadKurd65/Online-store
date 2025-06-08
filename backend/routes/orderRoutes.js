@@ -3,7 +3,8 @@ const router = express.Router();
 const orderController = require("../controllers/orderController");
 const authAdmin = require("../middleware/authMiddleware");
 const OrderModel = require("../models/OrderModel");
-const authMiddleware = require("../middleware/authMiddleware")
+const authMiddleware = require("../middleware/authMiddleware");
+
 
 // order routes
 
@@ -60,6 +61,7 @@ router.get("orders/sales/second/:second", authAdmin, orderController.getTotalSal
 // Get total sales by day
 router.get("orders/sales/day/:day", authAdmin, orderController.getTotalSalesByDay);
 router.get("/user/orders", authMiddleware, orderController.getUserOrders);
+router.get("/user/orders/:id", authMiddleware, orderController.getUserOrderById);
 
 // فقط کاربر میتونه سفارش خودشو پاک کنه
 router.delete("/user/orders/:id", authMiddleware, orderController.deleteUserOrder);

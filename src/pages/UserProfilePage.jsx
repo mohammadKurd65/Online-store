@@ -87,6 +87,11 @@ return (
                 <td className="px-4 py-2 border-b">
                     {new Date(order.createdAt).toLocaleDateString("fa-IR")}
                 </td>
+                <td className="px-4 py-2 border-b">
+                <a href={`/user/order/${order._id}`} className="text-blue-500 hover:underline">
+    مشاهده
+                </a>
+</td>
                 </tr>
             ))}
             </tbody>
