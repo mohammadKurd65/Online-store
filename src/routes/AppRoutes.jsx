@@ -16,6 +16,7 @@ import AdminLogin from "../pages/AdminLogin";
 import AdminUsersPage from "../pages/AdminUsersPage";
 import AddAdminPage from "../pages/AddAdminPage";
 import AdminDashboard from "../pages/AdminDashboard";
+import UserLogin from "../pages/UserLogin";
 
 export default function AppRoutes() {
 return (
@@ -39,6 +40,7 @@ return (
 <Route path="/admin/add-admin" element={<AddAdminPage />} />
 <Route path="/admin" element={<AdminDashboard />} />
 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+<Route path="/user/login" element={<UserLogin />} />
 
     </Routes>
 );
