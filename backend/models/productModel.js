@@ -23,9 +23,9 @@ const ProductSchema = new mongoose.Schema(
     enum: ["electronics", "clothing", "books", "home", "others"],
     default: "others",
     },
-    images: {
-  type: [String],
-  default: ["/images/placeholder.jpg"],
+image: {
+  type: String,
+  default: "/images/placeholder.jpg",
 },
     stock: {
     type: Number,

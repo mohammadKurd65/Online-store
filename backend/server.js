@@ -25,6 +25,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api", productRoutes);
+app.use("/images", express.static("public/images"));
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);

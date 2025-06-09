@@ -81,6 +81,11 @@ const { id } = req.params;
 const updateData = req.body;
 
 try {
+    // اگر تصویر جدید آپلود شده بود، URL رو آپدیت کن
+    if (req.file) {
+    updateData.image = `/images/${req.file.filename}`;
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -99,7 +104,6 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
-
 exports.deleteProductById = async (req, res) => {
 const { id } = req.params;
 

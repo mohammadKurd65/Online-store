@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -34,9 +33,11 @@ useEffect(() => {
         image: res.data.data.image || "/images/placeholder.jpg",
         images: res.data.data.images || [],
         });
-        setImages(res.data.data.images && res.data.data.images.length > 0
-        ? res.data.data.images
-        : [res.data.data.image || "/images/placeholder.jpg"]);
+        setImages(
+        res.data.data.images && res.data.data.images.length > 0
+            ? res.data.data.images
+            : [res.data.data.image || "/images/placeholder.jpg"]
+        );
     } catch (err) {
         alert("خطا در دریافت اطلاعات محصول.");
         navigate("/admin/products");
@@ -53,16 +54,25 @@ const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
 };
 
+const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+    setFormData((prev) => ({ ...prev, imageFile: file }));
+    }
+};
+
   // افزودن تصویر جدید
 const handleAddImage = (e) => {
     const newImage = e.target.value.trim();
     if (newImage && !images.includes(newImage)) {
-    setImages([...images, newImage]);
+    const updatedImages = [...images, newImage];
+    setImages(updatedImages);
     setFormData((prev) => ({
         ...prev,
-        images: [...images, newImage],
+        images: updatedImages,
     }));
     }
+    e.target.value = ""; // پاک کردن input بعد از افزودن
 };
 
   // حذف تصویر
@@ -79,19 +89,30 @@ const handleSubmit = async (e) => {
     e.preventDefault();
     try {
     const token = localStorage.getItem("adminToken");
-    await axios.put(
-        `http://localhost:5000/api/products/${id}`,
-        {
-        ...formData,
-        images: images,
-        image: images[0] || "/images/placeholder.jpg",
-        },
-        {
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("description", formData.description);
+    formDataToSend.append("price", formData.price);
+    formDataToSend.append("category", formData.category);
+    formDataToSend.append("stock", formData.stock);
+    formDataToSend.append("status", formData.status);
+
+      // ارسال فایل تصویر اصلی (در صورت وجود)
+    if (formData.imageFile) {
+        formDataToSend.append("image", formData.imageFile);
+    }
+
+      // ارسال آرایه تصاویر (در صورت وجود)
+    images.forEach((img) => {
+        formDataToSend.append("images[]", img);
+    });
+
+    await axios.put(`http://localhost:5000/api/products/${id}`, formDataToSend, {
         headers: {
-            Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
         },
-        }
-    );
+    });
 
     alert("محصول با موفقیت آپدیت شد.");
     navigate(`/admin/product/${id}`);
@@ -218,6 +239,18 @@ return (
             onBlur={handleAddImage}
         />
         <p className="mt-1 text-xs text-gray-500">برای آپلود، فقط URL رو وارد کن و از input خارج شو.</p>
+        </div>
+
+        {/* آپلود تصویر اصلی */}
+        <div className="mb-4">
+        <label className="block mb-2 text-gray-700">تصویر محصول</label>
+        <input
+            type="file"
+            name="image"
+            onChange={handleImageChange}
+            accept="image/*"
+            className="w-full px-3 py-2 border rounded"
+        />
         </div>
 
         {/* دکمه‌ها */}
