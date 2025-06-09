@@ -2,8 +2,30 @@ const Product = require("../models/productModel");
 
 // گرفتن همه محصولات با فیلتر
 exports.getAllProducts = async (req, res) => {
+const { category, status, minPrice, maxPrice, inStock } = req.query;
+
 try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    let query = {};
+
+    // فیلتر دسته‌بندی
+    if (category) query.category = category;
+
+    // فیلتر وضعیت
+    if (status) query.status = status;
+
+    // فیلتر قیمت
+    if (minPrice || maxPrice) {
+    query.price = {};
+    if (minPrice) query.price.$gte = parseInt(minPrice);
+    if (maxPrice) query.price.$lte = parseInt(maxPrice);
+    }
+
+    // فقط محصولات موجود
+    if (inStock === "true") {
+    query.stock = { $gt: 0 };
+    }
+
+    const products = await Product.find(query).sort({ createdAt: -1 });
     return res.json({
     success: true,
     data: products,

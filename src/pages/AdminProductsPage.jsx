@@ -7,25 +7,40 @@ import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 export default function AdminProductsPage() {
 const [products, setProducts] = useState([]);
 const navigate = useNavigate();
+const [filters, setFilters] = useState({
+category: "",
+status: "",
+minPrice: "",
+maxPrice: "",
+inStock: false,
+});
 
 useEffect(() => {
-    const fetchProducts = async () => {
+const fetchProducts = async () => {
     try {
-        const token = localStorage.getItem("adminToken");
-        const res = await axios.get("http://localhost:5000/api/products", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
-        setProducts(res.data.data);
-    } catch (err) {
-        console.error(err);
-    
-    }
-    };
+    const token = localStorage.getItem("adminToken");
+    const params = new URLSearchParams();
 
-    fetchProducts();
-}, []);
+    if (filters.category) params.append("category", filters.category);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.minPrice) params.append("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
+    if (filters.inStock) params.append("inStock", true);
+
+    const res = await axios.get(`http://localhost:5000/api/products?${params}`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    });
+
+    setProducts(res.data.data || []);
+    } catch (err) {
+    console.error(err);
+    }
+};
+
+fetchProducts();
+}, [filters]);
 
 return (
     <div className="container py-10 mx-auto">
@@ -44,43 +59,122 @@ return (
             </tr>
         </thead>
         <tbody>
-            {products.length === 0 ? (
-            <tr>
-                <td colSpan="5" className="py-4 text-center">
-                محصولی یافت نشد.
-                </td>
-            </tr>
-            ) : (
-            products.map((product) => (
-                <tr key={product._id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b">{product.name}</td>
-                <td className="px-4 py-2 border-b">{product.price.toLocaleString()} تومان</td>
-                <td className="px-4 py-2 capitalize border-b">{product.category}</td>
-                <td className="px-4 py-2 border-b">
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(product.status, "productStatuses")}`}>
-                    {getStatusLabel(product.status, "productStatuses")}
-                    </span>
-                </td>
-                <td className="flex px-4 py-2 space-x-2 space-x-reverse border-b">
-                    <button
-                    onClick={() => navigate(`/admin/product/${product._id}`)}
-                    className="text-blue-500 hover:underline"
-                    >
-                    ویرایش
-                    </button>
-                    <button
-                    onClick={() => navigate(`/admin/delete-product/${product._id}`)}
-                    className="text-red-500 hover:underline"
-                    >
-                    حذف
-                    </button>
-                </td>
-                </tr>
-            ))
-            )}
-        </tbody>
+    {products.map((product) => (
+        <tr key={product._id} className="hover:bg-gray-50">
+        <td className="px-4 py-2 border-b">{product.name}</td>
+        <td className="px-4 py-2 border-b">{product.price.toLocaleString()} تومان</td>
+        <td className="px-4 py-2 capitalize border-b">{product.category}</td>
+        <td className="px-4 py-2 border-b">
+            <span className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(product.status, "productStatuses")}`}>
+            {getStatusLabel(product.status, "productStatuses")}
+            </span>
+        </td>
+        <td className="px-4 py-2 border-b">
+            {product.stock} عدد
+        </td>
+        <td className="flex px-4 py-2 space-x-2 space-x-reverse border-b">
+            <button
+            onClick={() => navigate(`/admin/edit-product/${product._id}`)}
+            className="text-blue-500 hover:underline"
+            >
+            ویرایش
+            </button>
+            <button
+            onClick={() => navigate(`/admin/delete-product/${product._id}`)}
+            className="text-red-500 hover:underline"
+            >
+            حذف
+            </button>
+        </td>
+        </tr>
+    ))}
+    </tbody>
         </table>
     </div>
+
+    {/* فرم فیلتر */}
+<div className="p-4 mb-6 bg-white rounded shadow">
+<h3 className="mb-4 text-lg font-semibold">فیلتر محصولات</h3>
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    
+    {/* دسته‌بندی */}
+    <div>
+    <label className="block mb-2 text-sm text-gray-700">دسته‌بندی</label>
+    <select
+        value={filters.category}
+        onChange={(e) =>
+        setFilters((prev) => ({ ...prev, category: e.target.value }))
+        }
+        className="w-full px-3 py-2 border rounded"
+    >
+        <option value="">همه</option>
+        <option value="electronics">الکترونیک</option>
+        <option value="clothing">پوشاک</option>
+        <option value="books">کتاب</option>
+        <option value="home">خانه و آشپزخانه</option>
+        <option value="others">سایر</option>
+    </select>
+    </div>
+
+    {/* وضعیت */}
+    <div>
+    <label className="block mb-2 text-sm text-gray-700">وضعیت</label>
+    <select
+        value={filters.status}
+        onChange={(e) =>
+        setFilters((prev) => ({ ...prev, status: e.target.value }))
+        }
+        className="w-full px-3 py-2 border rounded"
+    >
+        <option value="">همه</option>
+        <option value="new">جدید</option>
+        <option value="on-sale">در حال فروش</option>
+        <option value="out-of-stock">تمام شده</option>
+    </select>
+    </div>
+
+    {/* قیمت */}
+    <div>
+    <label className="block mb-2 text-sm text-gray-700">قیمت (تومان)</label>
+    <div className="flex space-x-2 space-x-reverse">
+        <input
+        type="number"
+        placeholder="حداقل"
+        value={filters.minPrice}
+        onChange={(e) =>
+            setFilters((prev) => ({ ...prev, minPrice: e.target.value }))
+        }
+        className="w-1/2 px-3 py-2 border rounded"
+        />
+        <input
+        type="number"
+        placeholder="حداکثر"
+        value={filters.maxPrice}
+        onChange={(e) =>
+            setFilters((prev) => ({ ...prev, maxPrice: e.target.value }))
+        }
+        className="w-1/2 px-3 py-2 border rounded"
+        />
+    </div>
+    </div>
+
+    {/* فقط موجودی */}
+    <div className="flex items-center">
+    <input
+        type="checkbox"
+        id="inStock"
+        checked={filters.inStock}
+        onChange={() =>
+        setFilters((prev) => ({ ...prev, inStock: !filters.inStock }))
+        }
+        className="mr-2"
+    />
+    <label htmlFor="inStock" className="text-sm text-gray-700">
+        فقط محصولات موجود
+    </label>
+    </div>
+</div>
+</div>
     </div>
 );
 }
