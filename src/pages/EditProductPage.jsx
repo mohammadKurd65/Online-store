@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -13,9 +14,11 @@ const [formData, setFormData] = useState({
     stock: "",
     status: "new",
     image: "/images/placeholder.jpg",
+    images: [],
 });
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
+const [images, setImages] = useState([]);
 
 useEffect(() => {
     const fetchProduct = async () => {
@@ -26,7 +29,14 @@ useEffect(() => {
             Authorization: `Bearer ${token}`,
         },
         });
-        setFormData(res.data.data);
+        setFormData({
+        ...res.data.data,
+        image: res.data.data.image || "/images/placeholder.jpg",
+        images: res.data.data.images || [],
+        });
+        setImages(res.data.data.images && res.data.data.images.length > 0
+        ? res.data.data.images
+        : [res.data.data.image || "/images/placeholder.jpg"]);
     } catch (err) {
         alert("خطا در دریافت اطلاعات محصول.");
         navigate("/admin/products");
@@ -43,16 +53,46 @@ const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
 };
 
+  // افزودن تصویر جدید
+const handleAddImage = (e) => {
+    const newImage = e.target.value.trim();
+    if (newImage && !images.includes(newImage)) {
+    setImages([...images, newImage]);
+    setFormData((prev) => ({
+        ...prev,
+        images: [...images, newImage],
+    }));
+    }
+};
+
+  // حذف تصویر
+const handleRemoveImage = (index) => {
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+    setFormData((prev) => ({
+    ...prev,
+    images: newImages,
+    }));
+};
+
 const handleSubmit = async (e) => {
     e.preventDefault();
     try {
     const token = localStorage.getItem("adminToken");
-    const res = await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
-        headers: {
-        Authorization: `Bearer ${token}`,
+    await axios.put(
+        `http://localhost:5000/api/products/${id}`,
+        {
+        ...formData,
+        images: images,
+        image: images[0] || "/images/placeholder.jpg",
         },
-    });
-    setFormData(res.data.data);
+        {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        }
+    );
+
     alert("محصول با موفقیت آپدیت شد.");
     navigate(`/admin/product/${id}`);
     } catch (err) {
@@ -152,16 +192,32 @@ return (
         </select>
         </div>
 
-        {/* تصویر */}
+        {/* مدیریت تصاویر */}
         <div className="mb-4">
-        <label className="block mb-2 text-gray-700">تصویر (URL)</label>
+        <label className="block mb-2 text-gray-700">آپلود / مدیریت تصاویر</label>
+          {/* نمایش تصاویر فعلی */}
+        <div className="flex flex-wrap gap-4 mb-4">
+            {images.map((img, index) => (
+            <div key={index} className="relative">
+                <img src={img} alt={`تصویر ${index + 1}`} className="object-cover w-24 h-24 rounded" />
+                <button
+                type="button"
+                onClick={() => handleRemoveImage(index)}
+                className="absolute top-0 right-0 flex items-center justify-center w-6 h-6 text-sm text-white bg-red-500 rounded-full hover:bg-red-600"
+                >
+                ×
+                </button>
+            </div>
+            ))}
+        </div>
+          {/* افزودن تصویر جدید */}
         <input
             type="text"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
+            placeholder="URL تصویر جدید"
+            className="w-full px-3 py-2 mb-2 border rounded"
+            onBlur={handleAddImage}
         />
+        <p className="mt-1 text-xs text-gray-500">برای آپلود، فقط URL رو وارد کن و از input خارج شو.</p>
         </div>
 
         {/* دکمه‌ها */}

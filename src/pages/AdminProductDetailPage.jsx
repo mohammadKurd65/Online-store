@@ -57,14 +57,17 @@ return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">جزئیات محصول</h2>
 
-      {/* تصویر محصول */}
-    <div className="flex justify-center mb-6">
-        <img
-        src={product.image || "/images/placeholder.jpg"}
-        alt={product.name}
-        className="object-cover w-48 h-48 rounded shadow"
-        />
-    </div>
+    {/* نمایش چند تصویر */}
+<div className="grid grid-cols-2 gap-4 mb-6 md:grid-cols-3">
+{product.images?.map((img, index) => (
+    <img
+    key={index}
+    src={img}
+    alt={`${product.name} - ${index + 1}`}
+    className="object-cover w-full h-48 rounded shadow"
+    />
+))}
+</div>
 
       {/* اطلاعات محصول */}
     <div className="p-6 mb-6 bg-white rounded shadow">
