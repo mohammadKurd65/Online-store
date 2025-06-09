@@ -75,3 +75,47 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.updateProductById = async (req, res) => {
+const { id } = req.params;
+const updateData = req.body;
+
+try {
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+    });
+
+    if (!updatedProduct) {
+    return res.status(404).json({ success: false, message: "محصول یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    data: updatedProduct,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.deleteProductById = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const product = await Product.findByIdAndDelete(id);
+
+    if (!product) {
+    return res.status(404).json({ success: false, message: "محصول یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    message: "محصول با موفقیت حذف شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

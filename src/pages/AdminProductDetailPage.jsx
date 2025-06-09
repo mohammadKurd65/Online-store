@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { getStatusLabel, getStatusColor} from "../utils/statusManager"
+import { getStatusLabel, getStatusColor} from "../utils/statusManager";
+import DeleteProductModal from "../components/DeleteProductModal";
 
 export default function AdminProductDetailPage() {
 const { id } = useParams();
 const navigate = useNavigate();
 const [product, setProduct] = useState(null);
-const [loading, setLoading] = useState(true);
+const [showModal, setShowModal] = useState(false);
+const [loading, setLoading] = useState(false);
 
 useEffect(() => {
     const fetchProduct = async () => {
@@ -30,6 +32,23 @@ useEffect(() => {
 
     fetchProduct();
 }, [id, navigate]);
+
+const handleDelete = async () => {
+try {
+    const token = localStorage.getItem("adminToken");
+    await axios.delete(`http://localhost:5000/api/products/${product._id}`, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    });
+
+    alert("محصول با موفقیت حذف شد.");
+    navigate("/admin/products");
+} catch (err) {
+    alert("خطا در حذف محصول.");
+    console.error(err);
+}
+};
 
 if (loading) return <p>در حال بارگذاری...</p>;
 if (!product) return <p>محصولی یافت نشد.</p>;
@@ -73,6 +92,21 @@ return (
         >
         حذف
         </button>
+
+        <button
+onClick={() => setShowModal(true)}
+className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+>
+حذف
+</button>
+        
+        {/* مدال حذف */}
+<DeleteProductModal
+isOpen={showModal}
+onClose={() => setShowModal(false)}
+onConfirm={handleDelete}
+itemName={`"${product.name}"`}
+/>
     </div>
     </div>
 );
