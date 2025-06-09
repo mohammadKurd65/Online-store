@@ -23,6 +23,7 @@ import UserOrderDetailPage from "../pages/UserOrderDetailPage";
 import UserEditProfilePage from "../pages/UserEditProfilePage";
 import UserDashboardPage from "../pages/UserDashboardPage";
 import AddProductPage from "../pages/AddProductPage";
+import AdminProductsPage from "../pages/AdminProductsPage";
 
 export default function AppRoutes() {
 return (
@@ -78,6 +79,7 @@ return (
 <Route path="/user/dashboard/:id/cart" element={<UserDashboardPage />} />
 <Route path="/user/dashboard/:id/setting" element={<UserDashboardPage />} />
 <Route path="/admin/add-product" element={<AddProductPage />} />
+<Route path="/admin/products" element={<AdminProductsPage />} />
     </Routes>
 );
 }

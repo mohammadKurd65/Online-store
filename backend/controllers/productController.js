@@ -2,35 +2,8 @@ const Product = require("../models/productModel");
 
 // گرفتن همه محصولات با فیلتر
 exports.getAllProducts = async (req, res) => {
-const { category, price, inStock, status } = req.query;
-
 try {
-    let query = {};
-
-    // فیلتر دسته‌بندی
-    if (category) query.category = category;
-
-    // فیلتر قیمت
-    if (price) {
-    const [min, max] = price.split("-");
-    if (min && max) {
-        query.price = { $gte: parseInt(min), $lte: parseInt(max) };
-    } else if (min) {
-        query.price = { $gte: parseInt(min) };
-    }
-    }
-
-    // فقط محصولات موجود
-    if (inStock === "true") {
-    query.stock = { $gt: 0 };
-    }
-
-    // فیلتر وضعیت
-    if (status) {
-    query.status = status;
-    }
-
-    const products = await Product.find(query).limit(20); // حداکثر ۲۰ تا محصول
+    const products = await Product.find().sort({ createdAt: -1 });
     return res.json({
     success: true,
     data: products,
@@ -40,6 +13,8 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+// گرفتن محصول بر اساس آیدی
+
 
 // ساخت محصول جدید
 exports.createProduct = async (req, res) => {

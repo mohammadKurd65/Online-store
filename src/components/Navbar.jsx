@@ -67,6 +67,9 @@ return (
 <Link to="/admin/add-product" className="text-blue-500 hover:underline">
 افزودن محصول
 </Link>
+<Link to="/admin/products" className="text-blue-500 hover:underline">
+محصولات
+</Link>
         </>
         )}
     </div>
