@@ -56,3 +56,22 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.getProductById = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const product = await Product.findById(id);
+    if (!product) {
+    return res.status(404).json({ success: false, message: "محصول یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    data: product,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
