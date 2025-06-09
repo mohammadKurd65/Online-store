@@ -22,6 +22,7 @@ import UserProfilePage from "../pages/UserProfilePage";
 import UserOrderDetailPage from "../pages/UserOrderDetailPage";
 import UserEditProfilePage from "../pages/UserEditProfilePage";
 import UserDashboardPage from "../pages/UserDashboardPage";
+import AddProductPage from "../pages/AddProductPage";
 
 export default function AppRoutes() {
 return (
@@ -76,6 +77,7 @@ return (
 <Route path="/user/dashboard/:id/wishlist" element={<UserDashboardPage />} />
 <Route path="/user/dashboard/:id/cart" element={<UserDashboardPage />} />
 <Route path="/user/dashboard/:id/setting" element={<UserDashboardPage />} />
+<Route path="/admin/add-product" element={<AddProductPage />} />
     </Routes>
 );
 }

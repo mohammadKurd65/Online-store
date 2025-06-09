@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 
+
 export default function Home() {
 const products = [
     { id: 1, name: "محصول اول", price: 1000000 },

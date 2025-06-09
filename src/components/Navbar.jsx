@@ -64,6 +64,9 @@ return (
 <Link to="/user/dashboard" className="text-blue-500 hover:underline">
 داشبورد
 </Link>
+<Link to="/admin/add-product" className="text-blue-500 hover:underline">
+افزودن محصول
+</Link>
         </>
         )}
     </div>

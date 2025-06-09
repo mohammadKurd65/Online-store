@@ -1,10 +1,6 @@
-// const axios = require("axios");
-// const Order = require("../models/OrderModel");
-const product = require("../models/productModel");
+const Product = require("../models/productModel");
 
-
-
-
+// گرفتن همه محصولات با فیلتر
 exports.getAllProducts = async (req, res) => {
 const { category, price, inStock, status } = req.query;
 
@@ -38,6 +34,47 @@ try {
     return res.json({
     success: true,
     data: products,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+// ساخت محصول جدید
+exports.createProduct = async (req, res) => {
+const {
+    name,
+    description,
+    price,
+    category,
+    stock,
+    status,
+    image,
+} = req.body;
+
+  // اعتبارسنجی ساده
+if (!name || !price || !category) {
+    return res.status(400).json({ success: false, message: "نام، قیمت و دسته‌بندی الزامی است." });
+}
+
+try {
+    const newProduct = new Product({
+    name,
+    description,
+    price,
+    category,
+    image,
+    stock,
+    status,
+      user: req.admin?.id, // اگر middleware احراز هویت دارید
+    });
+
+    await newProduct.save();
+
+    return res.status(201).json({
+    success: true,
+    data: newProduct,
     });
 } catch (error) {
     console.error(error);
