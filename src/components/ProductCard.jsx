@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager"
 
 export default function ProductCard({ product }) {

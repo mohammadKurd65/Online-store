@@ -1,58 +1,53 @@
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ProductCard from "../components/ProductCard";
-
+import ProductFilterForm from "../components/ProductFilterForm";
 
 export default function Home() {
-const products = [
-    { id: 1, name: "محصول اول", price: 1000000 },
-    { id: 2, name: "محصول دوم", price: 2000000 },
-];
 const [filters, setFilters] = useState({
-category: "",
-priceRange: "",
-inStock: false,
-status: "",
+    category: "",
+    priceRange: "",
+    inStock: false,
+    status: "",
 });
-
 const [products, setProducts] = useState([]);
 const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
 
 useEffect(() => {
-const fetchProducts = async () => {
+    const fetchProducts = async () => {
     try {
-    const params = new URLSearchParams();
-    if (filters.category) params.append("category", filters.category);
-    if (filters.priceRange) params.append("price", filters.priceRange);
-    if (filters.inStock) params.append("inStock", true);
-    if (filters.status) params.append("status", filters.status);
+        const params = new URLSearchParams();
+        if (filters.category) params.append("category", filters.category);
+        if (filters.priceRange) params.append("price", filters.priceRange);
+        if (filters.inStock) params.append("inStock", "true"); // مقدار رشته‌ای
+        if (filters.status) params.append("status", filters.status);
 
-    const res = await axios.get(`http://localhost:5000/api/products?${params}`);
-    setProducts(res.data.data);
+        const res = await axios.get(`http://localhost:5000/api/products?${params}`);
+        setProducts(res.data.data);
     } catch (err) {
-    console.error(err);
+        console.error(err);
+        setError("خطا در دریافت اطلاعات محصولات.");
     } finally {
-    setLoading(false);
+        setLoading(false);
     }
-};
+    };
 
-fetchProducts();
+    fetchProducts();
 }, [filters]);
+
+if (loading) return <p>در حال بارگذاری...</p>;
+if (error) return <p className="text-red-500">{error}</p>;
 
 return (
     <div className="container py-10 mx-auto">
     <h1 className="mb-6 text-3xl font-bold">محصولات</h1>
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-{products.map(product => (
-    <ProductCard key={product.id} product={product} />
-))}
-</div>
     <ProductFilterForm filters={filters} onFilterChange={setFilters} />
-     {/* لیست محصولات */}
-<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-    {products.map((product) => (
-    <ProductCard key={product._id} product={product} />
-    ))}
-</div>
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+        {products.map((product) => (
+        <ProductCard key={product._id} product={product} />
+        ))}
+    </div>
     </div>
 );
 }

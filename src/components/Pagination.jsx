@@ -1,30 +1,37 @@
+
 import React from "react";
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
+const pages = [];
+
+for (let i = 1; i <= totalPages; i++) {
+    pages.push(i);
+}
+
 return (
-    <div className="flex justify-center mt-6">
+    <div className="flex justify-center mt-6 space-x-2 space-x-reverse">
     <button
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={() => onPageChange(pages - 1)}
         disabled={currentPage === 1}
-        className={`px-4 py-2 mx-1 bg-gray-200 rounded ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+        className={`px-3 py-1 rounded ${currentPage === 1 ? "bg-gray-200 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
     >
         قبلی
     </button>
 
-    {[...Array(totalPages)].map((_, i) => (
+    {pages.map((p) => (
         <button
-        key={i + 1}
-        onClick={() => onPageChange(i + 1)}
-        className={`px-4 py-2 mx-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
+        key={p}
+        onClick={() => onPageChange(p)}
+        className={`px-3 py-1 rounded ${currentPage === p ? "bg-blue-700 text-white" : "bg-gray-200 hover:bg-gray-300"}`}
         >
-        {i + 1}
+        {p}
         </button>
     ))}
 
     <button
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={() => onPageChange(pages + 1)}
         disabled={currentPage === totalPages}
-        className={`px-4 py-2 mx-1 bg-gray-200 rounded ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300"}`}
+        className={`px-3 py-1 rounded ${currentPage === totalPages ? "bg-gray-200 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
     >
         بعدی
     </button>

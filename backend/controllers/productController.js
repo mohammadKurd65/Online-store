@@ -2,33 +2,35 @@ const Product = require("../models/productModel");
 
 // گرفتن همه محصولات با فیلتر
 exports.getAllProducts = async (req, res) => {
-const { category, status, minPrice, maxPrice, inStock } = req.query;
+const { category, status, minPrice, maxPrice, inStock, page = 1, limit = 10 } = req.query;
 
 try {
     let query = {};
 
-    // فیلتر دسته‌بندی
+    // فیلترها
     if (category) query.category = category;
-
-    // فیلتر وضعیت
     if (status) query.status = status;
-
-    // فیلتر قیمت
     if (minPrice || maxPrice) {
     query.price = {};
     if (minPrice) query.price.$gte = parseInt(minPrice);
     if (maxPrice) query.price.$lte = parseInt(maxPrice);
     }
+    if (inStock === "true") query.stock = { $gt: 0 };
 
-    // فقط محصولات موجود
-    if (inStock === "true") {
-    query.stock = { $gt: 0 };
-    }
+    const skip = (parseInt(page) - 1) * limit;
+    const products = await Product.find(query).skip(skip).limit(limit);
+    const total = await Product.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
     return res.json({
     success: true,
     data: products,
+    pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages,
+    },
     });
 } catch (error) {
     console.error(error);

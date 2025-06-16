@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
+import Pagination from "../components/Pagination";
 
 
 export default function AdminProductsPage() {
@@ -14,6 +15,8 @@ minPrice: "",
 maxPrice: "",
 inStock: false,
 });
+const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
 useEffect(() => {
 const fetchProducts = async () => {
@@ -26,6 +29,7 @@ const fetchProducts = async () => {
     if (filters.minPrice) params.append("minPrice", filters.minPrice);
     if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
     if (filters.inStock) params.append("inStock", true);
+    params.append("page", page);
 
     const res = await axios.get(`http://localhost:5000/api/products?${params}`, {
         headers: {
@@ -34,13 +38,14 @@ const fetchProducts = async () => {
     });
 
     setProducts(res.data.data || []);
+    setTotalPages(res.data.pagination.totalPages || 1);
     } catch (err) {
     console.error(err);
     }
 };
 
 fetchProducts();
-}, [filters]);
+}, [filters, page]);
 
 return (
     <div className="container py-10 mx-auto">
@@ -91,6 +96,13 @@ return (
     </tbody>
         </table>
     </div>
+
+    {/* صفحه‌بندی */}
+<Pagination
+currentPage={page}
+totalPages={totalPages}
+onPageChange={(newPage) => setPage(newPage)}
+/>
 
     {/* فرم فیلتر */}
 <div className="p-4 mb-6 bg-white rounded shadow">
