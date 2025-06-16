@@ -14,5 +14,6 @@ router.get("/products/:id", authMiddleware, productController.getProductById);
 router.put("/products/:id", authMiddleware, productController.updateProductById);
 router.delete("/products/:id", authMiddleware, productController.deleteProductById);
 router.put("/products/:id", authMiddleware, upload.single("image"), productController.updateProductById);
+router.delete("/products", authMiddleware, productController.bulkDeleteProducts);
 
 

@@ -147,3 +147,23 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.bulkDeleteProducts = async (req, res) => {
+const { productIds } = req.body;
+
+if (!Array.isArray(productIds) || productIds.length === 0) {
+    return res.status(400).json({ success: false, message: "لطفاً حداقل یک محصول را انتخاب کنید." });
+}
+
+try {
+    const result = await Product.deleteMany({ _id: { $in: productIds } });
+
+    return res.json({
+    success: true,
+    message: `${result.deletedCount} محصول با موفقیت حذف شد.`,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

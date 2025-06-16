@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import Pagination from "../components/Pagination";
+import BulkDeleteModal from "../components/BulkDeleteModal";
 
 
 export default function AdminProductsPage() {
@@ -17,6 +18,31 @@ inStock: false,
 });
 const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
+const [selectedProducts, setSelectedProducts] = useState([]);
+const [showBulkModal, setShowBulkModal] = useState(false);
+
+const handleBulkDelete = async () => {
+try {
+    const token = localStorage.getItem("adminToken");
+    await axios.delete("http://localhost:5000/api/products", {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+    data: {
+        productIds: selectedProducts,
+    },
+    });
+
+    // آپدیت لیست محصولات
+    setProducts(products.filter((p) => !selectedProducts.includes(p._id)));
+    setSelectedProducts([]);
+    setShowBulkModal(false);
+    alert("محصولات با موفقیت حذف شدند.");
+} catch (err) {
+    alert("خطا در حذف محصولات.");
+    console.error(err);
+}
+};
 
 useEffect(() => {
 const fetchProducts = async () => {
@@ -61,6 +87,20 @@ return (
             <th className="px-4 py-2 text-left border-b">دسته‌بندی</th>
             <th className="px-4 py-2 text-left border-b">وضعیت</th>
             <th className="px-4 py-2 text-left border-b">عملیات</th>
+            <th className="px-4 py-2 text-left border-b">
+<input
+    type="checkbox"
+    onChange={(e) => {
+    if (e.target.checked) {
+        setSelectedProducts(products.map((p) => p._id));
+    } else {
+        setSelectedProducts([]);
+    }
+    }}
+    checked={selectedProducts.length === products.length && products.length > 0}
+    className="w-5 h-5 text-blue-600 form-checkbox"
+/>
+</th>
             </tr>
         </thead>
         <tbody>
@@ -91,11 +131,43 @@ return (
             حذف
             </button>
         </td>
+        <td className="px-4 py-2 border-b">
+<input
+    type="checkbox"
+    checked={selectedProducts.includes(product._id)}
+    onChange={(e) => {
+    if (e.target.checked) {
+        setSelectedProducts([...selectedProducts, product._id]);
+    } else {
+        setSelectedProducts(selectedProducts.filter((id) => id !== product._id));
+    }
+    }}
+    className="w-5 h-5 text-blue-600 form-checkbox"
+/>
+</td>
         </tr>
     ))}
     </tbody>
         </table>
     </div>
+
+    {/* مدال حذف گروهی */}
+<BulkDeleteModal
+isOpen={showBulkModal}
+onClose={() => setShowBulkModal(false)}
+onConfirm={handleBulkDelete}
+count={selectedProducts.length}
+/>
+
+{/* دکمه حذف گروهی */}
+{selectedProducts.length > 0 && (
+<button
+    onClick={() => setShowBulkModal(true)}
+    className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+>
+    حذف {selectedProducts.length} آیتم
+</button>
+)}
 
     {/* صفحه‌بندی */}
 <Pagination
