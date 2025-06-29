@@ -24,10 +24,22 @@ const [filters, setFilters] = useState({
     searchTerm: "",
 });
 
+const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm);
+
   // صفحه‌بندی
 const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
 
+ // تنظیم debounce
+useEffect(() => {
+    const timer = setTimeout(() => {
+    setFilters((prev) => ({ ...prev, searchTerm: debouncedSearch }));
+    }, 300);
+
+    return () => clearTimeout(timer);
+}, [debouncedSearch]);
+
+// درخواست API
 useEffect(() => {
     const fetchProducts = async () => {
     try {
@@ -40,6 +52,7 @@ useEffect(() => {
         if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
         if (filters.inStock) params.append("inStock", true);
         if (filters.searchTerm) params.append("search", filters.searchTerm);
+
         params.append("page", page);
 
         const res = await axios.get(`http://localhost:5000/api/products?${params}`, {
@@ -107,8 +120,9 @@ return (
         onFilterChange={setFilters}
         showRole={false}
         showDateRange={false}
-        showSearchTerm={true}
+        showSearchTerm={false} // چون ما یک input مستقل داریم
         showStatus={true}
+        showCategory={true}
         statusOptions={[
         { value: "", label: "همه" },
         { value: "new", label: "جدید" },
@@ -142,6 +156,26 @@ return (
         افزودن محصول جدید
         </button>
     </div>
+
+    {/* جستجوی زنده */}
+<div className="mb-6">
+{/* <input
+    type="text"
+    placeholder="جستجوی محصول..."
+    value={filters.searchTerm}
+    onChange={(e) =>
+    setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))
+    }
+    className="w-full px-4 py-2 border rounded"
+/> */}
+<input
+type="text"
+placeholder="جستجوی محصول..."
+value={debouncedSearch}
+onChange={(e) => setDebouncedSearch(e.target.value)}
+className="w-full px-4 py-2 border rounded"
+/>
+</div>
 
       {/* لیست محصولات */}
     {loading ? (

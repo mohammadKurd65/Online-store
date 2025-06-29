@@ -17,8 +17,8 @@ try {
     }
     if (inStock === "true") query.stock = { $gt: 0 };
     if (search) {
-    query.name = { $regex: search, $options: "i" };
-    }
+query.name = { $regex: search, $options: "i" };
+}
 
     const products = await Product.find(query).skip(skip).limit(limit);
     const total = await Product.countDocuments(query);
