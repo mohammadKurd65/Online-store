@@ -2,12 +2,12 @@ const Product = require("../models/productModel");
 
 // گرفتن همه محصولات با فیلتر
 exports.getAllProducts = async (req, res) => {
-const { category, status, minPrice, maxPrice, inStock, page = 1, limit = 10 } = req.query;
+const { category, status, minPrice, maxPrice, inStock, search, page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
 
 try {
     let query = {};
 
-    // فیلترها
     if (category) query.category = category;
     if (status) query.status = status;
     if (minPrice || maxPrice) {
@@ -16,8 +16,10 @@ try {
     if (maxPrice) query.price.$lte = parseInt(maxPrice);
     }
     if (inStock === "true") query.stock = { $gt: 0 };
+    if (search) {
+    query.name = { $regex: search, $options: "i" };
+    }
 
-    const skip = (parseInt(page) - 1) * limit;
     const products = await Product.find(query).skip(skip).limit(limit);
     const total = await Product.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
