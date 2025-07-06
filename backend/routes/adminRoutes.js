@@ -10,7 +10,10 @@ const authMiddleware = require("../middleware/authMiddleware")
 // ورود ادمین
 
 
-
+router.get("/users", authAdmin, adminController.getAllUsers);
+router.get("/users/:id", authAdmin, adminController.getUserById);
+router.put("/users/:id", authAdmin, adminController.updateUser);
+router.delete("/users/:id", authAdmin, adminController.deleteUser);
 router.post("/login", adminController.loginAdmin);
 router.get("/admins", adminController.getAllAdmins); // 👈 اضافه کردیم
 router.get("/admins", authAdmin, adminController.getAllAdmins);

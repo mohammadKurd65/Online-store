@@ -4,6 +4,7 @@ const order =require("../models/OrderModel");
 const Product = require("../models/ProductModel");
 // در بالای فایل
 const mongoose = require("mongoose");
+const User = require("../models/UserModel");
 
 // تابع جدید: آمار فروش ماهانه
 exports.getMonthlySalesStats = async (req, res) => {
@@ -251,6 +252,75 @@ try {
         totalAdmins: totalAdmins[0]?.count || 0,
         totalProducts: totalProducts[0]?.count || 0,
     },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+
+
+exports.getAllUsers = async (req, res) => {
+try {
+    const users = await User.find({}, "-password");
+    return res.json({
+    success: true,
+    data: users,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getUserById = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const user = await User.findById(id, "-password");
+    if (!user) {
+    return res.status(404).json({ success: false, message: "کاربر یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    data: user,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.updateUser = async (req, res) => {
+const { id } = req.params;
+const updateData = req.body;
+
+try {
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+    });
+
+    return res.json({
+    success: true,
+    data: updatedUser,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.deleteUser = async (req, res) => {
+const { id } = req.params;
+
+try {
+    await User.findByIdAndDelete(id);
+    return res.json({
+    success: true,
+    message: "کاربر با موفقیت حذف شد.",
     });
 } catch (error) {
     console.error(error);

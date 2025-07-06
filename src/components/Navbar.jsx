@@ -73,6 +73,9 @@ return (
 <Link to="/admin/products" className="text-blue-500 hover:underline">
 محصولات
 </Link>
+<Link to="/admin/users" className="text-blue-500 hover:underline">
+کاربران
+</Link>
         </>
         )}
     </div>
