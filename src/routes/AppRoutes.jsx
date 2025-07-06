@@ -27,6 +27,7 @@ import AdminProductsPage from "../pages/AdminProductsPage";
 import AdminProductDetailPage from "../pages/AdminProductDetailPage";
 import EditProductPage from "../pages/EditProductPage";
 import AdminProductDashboard from "../pages/AdminProductDashboard";
+import AdminDashboardPage from "../pages/AdminDashboardPage";
 
 export default function AppRoutes() {
 return (
@@ -86,6 +87,7 @@ return (
 <Route path="/admin/product/:id" element={<AdminProductDetailPage />} />
 <Route path="/admin/edit-product/:id" element={<EditProductPage />} />
 <Route path="/admin/products" element={<AdminProductDashboard />} />
+<Route path="/admin" element={<AdminDashboardPage />} />
     </Routes>
 );
 }

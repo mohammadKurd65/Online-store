@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
 const authAdmin = require("../middleware/authMiddleware");
+const authMiddleware = require("../middleware/authMiddleware")
 
 
 
@@ -15,6 +16,7 @@ router.get("/admins", adminController.getAllAdmins); // 👈 اضافه کردی
 router.get("/admins", authAdmin, adminController.getAllAdmins);
 // dashbord admin
 router.get("/dashboard", authAdmin, adminController.getDashboardStats);
+router.get("/dashboard", authMiddleware, adminController.getAdminDashboardStats);
 router.get("/dashboard/monthly-sales", authAdmin, adminController.getMonthlySalesStats);
 
 // اضافه کردن ادمین جدید

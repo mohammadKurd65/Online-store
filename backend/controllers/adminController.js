@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/AdminModel");
 const order =require("../models/OrderModel");
+const Product = require("../models/ProductModel");
 // در بالای فایل
 const mongoose = require("mongoose");
 
@@ -177,16 +178,8 @@ exports.deleteAdmin = async (Reg, res) => {
         return res.status(500).json({ success: false, message: "خطای سرور"});
     }
 }
+
 // ویرایش ادمین
-
-
-
-
-
-
-
-        
-
 // دریافت آمار داشبورد
 exports.getDashboardStats = async (req, res) => {
 try {
@@ -232,3 +225,36 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.getAdminDashboardStats = async (req, res) => {
+try {
+    const [
+    { count: totalOrders },
+    { count: paidOrders },
+    { total: totalRevenue },
+    { count: totalAdmins },
+    { count: totalProducts },
+    ] = await Promise.all([
+    Order.aggregate([{ $count: "count" }]),
+    Order.aggregate([{ $match: { paymentStatus: "paid" } }, { $count: "count" }]),
+    Order.aggregate([{ $group: { _id: null, total: { $sum: "$amount" } }]),
+    Admin.aggregate([{ $count: "count" }]),
+    Product.aggregate([{ $count: "count" }]),
+    ]);
+
+    return res.json({
+    success: true,
+    data: {
+        totalOrders: totalOrders[0]?.count || 0,
+        paidOrders: paidOrders[0]?.count || 0,
+        totalRevenue: totalRevenue[0]?.total || 0,
+        totalAdmins: totalAdmins[0]?.count || 0,
+        totalProducts: totalProducts[0]?.count || 0,
+    },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
