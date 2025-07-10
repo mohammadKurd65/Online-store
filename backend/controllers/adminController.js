@@ -328,3 +328,30 @@ try {
 }
 };
 
+exports.createUser = async (req, res) => {
+const { username, password, role, status } = req.body;
+
+try {
+    // چک کردن وجود نام کاربری
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+    return res.status(400).json({ success: false, message: "نام کاربری قبلاً استفاده شده." });
+    }
+
+    const newUser = new User({ username, password, role, status });
+    await newUser.save();
+
+    return res.status(201).json({
+    success: true,
+    data: {
+        _id: newUser._id,
+        username: newUser.username,
+        role: newUser.role,
+        status: newUser.status,
+    },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
