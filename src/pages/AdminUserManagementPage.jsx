@@ -35,6 +35,7 @@ ChartLegend
 );
 import UserStatusBarChart from "../components/UserStatusBarChart";
 import AdvancedUserFilterForm from "../components/AdvancedUserFilterForm";
+import Pagination from "../components/Pagination";
 
 
 
@@ -53,6 +54,8 @@ status: "",
 startDate: "",
 endDate: "",
 });
+const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
 useEffect(() => {
 const fetchUsers = async () => {
@@ -65,6 +68,8 @@ const fetchUsers = async () => {
     if (filters.startDate) params.append("startDate", filters.startDate);
     if (filters.endDate) params.append("endDate", filters.endDate);
     if (searchTerm) params.append("search", searchTerm);
+    params.append("page", page);
+      params.append("limit", 10); // یا هر عدد دلخواه
 
     const res = await axios.get(`http://localhost:5000/api/admin/users?${params}`, {
         headers: {
@@ -73,13 +78,17 @@ const fetchUsers = async () => {
     });
 
     setUsers(res.data.data || []);
+      setTotalPages(Math.ceil(res.headers["x-total-count"] / 10)); // یا از `res.data.pagination.totalPages` استفاده کن
     } catch (err) {
     console.error(err);
     }
+    setLoading(false);
+      setPage(1); // ریست کردن صفحه وقتی فیلتر عوض میشه
+      setTotalPages(1); //ریست کردن تعداد صفحات وقتی فیلتر عوض میشه
 };
 
 fetchUsers();
-}, [filters, searchTerm]);
+}, [filters, searchTerm, page]);
 
 const handleDeleteClick = (user) => {
     setSelectedUser(user);
@@ -236,6 +245,13 @@ onFilterChange={setFilters}
             )}
         </tbody>
         </table>
+
+        {/* صفحه‌بندی */}
+<Pagination
+currentPage={page}
+totalPages={totalPages}
+onPageChange={(newPage) => setPage(newPage)}
+/>
     </div>
 
 {/* نمودار توزیع نقش کاربران */}

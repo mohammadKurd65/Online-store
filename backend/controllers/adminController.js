@@ -262,37 +262,42 @@ try {
 
 
 exports.getAllUsers = async (req, res) => {
-const { role, status, startDate, endDate, search } = req.query;
+const { role, status, startDate, endDate, search, page = 1, limit = 10 } = req.query;
+  const skip = (page - 1) * limit;
 
 try {
     let query = {};
 
-    // جستجوی نام کاربری
     if (search) {
     query.username = { $regex: search, $options: "i" };
     }
 
-    // فیلتر نقش
     if (role) {
     query.role = role;
     }
 
-    // فیلتر وضعیت
     if (status) {
     query.status = status;
     }
 
-    // فیلتر تاریخ
     if (startDate || endDate) {
     query.createdAt = {};
     if (startDate) query.createdAt.$gte = new Date(startDate);
     if (endDate) query.createdAt.$lte = new Date(endDate);
     }
 
-    const users = await User.find(query, "-password");
+    const users = await User.find(query, "-password").skip(skip).limit(limit);
+    const total = await User.countDocuments(query);
+
     return res.json({
     success: true,
     users,
+    pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / limit),
+    },
     });
 } catch (error) {
     console.error(error);
