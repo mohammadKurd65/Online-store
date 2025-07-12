@@ -11,6 +11,7 @@ const authMiddleware = require("../middleware/authMiddleware")
 
 
 router.get("/users", authAdmin, adminController.getAllUsers);
+router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/users/:id", authAdmin, adminController.getUserById);
 router.put("/users/:id", authAdmin, adminController.updateUser);
 router.delete("/users/:id", authAdmin, adminController.deleteUser);

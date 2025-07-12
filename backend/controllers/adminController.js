@@ -262,17 +262,30 @@ try {
 
 
 exports.getAllUsers = async (req, res) => {
-const { role, status } = req.query;
+const { role, status, startDate, endDate, search } = req.query;
 
 try {
     let query = {};
+
     if (role) query.role = role;
     if (status) query.status = status;
+
+    // فیلتر بر اساس تاریخ
+    if (startDate || endDate) {
+    query.createdAt = {};
+    if (startDate) query.createdAt.$gte = new Date(startDate);
+    if (endDate) query.createdAt.$lte = new Date(endDate);
+    }
+
+    // فیلتر جستجو
+    if (search) {
+    query.username = { $regex: search, $options: "i" };
+    }
 
     const users = await User.find(query, "-password");
     return res.json({
     success: true,
-    data: users,
+    users,
     });
 } catch (error) {
     console.error(error);

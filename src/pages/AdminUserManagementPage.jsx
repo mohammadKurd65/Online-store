@@ -49,32 +49,36 @@ const [selectedUser, setSelectedUser] = useState(null);
 const [filters, setFilters] = useState({
 role: "",
 status: "",
+startDate: "",
+endDate: "",
 });
 
 useEffect(() => {
-    const fetchUsers = async () => {
-        try {
-            const token = localStorage.getItem("adminToken");
-            const params = new URLSearchParams();
-            if (filters.role) params.append("role", filters.role);
-            if (filters.status) params.append("status", filters.status);
-            params.append("search", searchTerm);
+const fetchUsers = async () => {
+    try {
+    const token = localStorage.getItem("adminToken");
+    const params = new URLSearchParams();
 
-            const res = await axios.get(`http://localhost:5000/api/admin/users?${params}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setUsers(res.data.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (filters.role) params.append("role", filters.role);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.startDate) params.append("startDate", filters.startDate);
+    if (filters.endDate) params.append("endDate", filters.endDate);
+    if (searchTerm) params.append("search", searchTerm);
 
-    fetchUsers();
-}, [filters.role, filters.status, searchTerm]);
+    const res = await axios.get(`http://localhost:5000/api/admin/users?${params}`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    });
+
+    setUsers(res.data.data || []);
+    } catch (err) {
+    console.error(err);
+    }
+};
+
+fetchUsers();
+}, [filters, searchTerm]);
 
 const handleDeleteClick = (user) => {
     setSelectedUser(user);
@@ -143,6 +147,32 @@ return (
         <option value="inactive">غیرفعال</option>
         <option value="blocked">مسدود</option>
     </select>
+
+    {/* فیلتر تاریخ ثبت‌نام */}
+<div className="flex flex-col w-full gap-4 md:flex-row">
+<div className="w-full md:w-1/2">
+    <label className="block mb-1 text-sm text-gray-700">از تاریخ</label>
+    <input
+    type="date"
+    value={filters.startDate}
+    onChange={(e) =>
+        setFilters((prev) => ({ ...prev, startDate: e.target.value }))
+    }
+    className="w-full px-3 py-2 border rounded"
+    />
+</div>
+<div className="w-full md:w-1/2">
+    <label className="block mb-1 text-sm text-gray-700">تا تاریخ</label>
+    <input
+    type="date"
+    value={filters.endDate}
+    onChange={(e) =>
+        setFilters((prev) => ({ ...prev, endDate: e.target.value }))
+    }
+    className="w-full px-3 py-2 border rounded"
+    />
+</div>
+</div>
         
         <button
         onClick={() => navigate("/admin/add-user")}
