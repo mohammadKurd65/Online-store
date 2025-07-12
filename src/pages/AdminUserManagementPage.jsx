@@ -2,6 +2,39 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getStatusColor, getStatusLabel} from "../utils/statusManager";
+import { Pie } from "react-chartjs-2";
+import {
+Chart as ChartJS,
+ArcElement,
+Tooltip,
+Legend,
+} from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+import { Line } from "react-chartjs-2";
+import {
+Chart as ChartJS,
+CategoryScale,
+LinearScale,
+PointElement,
+LineElement,
+Title,
+Tooltip as ChartTooltip,
+Legend as ChartLegend,
+} from "chart.js";
+
+ChartJS.register(
+CategoryScale,
+LinearScale,
+PointElement,
+LineElement,
+Title,
+ChartTooltip,
+ChartLegend
+);
+
+
 
 export default function AdminUserManagementPage() {
 const navigate = useNavigate();
@@ -129,6 +162,20 @@ return (
         </table>
     </div>
 
+{/* نمودار توزیع نقش کاربران */}
+<div className="p-6 mb-8 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">توزیع نقش کاربران</h3>
+<div className="max-w-lg mx-auto">
+    <UserRolesPieChart users={users} />
+</div>
+</div>
+
+{/* نمودار روند ثبت‌نام */}
+<div className="p-6 mb-8 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">روند ثبت‌نام کاربران</h3>
+<UserRegistrationTrend users={users} />
+</div>
+
       {/* مدال حذف */}
     {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -156,3 +203,88 @@ return (
 );
 }
 
+function UserRolesPieChart({ users }) {
+const roleCount = {
+    user: 0,
+    editor: 0,
+    admin: 0,
+};
+
+users.forEach((u) => {
+    if (roleCount[u.role] !== undefined) {
+    roleCount[u.role]++;
+    }
+});
+
+const data = {
+    labels: ["کاربر عادی", "ویرایشگر", "ادمین"],
+    datasets: [
+    {
+        label: "تعداد",
+        data: [roleCount.user, roleCount.editor, roleCount.admin],
+        backgroundColor: ["#3b82f6", "#10b981", "#8b5cf6"],
+        borderColor: ["#1e40af", "#047857", "#7c3aed"],
+        borderWidth: 1,
+    },
+    ],
+};
+
+const options = {
+    responsive: true,
+    plugins: {
+    legend: {
+        position: "right",
+    },
+    title: {
+        display: true,
+        text: "توزیع نقش کاربران",
+    },
+    },
+};
+
+return <Pie data={data} options={options} />;
+}
+
+function UserRegistrationTrend({ users }) {
+  // محاسبه تعداد کاربران بر اساس ماه
+const monthlyUsers = {};
+
+users.forEach((user) => {
+    const date = new Date(user.createdAt);
+    const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+
+    if (!monthlyUsers[month]) monthlyUsers[month] = 0;
+    monthlyUsers[month]++;
+});
+
+const labels = Object.keys(monthlyUsers).sort();
+const data = Object.values(monthlyUsers);
+
+const chartData = {
+    labels,
+    datasets: [
+    {
+        label: "کاربران جدید",
+        data: data,
+        fill: false,
+        borderColor: "#3b82f6",
+        tension: 0.4,
+        pointRadius: 3,
+        backgroundColor: "#3b82f6",
+    },
+    ],
+};
+
+const options = {
+    responsive: true,
+    plugins: {
+    legend: { display: false },
+    title: {
+        display: true,
+        text: "روند ثبت‌نام کاربران",
+    },
+    },
+};
+
+return <Line data={chartData} options={options} />;
+}
