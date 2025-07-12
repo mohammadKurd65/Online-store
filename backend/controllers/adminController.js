@@ -259,15 +259,13 @@ try {
 }
 };
 
-
-
 exports.getAllUsers = async (req, res) => {
 const { role, status, startDate, endDate, search, page = 1, limit = 10 } = req.query;
   const skip = (page - 1) * limit;
 
 try {
     let query = {};
-
+    
     if (search) {
     query.username = { $regex: search, $options: "i" };
     }
@@ -293,8 +291,8 @@ try {
     success: true,
     users,
     pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
+        page,
+        limit,
         total,
         totalPages: Math.ceil(total / limit),
     },
@@ -380,6 +378,30 @@ try {
         role: newUser.role,
         status: newUser.status,
     },
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getUserRegistrationStats = async (req, res) => {
+try {
+    const result = await User.aggregate([
+    {
+        $group: {
+        _id: {
+            $dateToString: { format: "%Y-%m", date: "$createdAt" },
+        },
+        count: { $sum: 1 },
+        },
+    },
+    { $sort: { "_id": 1 } },
+    ]);
+
+    return res.json({
+    success: true,
+    data: result,
     });
 } catch (error) {
     console.error(error);
