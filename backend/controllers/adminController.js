@@ -262,8 +262,14 @@ try {
 
 
 exports.getAllUsers = async (req, res) => {
+const { role, status } = req.query;
+
 try {
-    const users = await User.find({}, "-password");
+    let query = {};
+    if (role) query.role = role;
+    if (status) query.status = status;
+
+    const users = await User.find(query, "-password");
     return res.json({
     success: true,
     data: users,

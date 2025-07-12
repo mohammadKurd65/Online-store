@@ -33,6 +33,7 @@ Title,
 ChartTooltip,
 ChartLegend
 );
+import UserStatusBarChart from "../components/UserStatusBarChart";
 
 
 
@@ -45,26 +46,35 @@ const [searchTerm, setSearchTerm] = useState("");
   // مدال‌ها
 const [showDeleteModal, setShowDeleteModal] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
+const [filters, setFilters] = useState({
+role: "",
+status: "",
+});
 
 useEffect(() => {
     const fetchUsers = async () => {
-    try {
-        const token = localStorage.getItem("adminToken");
-        const res = await axios.get(`http://localhost:5000/api/admin/users`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
-        setUsers(res.data.data || []);
-    } catch (err) {
-        console.error(err);
-    } finally {
-        setLoading(false);
-    }
+        try {
+            const token = localStorage.getItem("adminToken");
+            const params = new URLSearchParams();
+            if (filters.role) params.append("role", filters.role);
+            if (filters.status) params.append("status", filters.status);
+            params.append("search", searchTerm);
+
+            const res = await axios.get(`http://localhost:5000/api/admin/users?${params}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setUsers(res.data.data || []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     fetchUsers();
-}, []);
+}, [filters.role, filters.status, searchTerm]);
 
 const handleDeleteClick = (user) => {
     setSelectedUser(user);
@@ -105,6 +115,35 @@ return (
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-4 py-2 border rounded md:w-1/2"
         />
+        
+          {/* فیلتر نقش */}
+    <select
+        value={filters.role}
+        onChange={(e) =>
+        setFilters((prev) => ({ ...prev, role: e.target.value }))
+        }
+        className="w-full px-3 py-2 border rounded md:w-1/4"
+    >
+        <option value="">همه نقش‌ها</option>
+        <option value="user">کاربر عادی</option>
+        <option value="editor">ویرایشگر</option>
+        <option value="admin">ادمین</option>
+    </select>
+
+      {/* ⬇️ این select رو الان آپدیت میکنیم */}
+    <select
+        value={filters.status}
+        onChange={(e) =>
+        setFilters((prev) => ({ ...prev, status: e.target.value }))
+        }
+        className="w-full px-3 py-2 border rounded md:w-1/4"
+    >
+        <option value="">همه وضعیت‌ها</option>
+        <option value="active">فعال</option>
+        <option value="inactive">غیرفعال</option>
+        <option value="blocked">مسدود</option>
+    </select>
+        
         <button
         onClick={() => navigate("/admin/add-user")}
         className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
@@ -174,6 +213,14 @@ return (
 <div className="p-6 mb-8 bg-white rounded shadow">
 <h3 className="mb-4 text-xl font-semibold">روند ثبت‌نام کاربران</h3>
 <UserRegistrationTrend users={users} />
+</div>
+
+{/* نمودار ستونی وضعیت کاربران */}
+<div className="p-6 mb-8 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">نمودار وضعیت کاربران</h3>
+<div className="max-w-lg mx-auto">
+    <UserStatusBarChart users={users} />
+</div>
 </div>
 
       {/* مدال حذف */}
