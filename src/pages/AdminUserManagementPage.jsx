@@ -34,6 +34,7 @@ ChartTooltip,
 ChartLegend
 );
 import UserStatusBarChart from "../components/UserStatusBarChart";
+import AdvancedUserFilterForm from "../components/AdvancedUserFilterForm";
 
 
 
@@ -109,6 +110,12 @@ const filteredUsers = users.filter((user) =>
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">مدیریت کاربران</h2>
+
+    {/* فرم فیلتر پیشرفته */}
+<AdvancedUserFilterForm
+filters={filters}
+onFilterChange={setFilters}
+/>
 
       {/* جستجو */}
     <div className="flex items-center justify-between mb-6">

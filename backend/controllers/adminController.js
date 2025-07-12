@@ -267,19 +267,26 @@ const { role, status, startDate, endDate, search } = req.query;
 try {
     let query = {};
 
-    if (role) query.role = role;
-    if (status) query.status = status;
+    // جستجوی نام کاربری
+    if (search) {
+    query.username = { $regex: search, $options: "i" };
+    }
 
-    // فیلتر بر اساس تاریخ
+    // فیلتر نقش
+    if (role) {
+    query.role = role;
+    }
+
+    // فیلتر وضعیت
+    if (status) {
+    query.status = status;
+    }
+
+    // فیلتر تاریخ
     if (startDate || endDate) {
     query.createdAt = {};
     if (startDate) query.createdAt.$gte = new Date(startDate);
     if (endDate) query.createdAt.$lte = new Date(endDate);
-    }
-
-    // فیلتر جستجو
-    if (search) {
-    query.username = { $regex: search, $options: "i" };
     }
 
     const users = await User.find(query, "-password");
