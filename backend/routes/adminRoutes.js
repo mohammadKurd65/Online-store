@@ -14,6 +14,7 @@ router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/dashboard/user-stats", authAdmin, adminController.getUserRegistrationStats);
 router.get("/users/:id", authAdmin, adminController.getUserById);
+router.get("/dashboard/stats", authAdmin, adminController.getDashboardStats);
 router.put("/users/:id", authAdmin, adminController.updateUser);
 router.delete("/users/:id", authAdmin, adminController.deleteUser);
 router.post("/login", adminController.loginAdmin);

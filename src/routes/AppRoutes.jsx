@@ -31,6 +31,7 @@ import AdminDashboardPage from "../pages/AdminDashboardPage";
 import AdminUserManagementPage from "../pages/AdminUserManagementPage";
 import AdminEditUserPage from "../pages/AdminEditUserPage";
 import AdminAddUserPage from "../pages/AdminAddUserPage";
+import AdminFullDashboardPage from "../pages/AdminFullDashboardPage";
 
 
 
@@ -96,6 +97,7 @@ return (
 <Route path="/admin/users" element={<AdminUserManagementPage />} />
 <Route path="/admin/edit-user/:id" element={<AdminEditUserPage />} />
 <Route path="/admin/add-user" element={<AdminAddUserPage />} />
+<Route path="/admin/dashboard" element={<AdminFullDashboardPage />} />
     </Routes>
 );
 }

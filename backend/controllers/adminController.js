@@ -184,26 +184,36 @@ exports.deleteAdmin = async (Reg, res) => {
 // دریافت آمار داشبورد
 exports.getDashboardStats = async (req, res) => {
 try {
-    const totalOrders = await Order.countDocuments();
-    const totalAdmins = await Admin.countDocuments();
-    const totalRevenue = await Order.aggregate([
-    { $match: { paymentStatus: "paid" } },
-    { $group: { _id: null, total: { $sum: "$amount" } } }
+    const [
+    { count: totalUsers },
+    { count: activeUsers } = {},
+    { count: totalProducts },
+    { total: totalRevenue },
+    { count: paidOrders },
+    ] = await Promise.all([
+    User.aggregate([{ $count: "count" }]),
+    User.aggregate([{ $match: { status: "active" } }, { $count: "count" }]),
+    Product.aggregate([{ $count: "count" }]),
+    Order.aggregate([{ $group: { _id: null, total: { $sum: "$amount" }}}]),
+    Order.aggregate([{ $match: { paymentStatus: "paid" } }, { $count: "count" }]),
     ]);
 
     return res.json({
     success: true,
     data: {
-        totalOrders,
-        totalAdmins,
+        totalUsers: totalUsers[0]?.count || 0,
+        activeUsers: activeUsers?.count || 0,
+        totalProducts: totalProducts[0]?.count || 0,
         totalRevenue: totalRevenue[0]?.total || 0,
+        paidOrders: paidOrders?.count || 0,
     },
     });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
-};
+
+
 
 
 // حذف ادمین

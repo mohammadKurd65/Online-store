@@ -79,6 +79,10 @@ return (
 <Link to="/admin/add-user" className="text-blue-500 hover:underline">
 افزودن کاربر
 </Link>
+<Link to="/admin/dashboard" className="text-blue-500 hover:underline">
+داشبورد کامل
+</Link>
+
         </>
         )}
     </div>
