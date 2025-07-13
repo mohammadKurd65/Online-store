@@ -28,6 +28,8 @@ import UserStatusBarChart from "../components/UserStatusBarChart";
 import AdvancedUserFilterForm from "../components/AdvancedUserFilterForm";
 import Pagination from "../components/Pagination";
 import UserActivityChart from "../components/UserActivityChart";
+import ChartFilterForm from "../components/ChartFilterForm";
+import UserRolesPieChart from "../components/UserRolesPieChart";
 
 export default function AdminUserManagementPage() {
 const navigate = useNavigate();
@@ -45,6 +47,10 @@ const [filters, setFilters] = useState({
 });
 const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
+const [chartFilters, setChartFilters] = useState({
+year: "",
+month: "",
+});
 
   // دریافت همه کاربران برای نمودارها
 useEffect(() => {
@@ -105,6 +111,30 @@ useEffect(() => {
 useEffect(() => {
     setPage(1);
 }, [filters, searchTerm]);
+
+useEffect(() => {
+const fetchChartData = async () => {
+    try {
+    const token = localStorage.getItem("adminToken");
+    const params = new URLSearchParams();
+
+    if (chartFilters.year) params.append("year", chartFilters.year);
+    if (chartFilters.month) params.append("month", chartFilters.month);
+
+    const res = await axios.get(`http://localhost:5000/api/admin/dashboard/user-stats?${params}`, {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    });
+
+    setChartFilters(res.data.data || []);
+    } catch (err) {
+    console.error(err);
+    }
+};
+
+fetchChartData();
+}, [chartFilters]);
 
 const handleDeleteClick = (user) => {
     setSelectedUser(user);
@@ -212,6 +242,15 @@ return (
         افزودن کاربر
         </button>
     </div>
+
+    {/* فیلتر نمودار */}
+<ChartFilterForm
+filters={chartFilters}
+onFilterChange={setChartFilters}
+/>
+
+{/* نمودار فعالیت */}
+<UserActivityChart users={filteredUsers} />
 
       {/* لیست کاربران */}
     <div className="overflow-x-auto">

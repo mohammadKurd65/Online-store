@@ -386,22 +386,44 @@ try {
 };
 
 exports.getUserRegistrationStats = async (req, res) => {
+const { year, month } = req.query;
+
 try {
+    let matchQuery = {};
+
+    if (year || month) {
+    const dateQuery = {};
+    if (year) {
+        dateQuery.$expr = { $eq: [{ $year: "$createdAt" }, parseInt(year)] };
+    }
+
+    if (month) {
+        dateQuery.$expr = {
+        ...(dateQuery.$expr || {}),
+        $eq: [{ $month: "$createdAt" }, parseInt(month)],
+        };
+    }
+
+    matchQuery.createdAt = dateQuery;
+    }
+
     const result = await User.aggregate([
+    { $match: matchQuery },
     {
         $group: {
         _id: {
-            $dateToString: { format: "%Y-%m", date: "$createdAt" },
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
         },
         count: { $sum: 1 },
         },
     },
-    { $sort: { "_id": 1 } },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
     return res.json({
     success: true,
-    data: result,
+    result,
     });
 } catch (error) {
     console.error(error);
