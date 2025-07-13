@@ -265,7 +265,7 @@ const { role, status, startDate, endDate, search, page = 1, limit = 10 } = req.q
 
 try {
     let query = {};
-    
+
     if (search) {
     query.username = { $regex: search, $options: "i" };
     }

@@ -30,6 +30,7 @@ import Pagination from "../components/Pagination";
 import UserActivityChart from "../components/UserActivityChart";
 import ChartFilterForm from "../components/ChartFilterForm";
 import UserRolesPieChart from "../components/UserRolesPieChart";
+import RoleComparisonChart from "../components/RoleComparisonChart";
 
 export default function AdminUserManagementPage() {
 const navigate = useNavigate();
@@ -51,6 +52,16 @@ const [chartFilters, setChartFilters] = useState({
 year: "",
 month: "",
 });
+const [filteredUsers, setFilteredUsers] = useState(users);
+
+useEffect(() => {
+const filtered = users.filter((user) => {
+    if (!filters.role) return true;
+    return user.role === filters.role;
+});
+
+setFilteredUsers(filtered);
+}, [users, filters]);
 
   // دریافت همه کاربران برای نمودارها
 useEffect(() => {
@@ -251,6 +262,14 @@ onFilterChange={setChartFilters}
 
 {/* نمودار فعالیت */}
 <UserActivityChart users={filteredUsers} />
+
+{/* نمودار مقایسه‌ای نقش‌ها */}
+<div className="p-6 mb-8 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">مقایسه نقش کاربران</h3>
+<div className="max-w-lg mx-auto">
+    <RoleComparisonChart users={filteredUsers} />
+</div>
+</div>
 
       {/* لیست کاربران */}
     <div className="overflow-x-auto">
