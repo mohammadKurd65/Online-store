@@ -1,10 +1,21 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyPayment } from "../services/payment";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function VerifyPayment() {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 const location = useLocation();
 const navigate = useNavigate();
+
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const queryParams = new URLSearchParams(location.search);

@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function OrderDetailPage() {
 const { id } = useParams();
 const [order, setOrder] = useState(null);
 const [loading, setLoading] = useState(true);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+const navigate = useNavigate();
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchOrder = async () => {

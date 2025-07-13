@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-
 const UserSchema = new mongoose.Schema({
 username: {
     type: String,
@@ -26,12 +25,13 @@ status: {
 
 // هش کردن رمز قبل از ذخیره
 UserSchema.pre("save", async function (next) {
-if (!this.isModified("password")) return next();
-this.password = await bcrypt.hash(this.password, 10);
+if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+}
 next();
 });
 
-// مقایسه پسورد
+// مقایسه رمز
 UserSchema.methods.comparePassword = async function (candidatePassword) {
 return await bcrypt.compare(candidatePassword, this.password);
 };

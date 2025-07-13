@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import Pagination from "../components/Pagination";
 import BulkDeleteModal from "../components/BulkDeleteModal";
-
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function AdminProductsPage() {
 const [products, setProducts] = useState([]);
@@ -20,6 +20,15 @@ const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
 const [selectedProducts, setSelectedProducts] = useState([]);
 const [showBulkModal, setShowBulkModal] = useState(false);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 const handleBulkDelete = async () => {
 try {

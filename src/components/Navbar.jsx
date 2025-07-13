@@ -1,9 +1,16 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function Navbar() {
 const { currentUser } = useAuth();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 return (
     <nav className="flex items-center justify-between p-4 bg-white shadow">
     <h1 className="text-xl font-bold">علی‌بابا کلون</h1>
@@ -82,7 +89,27 @@ return (
 <Link to="/admin/dashboard" className="text-blue-500 hover:underline">
 داشبورد کامل
 </Link>
+{token && (
+<div className="flex items-center ml-4 space-x-6 space-x-reverse">
+    {userRole === "admin" && (
+    <Link to="/admin/dashboard" className="text-blue-500 hover:underline">
+        داشبورد ادمین
+    </Link>
+    )}
 
+    {userRole === "editor" && (
+    <Link to="/editor/dashboard" className="text-blue-500 hover:underline">
+        داشبورد ویرایشگر
+    </Link>
+    )}
+
+    {userRole === "user" && (
+    <Link to="/user/dashboard" className="text-blue-500 hover:underline">
+        داشبورد من
+    </Link>
+    )}
+</div>
+)}
         </>
         )}
     </div>

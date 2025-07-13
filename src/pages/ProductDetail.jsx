@@ -1,11 +1,22 @@
-import { useParams } from "react-router-dom";
-import { useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function ProductDetail() {
 const { id } = useParams();
   const product = { id: id, name: `محصول ${id}`, price: 1000000 * id };
 const { dispatch } = useContext(CartContext);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+const navigate = useNavigate(); 
+
+useEffect(() => {
+  if (userRole !== "admin") {
+    navigate("/unauthorized");
+  }
+}, [userRole, navigate]);
 
 return (
     <div className="container p-4 mx-auto">

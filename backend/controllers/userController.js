@@ -12,13 +12,14 @@ try {
     return res.status(401).json({ success: false, message: "نام کاربری یا رمز اشتباه است." });
     }
 
-    const token = jwt.sign({ id: user._id, role: "user" }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
     expiresIn: "1h",
     });
 
     return res.json({
     success: true,
     token,
+    role: user.role,
     });
 } catch (error) {
     console.error(error);

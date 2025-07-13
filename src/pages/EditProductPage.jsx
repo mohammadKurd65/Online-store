@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { decodeToken } from "../utils/jwtDecode"; 
 
 export default function EditProductPage() {
 const { id } = useParams();
@@ -18,6 +19,15 @@ const [formData, setFormData] = useState({
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 const [images, setImages] = useState([]);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchProduct = async () => {

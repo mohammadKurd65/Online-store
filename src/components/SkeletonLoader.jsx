@@ -1,6 +1,14 @@
 import React from "react";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function SkeletonLoader({ type = "table" }) {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 if (type === "table") {
     return (
     <div className="space-y-4 animate-pulse">

@@ -1,5 +1,6 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
+import { decodeToken } from "../utils/jwtDecode";
 import {
 Chart as ChartJS,
 CategoryScale,
@@ -13,6 +14,13 @@ Legend,
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function UserStatusBarChart({ users }) {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 const statusCounts = {
     active: 0,
     inactive: 0,

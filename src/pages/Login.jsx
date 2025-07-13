@@ -1,12 +1,22 @@
 import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "../firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useEffect } from "react-router-dom";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function Login() {
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [error, setError] = useState("");
 const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 const handleLogin = async (e) => {
     e.preventDefault();

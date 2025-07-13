@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { decodeToken } from "../utils/jwtDecode";
 import axios from "axios";
 import {
 ReusableFilterForm,
@@ -8,9 +9,12 @@ getStatusLabel,
 } from "../components";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { useNavigate } from "react-router-dom";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+
 function SalesBarChart({ orders }) {
+const navigate = useNavigate();
 const labels = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد"];
 const data = {
     labels,
@@ -41,10 +45,21 @@ const options = {
     },
 };
 
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
+
 return <Bar data={data} options={options} />;
 }
 
 export default function AdminDashboardPage() {
+const navigate = useNavigate();
 const [stats, setStats] = useState({
     totalOrders: 0,
     paidOrders: 0,
@@ -54,6 +69,15 @@ const [stats, setStats] = useState({
 });
 const [recentOrders, setRecentOrders] = useState([]);
 const [products, setProducts] = useState([]);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchData = async () => {
@@ -143,6 +167,16 @@ return (
 
 // کامپوننت کوچک برای هر استات
 function StatCard({ title, value, color }) {
+    const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 return (
     <div className={`p-6 rounded shadow text-white ${color}`}>
     <h3 className="text-lg">{title}</h3>
@@ -153,6 +187,16 @@ return (
 
 // جدول آخرین سفارشات
 function OrderTable({ orders }) {
+    const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 return (
     <div className="overflow-x-auto">
     <table className="min-w-full bg-white border rounded shadow">
@@ -199,6 +243,16 @@ return (
 
 // لیست محصولات
 function ProductList({ products }) {
+    const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
     {products.map((product) => (

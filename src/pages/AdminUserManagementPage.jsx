@@ -31,6 +31,7 @@ import UserActivityChart from "../components/UserActivityChart";
 import ChartFilterForm from "../components/ChartFilterForm";
 import UserRolesPieChart from "../components/UserRolesPieChart";
 import RoleComparisonChart from "../components/RoleComparisonChart";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function AdminUserManagementPage() {
 const navigate = useNavigate();
@@ -53,6 +54,15 @@ year: "",
 month: "",
 });
 const [filteredUsers, setFilteredUsers] = useState(users);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
 const filtered = users.filter((user) => {

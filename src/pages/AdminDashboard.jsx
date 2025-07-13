@@ -1,16 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { decodeToken } from "../utils/jwtDecode";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import { useNavigate } from "react-router-dom";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 
 export default function AdminDashboard() {
+const navigate = useNavigate();
 const [stats, setStats] = useState({
     totalOrders: 0,
     totalAdmins: 0,
     totalRevenue: 0,
 });
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [ userRole, navigate]);
 
 useEffect(() => {
     const fetchStats = async () => {

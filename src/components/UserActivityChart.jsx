@@ -1,5 +1,6 @@
 
 import { Bar } from "react-chartjs-2";
+import { decodeToken } from "../utils/jwtDecode";
 // filepath: e:\Online store\online-stora-clone\src\components\UserActivityChart.jsx
 export default function UserActivityChart({ users, chartFilters }) {
   // فیلتر کاربران بر اساس سال و ماه
@@ -66,6 +67,12 @@ const options = {
     },
     },
 };
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 return <Bar data={chartData} options={options} />;
 }

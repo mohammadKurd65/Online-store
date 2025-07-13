@@ -3,14 +3,25 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import DeleteOrderModal from "../components/DeleteOrderModal"
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function UserProfilePage() {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 const [user, setUser] = useState(null);
 const [orders, setOrders] = useState([]);
 const [statusFilter, setStatusFilter] = useState("");
 const navigate = useNavigate();
 const [showModal, setShowModal] = useState(false);
 const [selectedOrder, setSelectedOrder] = useState(null);
+
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 const handleDeleteClick = (order) => {
 setSelectedOrder(order);

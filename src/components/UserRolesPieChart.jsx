@@ -1,10 +1,18 @@
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { decodeToken } from "../utils/jwtDecode";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserRolesPieChart = ({ data }) => {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
     const chartData = {
         labels: ['Admin', 'User', 'Guest'],
         datasets: [

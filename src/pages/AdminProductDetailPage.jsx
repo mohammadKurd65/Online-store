@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import DeleteProductModal from "../components/DeleteProductModal";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function AdminProductDetailPage() {
 const { id } = useParams();
@@ -10,6 +11,15 @@ const navigate = useNavigate();
 const [product, setProduct] = useState(null);
 const [showModal, setShowModal] = useState(false);
 const [loading, setLoading] = useState(false);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchProduct = async () => {

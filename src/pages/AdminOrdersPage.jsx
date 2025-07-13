@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReusableFilterForm from "../components/ReusableFilterForm";
 import usePersistedFilter from "../hooks/usePersistedFilter"
+import { decodeToken } from "../utils/jwtDecode";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminOrdersPage() {
     const [page, setPage] = useState(1);
@@ -14,6 +16,16 @@ status: "",
 startDate: "",
 endDate: "",
 });
+const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
 const fetchOrders = async () => {

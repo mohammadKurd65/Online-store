@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
-import { usePersistedFilter } from "../hooks/usePersistedFilter";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function Cart() {
 const { state, dispatch } = useContext(CartContext);
@@ -9,7 +9,15 @@ const navigate = useNavigate();
 
 
 const total = state.cart.reduce((sum, item) => sum + item.price, 0);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 const handlePayment = () => {
     navigate("/payment");
 };

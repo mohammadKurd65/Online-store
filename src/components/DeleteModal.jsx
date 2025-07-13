@@ -1,8 +1,14 @@
 import React from "react";
-
+import { decodeToken } from "../utils/jwtDecode";
 export default function DeleteModal({ isOpen, onClose, onConfirm, itemName = "این آیتم" }) {
 if (!isOpen) return null;
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div className="w-full max-w-md p-6 bg-white rounded shadow-lg">

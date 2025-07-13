@@ -1,6 +1,14 @@
 import React from "react";
+import { decodeToken } from "../utils/jwtDecode"; 
 
 export default function Toast({ message, type = "success", onClose }) {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 const bgColor = type === "success" ? "bg-green-500" : "bg-red-500";
 
 return (

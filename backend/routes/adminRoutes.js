@@ -2,14 +2,17 @@ const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
 const authAdmin = require("../middleware/authMiddleware");
-const authMiddleware = require("../middleware/authMiddleware")
+const authMiddleware = require("../middleware/authMiddleware");
+
+
+
 
 
 
 // مسیرهای مربوط به ادمین ها
 // ورود ادمین
 
-
+router.get("/dashboard", authAdmin(["admin", "editor"]), adminController.getAdminDashboardStats);
 router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/dashboard/user-stats", authAdmin, adminController.getUserRegistrationStats);

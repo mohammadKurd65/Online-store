@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DeleteAccountModal from "../components/DeleteAccountModal";
-
+import { decodeToken } from "../utils/jwtDecode";
 export default function UserEditProfilePage() {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 const [username, setUsername] = useState("");
 const [password, setPassword] = useState("");
 const [confirmPassword, setConfirmPassword] = useState("");
@@ -11,6 +14,13 @@ const [loading, setLoading] = useState(true);
 const [error, setError] = useState("");
 const navigate = useNavigate();
 const [showModal, setShowModal] = useState(false);
+
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchUserData = async () => {

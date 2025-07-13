@@ -1,8 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager"
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function ProductCard({ product }) {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 return (
     <div className="overflow-hidden transition border rounded-lg shadow hover:shadow-lg">
       {/* تصویر محصول */}

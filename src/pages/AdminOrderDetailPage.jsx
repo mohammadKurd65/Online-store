@@ -5,6 +5,7 @@ import { useToast } from "../context/ToastContext";
 import { getStatusLabel, getStatusColor } from "../utils/statusManager";
 import StatusBadge from "../components/StatusBadge"
 import UpdateOrderStatusForm from "../components/UpdateOrderStatusForm";
+import { decodeToken } from "../utils/jwtDecode";;
 
 export default function AdminOrderDetailPage() {
 const { id } = useParams();
@@ -14,6 +15,15 @@ const { showToast } = useToast(); // ✅ استفاده از Toast
 const [order, setOrder] = useState(null);
 const [loading, setLoading] = useState(true);
 const [status, setStatus] = useState("");
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchOrder = async () => {

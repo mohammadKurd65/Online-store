@@ -1,4 +1,5 @@
 import React from "react";
+import { decodeToken } from "../utils/jwtDecode";
 import { Bar } from "react-chartjs-2";
 import {
 Chart as ChartJS,
@@ -13,6 +14,13 @@ Legend,
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function RoleComparisonChart({ users }) {
+    const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 const roleCount = {
     user: 0,
     editor: 0,

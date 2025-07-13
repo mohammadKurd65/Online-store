@@ -1,9 +1,15 @@
-
+import { decodeToken } from "../utils/jwtDecode";
 import React from "react";
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
 const pages = [];
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 for (let i = 1; i <= totalPages; i++) {
     pages.push(i);
 }

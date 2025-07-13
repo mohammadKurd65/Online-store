@@ -32,7 +32,31 @@ import AdminUserManagementPage from "../pages/AdminUserManagementPage";
 import AdminEditUserPage from "../pages/AdminEditUserPage";
 import AdminAddUserPage from "../pages/AdminAddUserPage";
 import AdminFullDashboardPage from "../pages/AdminFullDashboardPage";
+import { Navigate } from "react-router-dom";
+import UserDashboard from "../pages/UserDashboard";
+import EditorDashboardPage from "../pages/EditorDashboardPage";
+import UnauthorizedPage from "../pages/UnauthorizedPage";
+// 🔐 ProtectedRoute - فقط کاربران لاگین‌کرده
+export const ProtectedRoute = ({ children }) => {
+const token = localStorage.getItem("userToken");
+if (!token) {
+    return <Navigate to="/login" replace />;
+}
+return children;
+};
 
+// 👥 RoleBasedRoute - بر اساس نقش
+export const RoleBasedRoute = ({ children, allowedRoles = ["user"] }) => {
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role || "user";
+
+if (!decoded || !allowedRoles.includes(userRole)) {
+    return <Navigate to="/unauthorized" replace />;
+}
+
+return children;
+};
 
 
 export default function AppRoutes() {
@@ -98,6 +122,38 @@ return (
 <Route path="/admin/edit-user/:id" element={<AdminEditUserPage />} />
 <Route path="/admin/add-user" element={<AdminAddUserPage />} />
 <Route path="/admin/dashboard" element={<AdminFullDashboardPage />} />
+<Route
+path="/admin/dashboard"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <AdminDashboardPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+<Route path="/user/dashboard" element={
+<ProtectedRoute>
+    <UserDashboard />
+</ProtectedRoute>
+} />
+
+<Route path="/admin/dashboard" element={<ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+    <AdminFullDashboardPage />
+    </RoleBasedRoute>
+</ProtectedRoute>
+} />
+
+<Route path="/editor/dashboard" element={
+<ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin", "editor"]}>
+    <EditorDashboardPage />
+    </RoleBasedRoute>
+</ProtectedRoute>
+} />
+
+<Route path="/unauthorized" element={<UnauthorizedPage />} />
     </Routes>
 );
 }

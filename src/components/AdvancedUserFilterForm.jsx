@@ -1,9 +1,19 @@
 import React from "react";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function AdvancedUserFilterForm({ filters, onFilterChange }) {
+  const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 return (
     <div className="p-4 mb-6 bg-white rounded shadow">
     <h3 className="mb-4 text-lg font-semibold">فیلتر پیشرفته کاربران</h3>
+
+
 
       {/* جستجو */}
     <div className="mb-4">

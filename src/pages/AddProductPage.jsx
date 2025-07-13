@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function AddProductPage() {
 const navigate = useNavigate();
-
 const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -16,6 +16,16 @@ const [formData, setFormData] = useState({
 });
 
 const [error, setError] = useState("");
+
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 const handleChange = (e) => {
     const { name, value } = e.target;

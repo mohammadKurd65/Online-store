@@ -10,7 +10,8 @@ import OrderStatusDoughnutChart from "../utils/OrderStatusDoughnutChart";
 import OrderTable from "../utils/OrderTable";
 import ProductList from "../utils/ProductList";
 import UserActivityChart from "../utils/UserActivityChart";
-
+import { decodeToken } from "../utils/jwtDecode";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminFullDashboardPage() {
 const [stats, setStats] = useState({
@@ -34,7 +35,16 @@ const [filters, setFilters] = useState({
     endDate: "",
     searchTerm: "",
 });
+const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 useEffect(() => {
     const fetchData = async () => {
     try {
@@ -89,6 +99,9 @@ useEffect(() => {
 
     fetchData();
 }, [filters , stats , users, orders, products]);
+
+
+
 
 return (
     <div className="container py-10 mx-auto">

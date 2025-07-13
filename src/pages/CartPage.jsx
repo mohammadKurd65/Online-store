@@ -4,6 +4,8 @@ import ReusableFilterForm from "../components/ReusableFilterForm";
 import StatusBadge from "../components/StatusBadge";
 import { usePersistedFilter } from "../hooks/usePersistedFilter";
 import DeleteOrderModal from "../components/DeleteOrderModal";
+import { decodeToken } from "../utils/jwtDecode";
+import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
 const [orders, setOrders] = useState([]);
@@ -16,6 +18,16 @@ const [filters, setFilters] = usePersistedFilter("user-cart-filter", {
 });
 const [showModal, setShowModal] = useState(false);
 const [selectedOrder, setSelectedOrder] = useState(null);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+const navigate = useNavigate();
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 const handleDeleteClick = (order) => {
 setSelectedOrder(order);

@@ -7,7 +7,8 @@ import UpdateRoleForm from "../components/UpdateRoleForm";
 import ReusableFilterForm from "../components/ReusableFilterForm";
 import usePersistedFilter from "../hooks/usePersistedFilter";
 import { getStatusLabel, getStatusColor } from "../utils/statusManager";
-
+import { decodeToken } from "../utils/jwtDecode";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminUsersPage() {
 const [admins, setAdmins] = useState([]);
@@ -36,7 +37,16 @@ if (endDate) params.append("endDate", endDate);
 const filteredAdmins = admins.filter((admin) =>
 admin.username.toLowerCase().includes(searchTerm.toLowerCase())
 );
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+const navigate = useNavigate();
 
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 // قبل از useEffect
 
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function UserDashboardPage() {
 const [stats, setStats] = useState({
@@ -10,6 +11,15 @@ const [stats, setStats] = useState({
     canceledOrders: 0,
 });
 const navigate = useNavigate();
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
 useEffect(() => {
     const fetchStats = async () => {

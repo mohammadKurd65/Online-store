@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useNavigate } from "react";
 import axios from "axios";
+import { decodeToken } from "../utils/jwtDecode";
 import {
 ReusableFilterForm,
 BulkDeleteModal,
@@ -29,6 +30,16 @@ const [debouncedSearch, setDebouncedSearch] = useState(filters.searchTerm);
   // صفحه‌بندی
 const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
+
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 
  // تنظیم debounce
 useEffect(() => {

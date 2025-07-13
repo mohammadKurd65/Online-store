@@ -1,4 +1,15 @@
+import { useNavigate, useEffect } from "react-router-dom";
+import { decodeToken } from "../utils/jwtDecode";
 export default function AdminPanel() {
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
+const navigate = useNavigate();
+useEffect(() => {
+if (userRole !== "admin") {
+    navigate("/unauthorized");
+}
+}, [userRole, navigate]);
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-4 text-2xl font-bold">پنل ادمین</h2>

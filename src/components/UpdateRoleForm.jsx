@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { decodeToken } from "../utils/jwtDecode";
 
 export default function UpdateRoleForm({ admin, onRoleUpdated }) {
 const [role, setRole] = useState(admin.role || "admin");
 const [loading, setLoading] = useState(false);
+const token = localStorage.getItem("userToken");
+const decoded = decodeToken(token);
+const userRole = decoded?.role;
 
+if (userRole !== "admin") {
+  return null; // یا یک پیام دسترسی غیرمجاز
+}
 const handleUpdate = async () => {
     setLoading(true);
     try {
