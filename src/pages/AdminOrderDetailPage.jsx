@@ -6,8 +6,14 @@ import { getStatusLabel, getStatusColor } from "../utils/statusManager";
 import StatusBadge from "../components/StatusBadge"
 import UpdateOrderStatusForm from "../components/UpdateOrderStatusForm";
 import { decodeToken } from "../utils/jwtDecode";;
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminOrderDetailPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const { id } = useParams();
 const navigate = useNavigate();
 const { showToast } = useToast(); // ✅ استفاده از Toast
@@ -137,6 +143,12 @@ onUpdate={(updatedOrder) => {
     >
         بازگشت
     </button>
+
+    <HasPermission permission="delete_users">
+        <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+            حذف کاربران
+        </button>
+        </HasPermission>
     </div>
 );
 }

@@ -32,8 +32,14 @@ import ChartFilterForm from "../components/ChartFilterForm";
 import UserRolesPieChart from "../components/UserRolesPieChart";
 import RoleComparisonChart from "../components/RoleComparisonChart";
 import { decodeToken } from "../utils/jwtDecode";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminUserManagementPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const navigate = useNavigate();
 const [users, setUsers] = useState([]);
 const [allUsers, setAllUsers] = useState([]);
@@ -263,7 +269,11 @@ return (
         افزودن کاربر
         </button>
     </div>
-
+<HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     {/* فیلتر نمودار */}
 <ChartFilterForm
 filters={chartFilters}

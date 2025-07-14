@@ -6,8 +6,13 @@ import { usePersistedFilter } from "../hooks/usePersistedFilter";
 import DeleteOrderModal from "../components/DeleteOrderModal";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
-
+import { usePermission } from "../hooks/usePermission";
 export default function CartPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [orders, setOrders] = useState([]);
 const [loading, setLoading] = useState(true);
   // فیلترها

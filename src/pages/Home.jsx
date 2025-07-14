@@ -4,8 +4,13 @@ import ProductCard from "../components/ProductCard";
 import ProductFilterForm from "../components/ProductFilterForm";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
-
+import { usePermission } from "../hooks/usePermission";
 export default function Home() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [filters, setFilters] = useState({
     category: "",
     priceRange: "",

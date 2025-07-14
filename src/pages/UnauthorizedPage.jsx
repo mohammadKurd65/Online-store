@@ -1,7 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@mui/material';
-
+import { usePermission } from '../hooks/usePermission';
 const UnauthorizedPage = () => {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const navigate = useNavigate();
 
     const goBack = () => {

@@ -2,8 +2,13 @@ import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verifyPayment } from "../services/payment";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function VerifyPayment() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;

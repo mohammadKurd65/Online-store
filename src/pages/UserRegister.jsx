@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, useEffect } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function UserRegister() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;

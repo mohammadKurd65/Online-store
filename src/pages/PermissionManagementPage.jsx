@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function PermissionManagementPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [roles, setRoles] = useState([
     {
     name: "user",
@@ -115,6 +121,11 @@ return (
             ذخیره دسترسی‌ها
         </button>
         </div>
+        <HasPermission permission="delete_users">
+                                        <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                                            حذف کاربران
+                                        </button>
+                                        </HasPermission>
     </div>
     </div>
 );

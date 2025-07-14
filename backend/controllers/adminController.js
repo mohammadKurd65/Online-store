@@ -221,3 +221,20 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.getRolePermissions = async (req, res) => {
+try {
+    const role = await AdminRole.findOne({ name: req.user.role }).select("permissions");
+    if (!role) {
+    return res.status(404).json({ success: false, message: "نقش یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    permissions: role.permissions,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

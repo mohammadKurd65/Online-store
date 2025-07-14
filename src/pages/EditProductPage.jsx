@@ -2,8 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode"; 
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function EditProductPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const { id } = useParams();
 const navigate = useNavigate();
 const [formData, setFormData] = useState({
@@ -280,6 +286,12 @@ return (
         </button>
         </div>
     </form>
+
+    <HasPermission permission="delete_users">
+                    <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                        حذف کاربران
+                    </button>
+                    </HasPermission>
     </div>
 );
 }

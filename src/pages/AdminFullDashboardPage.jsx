@@ -13,9 +13,14 @@ import UserActivityChart from "../utils/UserActivityChart";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminFullDashboardPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [stats, setStats] = useState({
     totalUsers: 0,
     activeUsers: 0,
@@ -269,6 +274,11 @@ return (
         <div className="p-6 bg-white rounded shadow">
             
         </div>
+        <HasPermission permission="delete_users">
+    <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+        حذف کاربران
+    </button>
+    </HasPermission>
         </div>
 );
 }

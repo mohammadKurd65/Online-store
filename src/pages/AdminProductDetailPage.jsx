@@ -4,8 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import DeleteProductModal from "../components/DeleteProductModal";
 import { decodeToken } from "../utils/jwtDecode";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminProductDetailPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const { id } = useParams();
 const navigate = useNavigate();
 const [product, setProduct] = useState(null);
@@ -120,6 +126,12 @@ onClose={() => setShowModal(false)}
 onConfirm={handleDelete}
 itemName={`"${product.name}"`}
 />
+
+<HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     </div>
     </div>
 );

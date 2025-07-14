@@ -3,7 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import DeleteAccountModal from "../components/DeleteAccountModal";
 import { decodeToken } from "../utils/jwtDecode";
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function UserEditProfilePage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
@@ -51,22 +58,22 @@ const handleSave = async () => {
     }
 
     try {
-      const token = localStorage.getItem("userToken");
-      await axios.put(
+    const token = localStorage.getItem("userToken");
+    await axios.put(
         "http://localhost:5000/api/user/profile",
         { username, password },
         {
-          headers: {
+        headers: {
             Authorization: `Bearer ${token}`,
-          },
+        },
         }
-      );
+    );
 
-      alert("اطلاعات با موفقیت ذخیره شد.");
-      navigate("/user/profile");
+    alert("اطلاعات با موفقیت ذخیره شد.");
+    navigate("/user/profile");
     } catch (err) {
-      setError(err.response?.data?.message || "خطا در ذخیره اطلاعات.");
-      console.error(err);
+    setError(err.response?.data?.message || "خطا در ذخیره اطلاعات.");
+    console.error(err);
     }
 };
 
@@ -152,6 +159,11 @@ onConfirm={handleDeleteAccount}
 />
 
     </form>
+    <HasPermission permission="delete_users">
+                                                <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                                                    حذف کاربران
+                                                </button>
+                                                </HasPermission>
     </div>
 );
 }

@@ -2,8 +2,13 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword } from "../firebase";
 import { useNavigate, useEffect } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function Login() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
 const [error, setError] = useState("");

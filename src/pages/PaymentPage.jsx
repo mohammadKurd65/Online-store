@@ -2,8 +2,13 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { requestPayment } from "../services/payment";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function PaymentPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const navigate = useNavigate();
   const totalAmount = 250000; // مبلغ به تومان
 const token = localStorage.getItem("userToken");

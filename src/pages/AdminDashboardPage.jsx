@@ -10,8 +10,9 @@ getStatusLabel,
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { useNavigate } from "react-router-dom";
+import HasPermission from "../components/HasPermission";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
+import { usePermission} from "../hooks/usePermission";
 
 function SalesBarChart({ orders }) {
 const navigate = useNavigate();
@@ -28,7 +29,11 @@ const data = {
     },
     ],
 };
+const { canDeleteUsers } = usePermission();
 
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const options = {
     responsive: true,
     plugins: {
@@ -59,6 +64,11 @@ return <Bar data={data} options={options} />;
 }
 
 export default function AdminDashboardPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const navigate = useNavigate();
 const [stats, setStats] = useState({
     totalOrders: 0,
@@ -167,6 +177,11 @@ return (
 
 // کامپوننت کوچک برای هر استات
 function StatCard({ title, value, color }) {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const navigate = useNavigate();
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
@@ -187,6 +202,11 @@ return (
 
 // جدول آخرین سفارشات
 function OrderTable({ orders }) {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const navigate = useNavigate();
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
@@ -243,6 +263,11 @@ return (
 
 // لیست محصولات
 function ProductList({ products }) {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const navigate = useNavigate();
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
@@ -279,3 +304,9 @@ return (
     </div>
 );
 }
+
+<HasPermission permission="delete_users">
+    <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+        حذف کاربران
+    </button>
+    </HasPermission>

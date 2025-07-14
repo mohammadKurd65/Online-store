@@ -2,8 +2,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { CartContext } from "../context/CartContext";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function ProductDetail() {
+  const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const { id } = useParams();
   const product = { id: id, name: `محصول ${id}`, price: 1000000 * id };
 const { dispatch } = useContext(CartContext);

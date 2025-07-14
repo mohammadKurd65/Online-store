@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
-
+import { usePermission } from "../hooks/usePermission";
 export default function OrdersPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [orders, setOrders] = useState([]);
 const [loading, setLoading] = useState(true);
 const token = localStorage.getItem("userToken");

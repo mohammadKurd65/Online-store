@@ -2,8 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function UserDashboardPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [stats, setStats] = useState({
     totalOrders: 0,
     paidOrders: 0,
@@ -105,6 +111,11 @@ return (
         <h3 className="mb-4 text-xl font-semibold">آخرین سفارشات</h3>
         <OrderList />
     </div>
+    <HasPermission permission="delete_users">
+                                                <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                                                    حذف کاربران
+                                                </button>
+                                                </HasPermission>
     </div>
 );
 }

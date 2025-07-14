@@ -67,6 +67,7 @@ router.get("/user-reviews", authAdmin, adminController.getUserReviewStatus);
 router.put("/admins/:id/role", authAdmin, adminController.updateAdminRole);
 router.get("/permissions", authAdmin, adminController.getAllRoles);
 router.put("/permissions", authAdmin, adminController.updateRolePermissions);
+router.get("/permissions/me", authAdmin, adminController.getRolePermissions);
 
 
 

@@ -5,8 +5,14 @@ import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import Pagination from "../components/Pagination";
 import BulkDeleteModal from "../components/BulkDeleteModal";
 import { decodeToken } from "../utils/jwtDecode";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminProductsPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [products, setProducts] = useState([]);
 const navigate = useNavigate();
 const [filters, setFilters] = useState({
@@ -268,6 +274,11 @@ onPageChange={(newPage) => setPage(newPage)}
     </div>
 </div>
 </div>
+<HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     </div>
 );
 }

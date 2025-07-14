@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext'; // assuming you have an auth context
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from '../hooks/usePermission';
 const UserDashboard = () => {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const [userOrders, setUserOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const { currentUser } = useAuth(); // get current user from auth context
@@ -53,6 +59,11 @@ const UserDashboard = () => {
                     </div>
                 )}
             </div>
+            <HasPermission permission="delete_users">
+                                            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                                                حذف کاربران
+                                            </button>
+                                            </HasPermission>
         </div>
     );
 };

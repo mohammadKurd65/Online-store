@@ -4,8 +4,14 @@ import ReusableFilterForm from "../components/ReusableFilterForm";
 import usePersistedFilter from "../hooks/usePersistedFilter"
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminOrdersPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const [page, setPage] = useState(1);
 const [totalPages, setTotalPages] = useState(1);
 const [orders, setOrders] = useState([]);
@@ -105,6 +111,11 @@ showStatus={true}
         </table>
         </div>
     )}
+    <HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     </div>
 );
 }

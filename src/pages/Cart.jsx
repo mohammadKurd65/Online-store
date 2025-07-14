@@ -2,8 +2,13 @@ import { useContext ,useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { decodeToken } from "../utils/jwtDecode";
-
+import { usePermission } from "../hooks/usePermission";
 export default function Cart() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const { state, dispatch } = useContext(CartContext);
 const navigate = useNavigate();
 

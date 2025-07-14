@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastContext";
 import { decodeToken } from "../utils/jwtDecode";
+import HasPermission from "../components/HasPermission";
+import { usePermission} from "../hooks/usePermission";
 
 export default function AddAdminPage() {
     const { showToast } = useToast(); // ✅ استفاده از Toast
@@ -13,6 +15,11 @@ const navigate = useNavigate();
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
+const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 
 useEffect(() => {
 if (userRole !== "admin") {
@@ -78,6 +85,11 @@ return (
         افزودن ادمین
         </button>
     </form>
+    <HasPermission permission="delete_users">
+<button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+    حذف کاربران
+</button>
+</HasPermission>
     </div>
 );
 }

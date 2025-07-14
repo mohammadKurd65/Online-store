@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode";
+import { usePermission} from "../hooks/usePermission";
 
 export default function AddProductPage() {
 const navigate = useNavigate();
@@ -20,6 +21,11 @@ const [error, setError] = useState("");
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
+const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 
 useEffect(() => {
 if (userRole !== "admin") {

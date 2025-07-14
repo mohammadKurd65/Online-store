@@ -1,10 +1,10 @@
+import React from "react";
 import { useAuth } from "../hooks/useAuth";
-import { rolePermissions } from "../constants/rolePermissions";
 
 export default function HasPermission({ permission, children }) {
-const { role } = useAuth();
-const userPermissions = rolePermissions[role] || [];
+  const { hasPermission } = useAuth();
+  const allowed = hasPermission(permission);
 
-return userPermissions.includes(permission) ? <>{children}</> : null;
+  return <>{allowed ? children : null}</>;
+
 }
-// filepath: e:\Online store\online-stora

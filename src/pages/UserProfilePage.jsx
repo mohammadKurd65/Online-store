@@ -4,8 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { getStatusLabel, getStatusColor} from "../utils/statusManager";
 import DeleteOrderModal from "../components/DeleteOrderModal"
 import { decodeToken } from "../utils/jwtDecode";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function UserProfilePage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
     const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
@@ -167,6 +173,12 @@ onClose={() => setShowModal(false)}
 onConfirm={handleDeleteConfirm}
 itemName={`سفارش #${selectedOrder?._id || ""}`}
 />
+
+<HasPermission permission="delete_users">
+                                                <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                                                    حذف کاربران
+                                                </button>
+                                                </HasPermission>
         </div>
     )}
     </div>

@@ -7,8 +7,14 @@ BulkDeleteModal,
 ProductCard,
 Pagination,
 } from "../components";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminProductDashboard() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [products, setProducts] = useState([]);
 const [loading, setLoading] = useState(true);
 const [selectedProducts, setSelectedProducts] = useState([]);
@@ -219,6 +225,12 @@ className="w-full px-4 py-2 border rounded"
         onConfirm={handleBulkDelete}
         count={selectedProducts.length}
     />
+
+    <HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     </div>
 );
 }

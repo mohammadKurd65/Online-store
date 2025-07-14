@@ -1,6 +1,12 @@
 import React, { useState } from "react";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function DashboardSettingsPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [settings, setSettings] = useState({
     showUserChart: true,
     showOrderChart: true,
@@ -169,6 +175,11 @@ return (
     >
         ذخیره تنظیمات
     </button>
+    <HasPermission permission="delete_users">
+                <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                    حذف کاربران
+                </button>
+                </HasPermission>
     </div>
 );
 }

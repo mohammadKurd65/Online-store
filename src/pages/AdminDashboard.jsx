@@ -4,8 +4,9 @@ import { decodeToken } from "../utils/jwtDecode";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { useNavigate } from "react-router-dom";
+import HasPermission from "../components/HasPermission";
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
+import { usePermission} from "../hooks/usePermission";
 
 export default function AdminDashboard() {
 const navigate = useNavigate();
@@ -14,6 +15,11 @@ const [stats, setStats] = useState({
     totalAdmins: 0,
     totalRevenue: 0,
 });
+const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
@@ -181,6 +187,11 @@ return (
         ))}
         </tbody>
     </table>
+    <HasPermission permission="delete_users">
+    <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+        حذف کاربران
+    </button>
+    </HasPermission>
     </div>
 );
 }

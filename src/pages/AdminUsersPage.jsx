@@ -9,8 +9,14 @@ import usePersistedFilter from "../hooks/usePersistedFilter";
 import { getStatusLabel, getStatusColor } from "../utils/statusManager";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
-
+import HasPermission from "../components/HasPermission";
+import { usePermission } from "../hooks/usePermission";
 export default function AdminUsersPage() {
+    const { canDeleteUsers } = usePermission();
+
+if (canDeleteUsers) {
+  // نمایش دکمه حذف
+}
 const [admins, setAdmins] = useState([]);
 const [loading, setLoading] = useState(true);
 const [page, setPage] = useState(1);
@@ -143,7 +149,11 @@ showRole={true}
 showStatus={true}
 showDateRange={true}
 />
-
+<HasPermission permission="delete_users">
+            <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
+                حذف کاربران
+            </button>
+            </HasPermission>
     {/* لیست ادمین‌ها */}
     {loading ? (
     <SkeletonLoader type="table" />
