@@ -12,6 +12,8 @@ import ProductList from "../utils/ProductList";
 import UserActivityChart from "../utils/UserActivityChart";
 import { decodeToken } from "../utils/jwtDecode";
 import { useNavigate } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
 
 export default function AdminFullDashboardPage() {
 const [stats, setStats] = useState({
@@ -51,6 +53,32 @@ const initialSettings = savedSettings
     };
 
 const [dashboardSettings, setDashboardSettings] = useState(initialSettings);
+
+const savedLayout = localStorage.getItem("dashboardLayout");
+
+const initialLayout = savedLayout
+? JSON.parse(savedLayout)
+: [
+    { id: "user-activity", title: "روند ثبت‌نام کاربران" },
+    { id: "role-pie", title: "توزیع نقش کاربران" },
+    { id: "sales-trend", title: "روند فروش ماهانه" },
+    { id: "order-status", title: "وضعیت سفارشات" },
+    ];
+
+const [widgets, setWidgets] = useState(initialLayout);
+
+  // وقتی کاربر بلوک‌ها رو جابجا کرد
+const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const reorderedWidgets = [...widgets];
+    const [movedItem] = reorderedWidgets.splice(result.source.index, 1);
+    reorderedWidgets.splice(result.destination.index, 0, movedItem);
+
+    setWidgets(reorderedWidgets);
+    localStorage.setItem("dashboardLayout", JSON.stringify(reorderedWidgets));
+};
+
 
 const navigate = useNavigate();
 const token = localStorage.getItem("adminToken");
@@ -145,6 +173,39 @@ return (
         { value: "admin", label: "ادمین" },
         ]}
     />
+
+        {/* نمودارها با Drag & Drop */}
+    <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="dashboard-widgets">
+        {(provided) => (
+            <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-2"
+            >
+            {widgets.map((widget, index) => (
+                <Draggable key={widget.id} draggableId={widget.id} index={index}>
+                {(provided) => (
+                    <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className="p-6 bg-white rounded shadow"
+                    >
+                    <h3 className="mb-4 text-xl font-semibold">{widget.title}</h3>
+                    {widget.id === "user-activity" && <UserActivityChart />}
+                    {widget.id === "role-pie" && <UserRolePieChart />}
+                    {widget.id === "sales-trend" && <SalesTrendBarChart />}
+                    {widget.id === "order-status" && <OrderStatusDoughnutChart />}
+                    </div>
+                )}
+                </Draggable>
+            ))}
+            {provided.placeholder}
+            </div>
+        )}
+        </Droppable>
+    </DragDropContext>
 
       {/* آمار عمومی */}
     <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-5">

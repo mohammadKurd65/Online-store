@@ -174,3 +174,16 @@ exports.deleteProduct = async (req, res) => {
         return res.status(500).json({ success: false, message: "خطای سرور" });
     }
 }
+
+exports.saveDashboardLayout = async (req, res) => {
+const { layout } = req.body;
+const userId = req.user.id;
+
+try {
+    await Admin.findByIdAndUpdate(userId, { dashboardLayout: layout });
+    return res.json({ success: true, message: "آرایش داشبورد ذخیره شد." });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};

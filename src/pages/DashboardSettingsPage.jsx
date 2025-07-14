@@ -26,6 +26,29 @@ return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">تنظیمات داشبورد</h2>
 
+{/* نوع نمودار */}
+<div className="p-6 mb-6 bg-white rounded shadow">
+<h3 className="mb-4 text-xl font-semibold">نمایش نمودارها</h3>
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <label className="flex items-center space-x-2 space-x-reverse">
+    <input
+        type="checkbox"
+        checked={settings.showUserChart}
+        onChange={(e) => handleSettingChange("showUserChart", e.target.checked)}
+    />
+    <span>نمودار روند ثبت‌نام</span>
+    </label>
+    <label className="flex items-center space-x-2 space-x-reverse">
+    <input
+        type="checkbox"
+        checked={settings.showProductChart}
+        onChange={(e) => handleSettingChange("showProductChart", e.target.checked)}
+    />
+    <span>نمودار محصولات</span>
+    </label>
+</div>
+</div>
+
       {/* نمایش نمودارها */}
     <div className="p-6 mb-6 bg-white rounded shadow">
         <h3 className="mb-4 text-xl font-semibold">نمایش نمودارها</h3>

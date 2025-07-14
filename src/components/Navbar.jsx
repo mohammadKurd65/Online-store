@@ -8,9 +8,9 @@ const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
 
-if (userRole !== "admin") {
-  return null; // یا یک پیام دسترسی غیرمجاز
-}
+// if (userRole !== "admin") {
+//   return null; // یا یک پیام دسترسی غیرمجاز
+// }
 return (
     <nav className="flex items-center justify-between p-4 bg-white shadow">
     <h1 className="text-xl font-bold">علی‌بابا کلون</h1>
@@ -93,6 +93,7 @@ return (
 <Link to="/admin/dashboard/settings" className="text-blue-500 hover:underline">
 تنظیمات داشبورد
 </Link>
+
 
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">
