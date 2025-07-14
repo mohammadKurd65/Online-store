@@ -65,6 +65,8 @@ router.get("/product-reviews", authAdmin, adminController.getProductReviewStatus
 // دریافت نظرات کاربران
 router.get("/user-reviews", authAdmin, adminController.getUserReviewStatus);
 router.put("/admins/:id/role", authAdmin, adminController.updateAdminRole);
+router.get("/permissions", authAdmin, adminController.getAllRoles);
+router.put("/permissions", authAdmin, adminController.updateRolePermissions);
 
 
 

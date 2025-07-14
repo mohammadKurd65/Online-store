@@ -39,6 +39,7 @@ import UnauthorizedPage from "../pages/UnauthorizedPage";
 import DashboardSettingsPage from "../pages/DashboardSettingsPage";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 import { RoleBasedRoute } from "../pages/RoleBasedRoute";
+import PermissionManagementPage from "../pages/PermissionManagementPage";
 
 
 
@@ -142,6 +143,17 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <DashboardSettingsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/permissions"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <PermissionManagementPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

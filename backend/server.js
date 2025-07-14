@@ -7,6 +7,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
+const mongoose = require("mongoose");
 
 dotenv.config();
 
@@ -29,4 +30,10 @@ app.use("/images", express.static("public/images"));
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`);
+});
+
+const seedRoles = require("./utils/seedRoles");
+
+mongoose.connection.once("open", async () => {
+await seedRoles();
 });

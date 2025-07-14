@@ -94,6 +94,9 @@ return (
 تنظیمات داشبورد
 </Link>
 
+<Link to="/admin/permissions" className="text-blue-500 hover:underline">
+مدیریت دسترسی‌ها
+</Link>
 
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">

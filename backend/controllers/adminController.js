@@ -4,6 +4,8 @@ const Order = require("../models/OrderModel");
 const Product = require("../models/ProductModel");
 const mongoose = require("mongoose");
 const User = require("../models/UserModel");
+const AdminRole = require("../models/AdminRoleModel");
+
 
 // حذف کاربر
 exports.deleteUser = async (req, res) => {
@@ -182,6 +184,38 @@ const userId = req.user.id;
 try {
     await Admin.findByIdAndUpdate(userId, { dashboardLayout: layout });
     return res.json({ success: true, message: "آرایش داشبورد ذخیره شد." });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getAllRoles = async (req, res) => {
+try {
+    const roles = await AdminRole.find(); // یا اگر مستقل بود، UserRole
+    return res.json({
+    success: true,
+    roles,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.updateRolePermissions = async (req, res) => {
+const { roles } = req.body;
+
+try {
+    // آپدیت تمام نقش‌ها
+    for (const role of roles) {
+    await AdminRole.findByIdAndUpdate(role._id, { permissions: role.permissions });
+    }
+
+    return res.json({
+    success: true,
+    message: "دسترسی‌ها با موفقیت آپدیت شد.",
+    });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
