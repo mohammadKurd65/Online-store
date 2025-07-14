@@ -26,6 +26,7 @@ const [users, setUsers] = useState([]);
 const [orders, setOrders] = useState([]);
 const [products, setProducts] = useState([]);
 const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
 
   // فیلترها
 const [filters, setFilters] = useState({
@@ -35,20 +36,38 @@ const [filters, setFilters] = useState({
     endDate: "",
     searchTerm: "",
 });
+
+const savedSettings = localStorage.getItem("dashboardSettings");
+const initialSettings = savedSettings
+    ? JSON.parse(savedSettings)
+    : {
+        showUserChart: true,
+        showOrderChart: true,
+        showProductChart: true,
+        showSalesChart: true,
+        theme: "light",
+        itemsPerPage: 5,
+        chartType: "bar",
+    };
+
+const [dashboardSettings, setDashboardSettings] = useState(initialSettings);
+
 const navigate = useNavigate();
-const token = localStorage.getItem("userToken");
+const token = localStorage.getItem("adminToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
 
 useEffect(() => {
-if (userRole !== "admin") {
+    if (userRole !== "admin") {
     navigate("/unauthorized");
-}
+    }
 }, [userRole, navigate]);
+
 useEffect(() => {
     const fetchData = async () => {
+    setLoading(true);
+    setError("");
     try {
-        const token = localStorage.getItem("adminToken");
         const params = new URLSearchParams();
 
         if (filters.role) params.append("role", filters.role);
@@ -91,6 +110,7 @@ useEffect(() => {
         setProducts(productRes.data.data || []);
         setStats(statsRes.data.data || stats);
     } catch (err) {
+        setError("خطا در دریافت داده‌ها!");
         console.error(err);
     } finally {
         setLoading(false);
@@ -98,10 +118,7 @@ useEffect(() => {
     };
 
     fetchData();
-}, [filters , stats , users, orders, products]);
-
-
-
+}, [filters, dashboardSettings]);
 
 return (
     <div className="container py-10 mx-auto">
@@ -138,27 +155,42 @@ return (
         <StatCard title="محصولات" value={stats.totalProducts} color="bg-indigo-500" />
     </div>
 
-      {/* نمودارها */}
+      {/* نمایش خطا */}
+    {error && (
+        <div className="mb-6 text-center text-red-600">
+        {error}
+        </div>
+    )}
+
+      {/* نمودارها فقط بر اساس تنظیمات داشبورد */}
     <div className="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-2">
+        {dashboardSettings.showUserChart && (
         <div className="p-6 bg-white rounded shadow">
-        <h3 className="mb-4 text-xl font-semibold">روند ثبت‌نام کاربران</h3>
-        <UserActivityChart users={users} />
+            <h3 className="mb-4 text-xl font-semibold">روند ثبت‌نام کاربران</h3>
+            <UserActivityChart users={users} />
         </div>
+        )}
 
+        {dashboardSettings.showProductChart && (
         <div className="p-6 bg-white rounded shadow">
-        <h3 className="mb-4 text-xl font-semibold">توزیع نقش کاربران</h3>
-        <UserRolePieChart users={users} />
+            <h3 className="mb-4 text-xl font-semibold">توزیع نقش کاربران</h3>
+            <UserRolePieChart users={users} />
         </div>
+        )}
 
+        {dashboardSettings.showSalesChart && (
         <div className="p-6 bg-white rounded shadow">
-        <h3 className="mb-4 text-xl font-semibold">روند فروش ماهانه</h3>
-        <SalesTrendBarChart orders={orders} />
+            <h3 className="mb-4 text-xl font-semibold">روند فروش ماهانه</h3>
+            <SalesTrendBarChart orders={orders} />
         </div>
+        )}
 
+        {dashboardSettings.showOrderChart && (
         <div className="p-6 bg-white rounded shadow">
-        <h3 className="mb-4 text-xl font-semibold">وضعیت سفارشات</h3>
-        <OrderStatusDoughnutChart orders={orders} />
+            <h3 className="mb-4 text-xl font-semibold">وضعیت سفارشات</h3>
+            <OrderStatusDoughnutChart orders={orders} />
         </div>
+        )}
     </div>
 
       {/* لیست آخرین سفارشات */}
@@ -171,8 +203,11 @@ return (
     <div className="p-6 mb-8 bg-white rounded shadow">
         <h3 className="mb-4 text-xl font-semibold">محصولات اخیر</h3>
         <ProductList products={products.slice(0, 5)} />
-    </div>
-    </div>
+        </div>
+        {/*تنظیمات داشبورد */}
+        <div className="p-6 bg-white rounded shadow">
+            
+        </div>
+        </div>
 );
 }
-

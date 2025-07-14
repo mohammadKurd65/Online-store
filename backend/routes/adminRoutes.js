@@ -11,7 +11,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 
 // مسیرهای مربوط به ادمین ها
 // ورود ادمین
-
+router.put("/dashboard/settings", authAdmin, adminController.saveDashboardSettings);
 router.get("/dashboard", authAdmin(["admin", "editor"]), adminController.getAdminDashboardStats);
 router.get("/users", authAdmin, adminController.getAllUsers);
 router.get("/users", authAdmin, adminController.getAllUsers);

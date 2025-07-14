@@ -89,6 +89,11 @@ return (
 <Link to="/admin/dashboard" className="text-blue-500 hover:underline">
 داشبورد کامل
 </Link>
+
+<Link to="/admin/dashboard/settings" className="text-blue-500 hover:underline">
+تنظیمات داشبورد
+</Link>
+
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">
     {userRole === "admin" && (

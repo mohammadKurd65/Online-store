@@ -36,27 +36,10 @@ import { Navigate } from "react-router-dom";
 import UserDashboard from "../pages/UserDashboard";
 import EditorDashboardPage from "../pages/EditorDashboardPage";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
-// 🔐 ProtectedRoute - فقط کاربران لاگین‌کرده
-export const ProtectedRoute = ({ children }) => {
-const token = localStorage.getItem("userToken");
-if (!token) {
-    return <Navigate to="/login" replace />;
-}
-return children;
-};
+import DashboardSettingsPage from "../pages/DashboardSettingsPage";
+import { ProtectedRoute } from "../pages/ProtectedRoute";
+import { RoleBasedRoute } from "../pages/RoleBasedRoute";
 
-// 👥 RoleBasedRoute - بر اساس نقش
-export const RoleBasedRoute = ({ children, allowedRoles = ["user"] }) => {
-const token = localStorage.getItem("userToken");
-const decoded = decodeToken(token);
-const userRole = decoded?.role || "user";
-
-if (!decoded || !allowedRoles.includes(userRole)) {
-    return <Navigate to="/unauthorized" replace />;
-}
-
-return children;
-};
 
 
 export default function AppRoutes() {
@@ -152,6 +135,17 @@ element={
     </RoleBasedRoute>
 </ProtectedRoute>
 } />
+
+<Route
+path="/admin/dashboard/settings"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <DashboardSettingsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
 
 <Route path="/unauthorized" element={<UnauthorizedPage />} />
     </Routes>
