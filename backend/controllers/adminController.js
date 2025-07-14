@@ -204,14 +204,11 @@ try {
 };
 
 exports.updateRolePermissions = async (req, res) => {
-const { roles } = req.body;
+const { role } = req.params;
+const { permissions } = req.body;
 
 try {
-    // آپدیت تمام نقش‌ها
-    for (const role of roles) {
-    await AdminRole.findByIdAndUpdate(role._id, { permissions: role.permissions });
-    }
-
+    await AdminRole.findOneAndUpdate({ name: role }, { permissions });
     return res.json({
     success: true,
     message: "دسترسی‌ها با موفقیت آپدیت شد.",

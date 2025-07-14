@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import HasPermission from "../components/HasPermission";
 import { usePermission } from "../hooks/usePermission";
+import RolePermissionModal from "../components/RolePermissionModal";
+
+
 export default function PermissionManagementPage() {
     const { canDeleteUsers } = usePermission();
 
@@ -39,6 +42,46 @@ const permissionLabels = {
     delete_users: "حذف کاربران",
     manage_orders: "مدیریت سفارشات",
     manage_permissions: "مدیریت دسترسی‌ها",
+};
+
+const [showModal, setShowModal] = useState(false);
+const [selectedRole, setSelectedRole] = useState(null);
+const [rolePermissions, setRolePermissions] = useState([]);
+
+const openRoleModal = (roleName) => {
+const role = roles.find((r) => r.name === roleName);
+setSelectedRole(roleName);
+setRolePermissions(role?.permissions || []);
+setShowModal(true);
+};
+
+const saveRolePermissions = async () => {
+try {
+    const token = localStorage.getItem("adminToken");
+    await axios.put(
+    `http://localhost:5000/api/admin/permissions/${selectedRole}`,
+    { permissions: rolePermissions },
+    {
+        headers: {
+        Authorization: `Bearer ${token}`,
+        },
+    }
+    );
+
+    setRoles((prevRoles) =>
+    prevRoles.map((r) =>
+        r.name === selectedRole
+        ? { ...r, permissions: rolePermissions }
+        : r
+    )
+    );
+
+    setShowModal(false);
+    alert("دسترسی‌ها آپدیت شد.");
+} catch (err) {
+    alert("خطا در آپدیت دسترسی‌ها.");
+    console.error(err);
+}
 };
 
 const handlePermissionChange = (roleName, permission) => {
@@ -126,6 +169,37 @@ return (
                                             حذف کاربران
                                         </button>
                                         </HasPermission>
+
+                                        {/* مدال تنظیم دسترسی‌ها */}
+<RolePermissionModal
+isOpen={showModal}
+onClose={() => setShowModal(false)}
+role={selectedRole}
+permissions={rolePermissions}
+onPermissionsChange={(roleName, newPermissions) => {
+    setRolePermissions(newPermissions);
+}}
+/>
+
+{/* لیست نقش‌ها */}
+<div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3">
+{roles.map((role) => (
+    <div key={role.name} className="flex flex-col justify-between p-4 border rounded shadow">
+    <h3 className="text-lg font-semibold capitalize">{role.name}</h3>
+    <ul className="mt-2 text-sm text-gray-700">
+        {role.permissions.map((p) => (
+        <li key={p}>{permissionLabels[p]}</li>
+        ))}
+    </ul>
+    <button
+        onClick={() => openRoleModal(role.name)}
+        className="self-start px-4 py-1 mt-4 text-white bg-blue-500 rounded hover:bg-blue-600"
+    >
+        تنظیم دسترسی
+    </button>
+    </div>
+))}
+</div>
     </div>
     </div>
 );
