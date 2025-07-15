@@ -41,6 +41,7 @@ import { ProtectedRoute } from "../pages/ProtectedRoute";
 import { RoleBasedRoute } from "../pages/RoleBasedRoute";
 import PermissionManagementPage from "../pages/PermissionManagementPage";
 import AuditLogPage from "../pages/AuditLogPage";
+import NotificationsPage from "../pages/NotificationsPage";
 
 
 
@@ -170,6 +171,18 @@ element={
     </ProtectedRoute>
 }
 />
+
+<Route
+path="/admin/notifications"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <NotificationsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
 
 <Route path="/unauthorized" element={<UnauthorizedPage />} />
     </Routes>

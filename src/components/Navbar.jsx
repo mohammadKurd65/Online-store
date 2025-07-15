@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeToken } from "../utils/jwtDecode";
+import NotificationBell from "./NotificationBell";
+
+
 
 export default function Navbar() {
 const { currentUser } = useAuth();
@@ -36,6 +39,8 @@ return (
 </Link>
 <Link to="/admin/orders" className="text-blue-500 hover:underline">
 پنل ادمین
+{/* در قسمت منوی ادمین */}
+<NotificationBell />
 </Link>
 <Link to="/admin/login" className="text-blue-500 hover:underline">
 ورود ادمین
@@ -77,9 +82,6 @@ return (
 <Link to="/admin/products" className="text-blue-500 hover:underline">
 محصولات
 </Link>
-<Link to="/admin/products" className="text-blue-500 hover:underline">
-محصولات
-</Link>
 <Link to="/admin/users" className="text-blue-500 hover:underline">
 کاربران
 </Link>
@@ -100,6 +102,10 @@ return (
 
 <Link to="/admin/logs" className="text-blue-500 hover:underline">
 ثبت‌نامه‌ها
+</Link>
+
+<Link to="/admin/notifications" className="text-blue-500 hover:underline">
+اعلان‌ها
 </Link>
 
 {token && (

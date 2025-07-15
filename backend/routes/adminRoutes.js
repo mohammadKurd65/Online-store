@@ -74,7 +74,9 @@ router.get("/permissions/me", authAdmin, adminController.getRolePermissions);
 router.put("/permissions/:role", authAdmin, adminController.updateRolePermissions);
 router.delete("/users/:id", authAdmin, auditLogger("delete_user", "user", "حذف کاربر"), adminController.deleteUser);
 router.get("/logs", authAdmin(["admin"]), adminController.getAuditLogs);
-
+router.get("/notifications", authAdmin, adminController.getNotifications);
+router.put("/notifications/read/:id", authAdmin, adminController.markAsRead);
+router.put("/notifications/read-all", authAdmin, adminController.markAllAsRead);
 
 
 

@@ -6,8 +6,56 @@ const mongoose = require("mongoose");
 const User = require("../models/UserModel");
 const AdminRole = require("../models/AdminRoleModel");
 const AuditLog = require("../models/AuditLogModel");
+const Notification = require("../models/NotificationModel");
 
 
+
+exports.getNotifications = async (req, res) => {
+const adminId = req.admin._id;
+
+try {
+    const notifications = await Notification.find({ admin: adminId }).sort({
+    createdAt: -1,
+    });
+
+    return res.json({
+    success: true,
+    notifications,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.markAsRead = async (req, res) => {
+const { id } = req.params;
+try {
+    await Notification.findByIdAndUpdate(id, { read: true });
+    return res.json({
+    success: true,
+    message: "اعلان با موفقیت خوانده شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.markAllAsRead = async (req, res) => {
+const adminId = req.admin._id;
+
+try {
+    await Notification.updateMany({ admin: adminId, read: false }, { read: true });
+    return res.json({
+    success: true,
+    message: "همه اعلان‌ها خوانده شدند.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
 // حذف کاربر
 exports.deleteUser = async (req, res) => {
 const { id } = req.params;
