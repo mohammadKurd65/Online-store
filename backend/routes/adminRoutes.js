@@ -3,6 +3,9 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const authAdmin = require("../middleware/authMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
+const auditLogger = require("../middleware/auditLogger");
+
+
 
 
 
@@ -69,7 +72,8 @@ router.get("/permissions", authAdmin, adminController.getAllRoles);
 router.put("/permissions", authAdmin, adminController.updateRolePermissions);
 router.get("/permissions/me", authAdmin, adminController.getRolePermissions);
 router.put("/permissions/:role", authAdmin, adminController.updateRolePermissions);
-
+router.delete("/users/:id", authAdmin, auditLogger("delete_user", "user", "حذف کاربر"), adminController.deleteUser);
+router.get("/logs", authAdmin(["admin"]), adminController.getAuditLogs);
 
 
 

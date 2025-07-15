@@ -5,13 +5,20 @@ const Product = require("../models/ProductModel");
 const mongoose = require("mongoose");
 const User = require("../models/UserModel");
 const AdminRole = require("../models/AdminRoleModel");
+const AuditLog = require("../models/AuditLogModel");
 
 
 // حذف کاربر
 exports.deleteUser = async (req, res) => {
 const { id } = req.params;
+
 try {
-    await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+    return res.status(404).json({ success: false, message: "کاربر یافت نشد." });
+    }
+
     return res.json({
     success: true,
     message: "کاربر با موفقیت حذف شد.",
@@ -229,6 +236,22 @@ try {
     return res.json({
     success: true,
     permissions: role.permissions,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getAuditLogs = async (req, res) => {
+try {
+    const logs = await AuditLog.find()
+    .populate("admin", "username")
+    .sort({ createdAt: -1 });
+
+    return res.json({
+    success: true,
+    logs,
     });
 } catch (error) {
     console.error(error);

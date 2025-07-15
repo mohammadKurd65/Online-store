@@ -98,6 +98,10 @@ return (
 مدیریت دسترسی‌ها
 </Link>
 
+<Link to="/admin/logs" className="text-blue-500 hover:underline">
+ثبت‌نامه‌ها
+</Link>
+
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">
     {userRole === "admin" && (

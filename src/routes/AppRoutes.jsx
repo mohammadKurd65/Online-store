@@ -32,7 +32,7 @@ import AdminUserManagementPage from "../pages/AdminUserManagementPage";
 import AdminEditUserPage from "../pages/AdminEditUserPage";
 import AdminAddUserPage from "../pages/AdminAddUserPage";
 import AdminFullDashboardPage from "../pages/AdminFullDashboardPage";
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 import UserDashboard from "../pages/UserDashboard";
 import EditorDashboardPage from "../pages/EditorDashboardPage";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
@@ -40,6 +40,7 @@ import DashboardSettingsPage from "../pages/DashboardSettingsPage";
 import { ProtectedRoute } from "../pages/ProtectedRoute";
 import { RoleBasedRoute } from "../pages/RoleBasedRoute";
 import PermissionManagementPage from "../pages/PermissionManagementPage";
+import AuditLogPage from "../pages/AuditLogPage";
 
 
 
@@ -154,6 +155,17 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <PermissionManagementPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/logs"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <AuditLogPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }
