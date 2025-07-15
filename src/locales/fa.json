@@ -1,0 +1,24 @@
+{
+"dashboard": {
+    "title": "داشبورد",
+    "welcome": "خوش آمدید، {name}"
+},
+"permissions": {
+    "view_dashboard": "مشاهده داشبورد",
+    "edit_profile": "ویرایش پروفایل",
+    "edit_products": "ویرایش محصولات",
+    "delete_users": "حذف کاربران",
+    "manage_orders": "مدیریت سفارشات",
+    "manage_permissions": "مدیریت دسترسی‌ها"
+},
+"roles": {
+    "admin": "ادمین",
+    "editor": "ویرایشگر",
+    "user": "کاربر عادی"
+},
+"buttons": {
+    "save": "ذخیره",
+    "cancel": "لغو",
+    "edit": "ویرایش"
+}
+}

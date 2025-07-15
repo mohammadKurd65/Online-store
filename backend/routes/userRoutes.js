@@ -12,6 +12,7 @@ router.post("/register", userController.registerUser);
 router.get("/profile", authMiddleware, userController.getUserProfile);
 router.put("/profile", authMiddleware, userController.updateUserProfile);
 router.delete("/profile", authMiddleware, userController.deleteUserProfile);
+router.put("/profile/language", authMiddleware, userController.updateLanguage);
 
 
 module.exports = router;

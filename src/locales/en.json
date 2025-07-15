@@ -1,0 +1,24 @@
+{
+"dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}"
+},
+"permissions": {
+    "view_dashboard": "View Dashboard",
+    "edit_profile": "Edit Profile",
+    "edit_products": "Edit Products",
+    "delete_users": "Delete Users",
+    "manage_orders": "Manage Orders",
+    "manage_permissions": "Manage Permissions"
+},
+"roles": {
+    "admin": "Admin",
+    "editor": "Editor",
+    "user": "User"
+},
+"buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit"
+}
+}

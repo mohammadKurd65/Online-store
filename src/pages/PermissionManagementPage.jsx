@@ -3,9 +3,11 @@ import axios from "axios";
 import HasPermission from "../components/HasPermission";
 import { usePermission } from "../hooks/usePermission";
 import RolePermissionModal from "../components/RolePermissionModal";
+import useTranslation from "../hooks/useTranslation";
 
 
 export default function PermissionManagementPage() {
+    const { t, lang, setLang } = useTranslation();
     const { canDeleteUsers } = usePermission();
 
 if (canDeleteUsers) {
@@ -115,9 +117,25 @@ const savePermissions = async () => {
     console.error(err);
     }
 };
-
+const { role } = usePermission();
 return (
     <div className="container py-10 mx-auto">
+        <h2 className="mb-6 text-3xl font-bold">{t.dashboard.title}</h2>
+
+      {/* تغییر زبان */}
+    <select
+        value={lang}
+        onChange={(e) => setLang(e.target.value)}
+        className="px-3 py-2 mb-4 border rounded"
+    >
+        <option value="fa">فارسی</option>
+        <option value="en">انگلیسی</option>
+    </select>
+
+      {/* نمایش دسترسی‌ها با زبان فعلی */}
+    <p>سلام، شما نقش {t.roles[role] || role} رو دارید.</p>
+        
+        
     <h2 className="mb-6 text-3xl font-bold">مدیریت دسترسی‌ها</h2>
 
     <div className="p-6 mb-8 bg-white rounded shadow">

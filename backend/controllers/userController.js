@@ -118,3 +118,26 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+//به روزرسانی کاربربا زبان انتخابی
+exports.updateLanguage = async (req, res) => {
+const userId = req.user.id;
+const { language } = req.body;
+
+try {
+    const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { language },
+    { new: true, select: "-password" }
+    );
+
+    return res.json({
+    success: true,
+    updatedUser,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
