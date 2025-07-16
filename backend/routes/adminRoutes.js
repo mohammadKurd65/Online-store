@@ -77,7 +77,8 @@ router.get("/logs", authAdmin(["admin"]), adminController.getAuditLogs);
 router.get("/notifications", authAdmin, adminController.getNotifications);
 router.put("/notifications/read/:id", authAdmin, adminController.markAsRead);
 router.put("/notifications/read-all", authAdmin, adminController.markAllAsRead);
-
-
-
+router.get("/notification/settings", authAdmin, adminController.getNotificationSettings);
+router.put("/notification/settings", authAdmin, adminController.saveNotificationSettings);
+router.post("/notifications/broadcast", authAdmin(["admin"]), adminController.broadcastNotification);
+router.post("/notifications/global", authAdmin(["admin"]), adminController.sendGlobalNotification);
 module.exports = router;

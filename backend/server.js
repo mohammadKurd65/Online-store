@@ -8,13 +8,38 @@ const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const mongoose = require("mongoose");
+const http = require("http");
+const app = express();
+const server = http.createServer(app);
+const io = require("socket.io")(server, {
+cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    }
+});
+
+io.on("connection", (socket) => {
+console.log("🟢 اتصال ادمین:", socket.id);
+socket.on("joinAdminRoom", (adminId) => {
+    socket.join(`admin_${adminId}`);
+    console.log(`🔵 ادمین ${adminId} به اتاق خود پیوست.`);
+});
+
+socket.on("disconnect", () => {
+    console.log("🔴 یک ادمین قطع ارتباط داد.");
+});
+});
+
+// ✅ راه‌اندازی Socket.IO
+const { setupSocket } = require("./utils/socketHandler");
+setupSocket(server);
 
 dotenv.config();
 
 // Connect to DB
 connectDB();
 
-const app = express();
+
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());

@@ -1,15 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useSocket } from "../hooks/useSocket";
+import { decodeToken } from "../utils/jwtDecode";
+import { io } from "socket.io-client";
 
 export default function NotificationBell() {
-const [showDropdown, setShowDropdown] = useState(false);
-const [notifications, setNotifications] = useState([]);
-const unreadCount = notifications.filter((n) => !n.read).length;
+const token = localStorage.getItem("adminToken");
+const decoded = decodeToken(token);
+const adminId = decoded?.id || "";
 
+const { notifications, setNotifications } = useSocket(adminId);
+
+const [showDropdown, setShowDropdown] = useState(false);
+const unreadCount = notifications.filter((n) => !n.read).length;
+const [settings, setSettings] = useState({
+    enableSound: true,
+    enableNotifications: true,
+    enableEmail: false,
+});
+
+  // دریافت اعلان‌های قبلی
 useEffect(() => {
     const fetchNotifications = async () => {
     try {
-        const token = localStorage.getItem("adminToken");
         const res = await axios.get("http://localhost:5000/api/admin/notifications", {
         headers: {
             Authorization: `Bearer ${token}`,
@@ -21,8 +34,36 @@ useEffect(() => {
     }
     };
 
+    if (adminId) {
     fetchNotifications();
-}, []);
+    }
+}, [adminId, token, setNotifications]);
+
+  // وقتی یک اعلان جدید دریافت شد
+useEffect(() => {
+    if (notifications.length > 0 && settings.enableSound) {
+    const audio = new Audio("/sounds/notification.mp3");
+    audio.play();
+    }
+}, [notifications, settings.enableSound]);
+
+useEffect(() => {
+const socket = io("http://localhost:5000", {
+    auth: {
+    adminId,
+    },
+});
+
+socket.on("new-global-notification", (notification) => {
+    setNotifications((prev) => [notification, ...prev]);
+    if (settings.enableSound) {
+    const audio = new Audio("/sounds/notification.mp3");
+    audio.play();
+    }
+});
+
+return () => socket.disconnect();
+}, [adminId, setNotifications, settings.enableSound]);
 
 return (
     <div className="relative">
@@ -30,24 +71,14 @@ return (
         onClick={() => setShowDropdown(!showDropdown)}
         className="relative p-2 text-gray-600 hover:text-blue-600"
     >
-        <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-6 h-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        >
+        {/* آیکون */}
+        <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path
+            d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2Zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z"
+            stroke="currentColor"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 17h5l-1.405-4.217A2 2 0 0017.405 11H7.21a2 2 2 0 00-1.991 1.817L2.167 4.645a2 2 2 0 00-.167 1.991z"
-        />
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 3h2l.447.67a7.001 7.001 0 0010.106 0L16 3H3z"
         />
         </svg>
         {unreadCount > 0 && (
@@ -74,16 +105,23 @@ return (
                 >
                 <strong>{notification.title}</strong>
                 <p className="text-sm">{notification.message}</p>
-                <a href={notification.actionUrl} className="text-sm text-blue-500 underline">
+                {notification.actionUrl ? (
+                    <a
+                    href={notification.actionUrl}
+                    className="text-sm text-blue-500 underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >
                     مشاهده
-                </a>
+                    </a>
+                ) : null}
                 </li>
             ))
             )}
         </ul>
         <div className="p-2 text-center">
             <a href="/admin/notifications" className="text-sm text-blue-500 hover:underline">
-            مشاهده همه اعلان‌ها
+            مشاهده همه
             </a>
         </div>
         </div>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { decodeToken } from "../utils/jwtDecode";
 import NotificationBell from "./NotificationBell";
+import { useState } from "react";
 
 
 
@@ -10,6 +11,7 @@ const { currentUser } = useAuth();
 const token = localStorage.getItem("userToken");
 const decoded = decodeToken(token);
 const userRole = decoded?.role;
+const [showBroadcastModal, setShowBroadcastModal] = useState(false);
 
 // if (userRole !== "admin") {
 //   return null; // یا یک پیام دسترسی غیرمجاز
@@ -107,6 +109,19 @@ return (
 <Link to="/admin/notifications" className="text-blue-500 hover:underline">
 اعلان‌ها
 </Link>
+
+<Link to="/admin/notification/settings" className="text-blue-500 hover:underline">
+تنظیمات اعلان
+</Link>
+
+{token && userRole === "admin" && (
+<button
+    onClick={() => setShowBroadcastModal(true)}
+    className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+>
+    ارسال اعلان دستی
+</button>
+)}
 
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">

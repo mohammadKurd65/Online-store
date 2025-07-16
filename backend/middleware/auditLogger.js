@@ -1,13 +1,15 @@
 const AuditLog = require("../models/AuditLogModel");
 const Notification = require("../models/NotificationModel");
+const { sendNotificationToAdmin } = require("../utils/socketHandler");
+
 
 const auditLogger = (action, entityType, description) => async (req, res, next) => {
-  const { user } = req; // اطلاعات ادمین از authMiddleware
+const { user } = req;
 const ip = req.ip;
 const userAgent = req.headers["user-agent"];
 
 try {
-    // ثبت لاگ
+    // ذخیره لاگ
     await AuditLog.create({
     admin: user.id,
     action,
@@ -18,16 +20,19 @@ try {
     userAgent,
     });
 
-    // ثبت اعلان
-    await Notification.create({
+    // ذخیره اعلان
+    const newNotif = await Notification.create({
     admin: user.id,
-    title: "عملیات جدید",
+    title: getNotificationTitle(action),
     message: description,
     type: getNotificationType(action),
-    actionUrl: getActionUrl(action, entityType, req.params.id),
     entityType,
     entityId: req.params.id,
+    actionUrl: getActionUrl(action, entityType, req.params.id),
     });
+
+    // ✅ ارسال اعلان زنده
+    sendNotificationToAdmin(user.id, newNotif);
 } catch (err) {
     console.error("خطا در ثبت لاگ و اعلان:", err);
 }
@@ -35,44 +40,39 @@ try {
 next();
 };
 
-// تعیین نوع اعلان
+function getNotificationTitle(action) {
+switch (action) {
+    case "login":
+    return "ورود";
+    case "delete_user":
+    return "حذف کاربر";
+    case "create_product":
+    return "محصول جدید";
+    default:
+    return "اعلان جدید";
+}
+}
+
 function getNotificationType(action) {
 switch (action) {
     case "delete_user":
     case "delete_product":
     return "danger";
-    case "login":
-    case "logout":
-    return "info";
     case "update_permissions":
-    case "edit_settings":
     return "warning";
     case "create_product":
-    case "create_user":
     return "success";
     default:
     return "info";
 }
 }
 
-// تعیین لینک اعلان
 function getActionUrl(action, entityType, entityId) {
-if (!entityId) return "/admin/dashboard";
-
-switch (entityType) {
-    case "user":
-    return `/admin/users/${entityId}`;
-    case "product":
-    return `/admin/products/${entityId}`;
-    case "order":
-    return `/admin/orders/${entityId}`;
-    case "role":
-    return "/admin/permissions";
-    case "settings":
-    return "/admin/settings";
-    default:
+    // نمونه ساده: لینک به صفحه مدیریت همان موجودیت
+    if (entityType === "user") return `/admin/users/${entityId}`;
+    if (entityType === "product") return `/admin/products/${entityId}`;
+    if (entityType === "order") return `/admin/orders/${entityId}`;
     return "/";
-}
 }
 
 module.exports = auditLogger;

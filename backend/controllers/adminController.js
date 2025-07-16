@@ -7,7 +7,9 @@ const User = require("../models/UserModel");
 const AdminRole = require("../models/AdminRoleModel");
 const AuditLog = require("../models/AuditLogModel");
 const Notification = require("../models/NotificationModel");
-
+const { sendNotificationToAdmin } = require("../utils/socketHandler");
+const { broadcastGlobalNotification } = require("../utils/socketHandler");
+const GlobalNotification = require("../models/GlobalNotificationModel");
 
 
 exports.getNotifications = async (req, res) => {
@@ -300,6 +302,123 @@ try {
     return res.json({
     success: true,
     logs,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getNotificationSettings = async (req, res) => {
+const adminId = req.admin._id;
+
+try {
+    const settings = await Admin.findById(adminId).select("notificationSettings");
+
+    return res.json({
+    success: true,
+    settings: settings.notificationSettings || {},
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.saveNotificationSettings = async (req, res) => {
+const adminId = req.admin._id;
+const { settings } = req.body;
+
+try {
+    await Admin.findByIdAndUpdate(
+    adminId,
+    { notificationSettings: settings },
+    { new: true }
+    );
+
+    return res.json({
+    success: true,
+    message: "تنظیمات با موفقیت ذخیره شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.broadcastNotification = async (req, res) => {
+const { title, message, type, recipient, adminId } = req.body;
+
+try {
+    let notificationData = {
+    title,
+    message,
+    type,
+    actionUrl: "/admin/dashboard",
+    };
+
+    if (recipient === "all") {
+      // ارسال به همه ادمین‌ها
+    const admins = await Admin.find({}, "_id");
+
+    for (const admin of admins) {
+        const notification = new Notification({
+        ...notificationData,
+        admin: admin._id,
+        });
+        await notification.save();
+        sendNotificationToAdmin(admin._id, notification);
+    }
+
+    return res.json({
+        success: true,
+        message: "اعلان به تمام ادمین‌ها ارسال شد.",
+    });
+    } else if (recipient === "specific" && adminId) {
+    const notification = new Notification({
+        ...notificationData,
+        admin: adminId,
+    });
+    await notification.save();
+    sendNotificationToAdmin(adminId, notification);
+
+    return res.json({
+        success: true,
+        message: "اعلان به ادمین خاص ارسال شد.",
+    });
+    }
+
+    return res.status(400).json({ success: false, message: "دریافت کننده نامعتبر." });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+
+
+exports.sendGlobalNotification = async (req, res) => {
+const { title, message, type, audience } = req.body;
+
+try {
+    const notif = {
+    title,
+    message,
+    type,
+    isGlobal: true,
+    audience,
+    createdAt: new Date(),
+    };
+
+    // ذخیره در لاگ
+    await GlobalNotification.create(notif);
+
+    // ✅ ارسال زنده
+    broadcastGlobalNotification(notif);
+
+    return res.json({
+    success: true,
+    message: "اعلان عمومی ارسال شد.",
     });
 } catch (error) {
     console.error(error);

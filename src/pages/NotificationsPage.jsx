@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useNavigate } from "react";
 import axios from "axios";
-
+import BroadcastNotificationModal from "../components/BroadcastNotificationModal";
+import GlobalNotificationModal from "../components/GlobalNotificationModal";
 export default function NotificationsPage() {
 const [notifications, setNotifications] = useState([]);
+const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+const [showGlobalModal, setShowGlobalModal] = useState(false);
 const navigate = useNavigate();
 
 useEffect(() => {
@@ -61,6 +64,35 @@ return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">اعلان‌ها</h2>
 
+    <div className="flex justify-between mb-6">
+        <button
+            onClick={() => setShowBroadcastModal(true)}
+            className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+        >
+            ارسال دستی اعلان
+        </button>
+
+        <button
+            onClick={() => setShowGlobalModal(true)}
+            className="px-4 py-2 text-white bg-indigo-500 rounded hover:bg-indigo-600"
+        >
+            ارسال اعلان عمومی
+        </button>
+
+        {/* مدال‌ها */}
+        <BroadcastNotificationModal
+        isOpen={showBroadcastModal}
+        onClose={() => setShowBroadcastModal(false)}
+        />
+
+        <GlobalNotificationModal
+        isOpen={showGlobalModal}
+        onClose={() => setShowGlobalModal(false)}
+        />
+        </div>
+
+    
+
       {/* دکمه خواندن همه */}
     <div className="mb-4 text-right">
         <button
@@ -73,40 +105,37 @@ return (
 
       {/* لیست اعلان‌ها */}
     <div className="bg-white rounded shadow">
-        {notifications.length === 0 ? (
-        <p className="p-6 text-center text-gray-500">هیچ اعلانی وجود ندارد.</p>
-        ) : (
-        notifications.map((notifications, index) => (
-            <div
-            key={index}
-            className={`border-b last:border-b-0 px-4 py-3 ${
-                notifications.read ? "bg-gray-50" : "bg-blue-50"
-            }`}
-            >
-            <div className="flex justify-between">
-                <h3 className="font-semibold">{notifications.title}</h3>
-                {!notifications.read && (
-                <button
-                    onClick={() => markAsRead(notifications._id)}
-                    className="text-xs text-blue-500 hover:underline"
-                >
-                    خواندن
-                </button>
-                )}
-            </div>
-            <p className="mt-1 text-sm">{notifications.message}</p>
-            {notifications.actionUrl && (
-                <a
-                href={notifications.actionUrl}
-                className="inline-block mt-2 text-sm text-blue-500 hover:underline"
-                >
-                مشاهده جزئیات
-                </a>
-            )}
-            </div>
-        ))
-        )}
+    {notifications.map((notification, index) => (
+<div
+    key={index}
+    className={`border-b last:border-b-0 px-4 py-3 ${
+    notification.read ? "bg-gray-50" : "bg-blue-50"
+    }`}
+>
+    <div className="flex justify-between">
+    <h3 className="font-semibold">{notification.title}</h3>
+    {!notification.read && (
+        <button
+        onClick={() => markAsRead(notification._id)}
+        className="text-xs text-blue-500 hover:underline"
+        >
+        خواندن
+        </button>
+    )}
+    </div>
+    <p className="mt-1 text-sm">{notification.message}</p>
+    {notification.actionUrl && (
+    <a
+        href={notification.actionUrl}
+        className="inline-block mt-2 text-sm text-blue-500 hover:underline"
+    >
+        مشاهده جزئیات
+    </a>
+    )}
+</div>
+))}
     </div>
     </div>
 );
-}
+};
+
