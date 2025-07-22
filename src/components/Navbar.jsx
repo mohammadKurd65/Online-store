@@ -131,6 +131,10 @@ return (
 مدیریت اعلان‌های دائمی
 </Link>
 
+<Link to="/admin/notifications/logs" className="text-blue-500 hover:underline">
+لاگ اعلان‌های دائمی
+</Link>
+
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">
     {userRole === "admin" && (

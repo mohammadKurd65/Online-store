@@ -4,7 +4,8 @@ const adminController = require("../controllers/adminController");
 const authAdmin = require("../middleware/authMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
 const auditLogger = require("../middleware/auditLogger");
-
+const persistentLogger = require("../middleware/persistentLogger");
+const PersistentNotification = require("../models/persistentNotificationModel");
 
 
 
@@ -82,4 +83,38 @@ router.put("/notification/settings", authAdmin, adminController.saveNotification
 router.post("/notifications/broadcast", authAdmin(["admin"]), adminController.broadcastNotification);
 router.post("/notifications/global", authAdmin(["admin"]), adminController.sendGlobalNotification);
 router.get("/notifications/global", authAdmin, adminController.getGlobalNotifications);
+// افزودن اعلان
+router.post(
+"/notifications/persistent",
+authAdmin,
+persistentLogger("create", "افزودن اعلان دائمی"),
+adminController.createPersistentNotification
+);
+
+// ویرایش اعلان
+router.put(
+"/notifications/persistent/:id",
+authAdmin,
+async (req, res, next) => {
+    // ذخیره وضعیت قبلی
+    const notification = await PersistentNotification.findById(req.params.id);
+    if (notification) {
+        req.previousData = notification.toObject();
+    }
+    next();
+},
+persistentLogger("update", "ویرایش اعلان دائمی"),
+adminController.updatePersistentNotification
+);
+
+// حذف اعلان
+router.delete(
+"/notifications/persistent/:id",
+authAdmin,
+persistentLogger("delete", "حذف اعلان دائمی"),
+adminController.deletePersistentNotification
+);
+
+router.get("/notifications/logs", authAdmin(["admin"]), adminController.getPersistentNotificationLogs);
+
 module.exports = router;

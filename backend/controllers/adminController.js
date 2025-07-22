@@ -11,6 +11,7 @@ const { sendNotificationToAdmin } = require("../utils/socketHandler");
 const { broadcastGlobalNotification } = require("../utils/socketHandler");
 const GlobalNotification = require("../models/GlobalNotificationModel");
 const PersistentNotification =  require("../models/persistentNotificationModel");
+const PersistentNotificationLog = require("../models/PersistentNotificationLogModel");
 
 
 exports.getNotifications = async (req, res) => {
@@ -450,6 +451,22 @@ try {
     return res.json({
     success: true,
     message: "اعلان با موفقیت حذف شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getPersistentNotificationLogs = async (req, res) => {
+try {
+    const logs = await PersistentNotificationLog.find()
+    .populate("admin", "username")
+    .sort({ createdAt: -1 });
+
+    return res.json({
+    success: true,
+    logs,
     });
 } catch (error) {
     console.error(error);
