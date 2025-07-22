@@ -44,6 +44,7 @@ import AuditLogPage from "../pages/AuditLogPage";
 import NotificationsPage from "../pages/NotificationsPage";
 import NotificationSettingsPage from "../pages/NotificationSettingsPage";
 import GlobalNotificationsPage from "../pages/GlobalNotificationsPage";
+import PersistentNotificationManagerPage from "../pages/PersistentNotificationManagerPage";
 
 
 
@@ -203,6 +204,19 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <GlobalNotificationsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+
+
+<Route
+path="/admin/notifications/persistent-manager"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <PersistentNotificationManagerPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }
