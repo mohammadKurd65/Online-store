@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import { Link } from "react-router-dom";
 export default function PersistentNotificationLogsPage() {
 const [logs, setLogs] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -48,14 +48,20 @@ return (
             <tbody>
             {logs.map((log, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                <td className="px-4 py-2 capitalize border-b">{getActionLabel(log.action)}</td>
-                <td className="px-4 py-2 border-b">{log.admin?.username || "ناشناس"}</td>
-                <td className="px-4 py-2 border-b">{log.description || "-"}</td>
-                <td className="px-4 py-2 border-b">
-                    {new Date(log.createdAt).toLocaleString("fa-IR")}
-                </td>
-                </tr>
+<td className="px-4 py-2 capitalize border-b">{getActionLabel(log.action)}</td>
+<td className="px-4 py-2 border-b">{log.admin?.username || "ناشناس"}</td>
+<td className="px-4 py-2 border-b">{log.description || "-"}</td>
+<td className="px-4 py-2 border-b">
+    {new Date(log.createdAt).toLocaleString("fa-IR")}
+</td>
+<td className="px-4 py-2 border-b">
+    <Link to={`/admin/notifications/logs/${log._id}`} className="text-blue-500 hover:underline">
+    مشاهده جزئیات
+    </Link>
+</td>
+</tr>
             ))}
+            
             </tbody>
         </table>
         )}

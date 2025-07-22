@@ -46,7 +46,7 @@ import NotificationSettingsPage from "../pages/NotificationSettingsPage";
 import GlobalNotificationsPage from "../pages/GlobalNotificationsPage";
 import PersistentNotificationManagerPage from "../pages/PersistentNotificationManagerPage";
 import PersistentNotificationLogsPage from "../pages/PersistentNotificationLogsPage";
-
+import PersistentNotificationLogDetailPage from "../pages/PersistentNotificationLogDetailPage";
 
 
 export default function AppRoutes() {
@@ -230,6 +230,17 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <PersistentNotificationLogsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/notifications/logs/:id"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <PersistentNotificationLogDetailPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

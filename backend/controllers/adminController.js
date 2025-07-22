@@ -473,3 +473,25 @@ try {
     return res.status(500).json({ success: false, message: "خطای سرور" });
 }
 };
+
+exports.getPersistentNotificationLogById = async (req, res) => {
+const { id } = req.params;
+
+try {
+    const log = await PersistentNotificationLog.findById(id)
+    .populate("admin", "username")
+    .lean();
+
+    if (!log) {
+    return res.status(404).json({ success: false, message: "لاگ یافت نشد." });
+    }
+
+    return res.json({
+    success: true,
+    log,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
