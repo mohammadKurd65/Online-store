@@ -47,8 +47,8 @@ import GlobalNotificationsPage from "../pages/GlobalNotificationsPage";
 import PersistentNotificationManagerPage from "../pages/PersistentNotificationManagerPage";
 import PersistentNotificationLogsPage from "../pages/PersistentNotificationLogsPage";
 import PersistentNotificationLogDetailPage from "../pages/PersistentNotificationLogDetailPage";
-
-
+import ReportingDashboardPage from "../pages/ReportingDashboardPage";
+import ScheduledReportManagerPage from "../pages/ScheduledReportManagerPage";
 export default function AppRoutes() {
 return (
     <Routes>
@@ -245,6 +245,30 @@ element={
     </ProtectedRoute>
 }
 />
+
+
+<Route
+path="/admin/reports"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <ReportingDashboardPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/scheduled"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <ScheduledReportManagerPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
 <Route path="/unauthorized" element={<UnauthorizedPage />} />
     </Routes>
 );

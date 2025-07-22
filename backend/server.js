@@ -17,6 +17,37 @@ cors: {
     methods: ["GET", "POST"],
     }
 });
+const nodemailer = require("nodemailer");
+const path = require("path");
+
+exports.sendReportByEmail = async (to, format) => {
+const transporter = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+    },
+});
+
+const filename = `report.${format}`;
+const pathToFile = path.join(__dirname, "../temp", filename);
+
+  // فرض می‌کنیم گزارش قبلاً تولید شده
+const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to,
+    subject: "گزارش خودکار از سیستم مدیریت",
+    text: "گزارش شما ضمیمه شده است.",
+    attachments: [
+    {
+        filename,
+        path: pathToFile,
+    },
+    ],
+};
+
+await transporter.sendMail(mailOptions);
+};
 
 io.on("connection", (socket) => {
 console.log("🟢 اتصال ادمین:", socket.id);

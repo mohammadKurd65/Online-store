@@ -135,6 +135,13 @@ return (
 لاگ اعلان‌های دائمی
 </Link>
 
+<Link to="/admin/reports" className="text-blue-500 hover:underline">
+گزارش‌گیری
+</Link>
+
+<Link to="/admin/reports/scheduled" className="text-blue-500 hover:underline">
+گزارش‌های خودکار
+</Link>
 {token && (
 <div className="flex items-center ml-4 space-x-6 space-x-reverse">
     {userRole === "admin" && (

@@ -6,6 +6,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const auditLogger = require("../middleware/auditLogger");
 const persistentLogger = require("../middleware/persistentLogger");
 const PersistentNotification = require("../models/persistentNotificationModel");
+const reportController = require("../controllers/reportController");
 
 
 
@@ -116,5 +117,9 @@ adminController.deletePersistentNotification
 );
 
 router.get("/notifications/logs", authAdmin(["admin"]), adminController.getPersistentNotificationLogs);
+
+router.get("/reports/scheduled", authAdmin, reportController.getAllScheduledReports);
+router.post("/reports/scheduled", authAdmin, reportController.createScheduledReport);
+router.delete("/reports/scheduled/:id", authAdmin, reportController.deleteScheduledReport);
 
 module.exports = router;
