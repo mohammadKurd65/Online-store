@@ -81,4 +81,5 @@ router.get("/notification/settings", authAdmin, adminController.getNotificationS
 router.put("/notification/settings", authAdmin, adminController.saveNotificationSettings);
 router.post("/notifications/broadcast", authAdmin(["admin"]), adminController.broadcastNotification);
 router.post("/notifications/global", authAdmin(["admin"]), adminController.sendGlobalNotification);
+router.get("/notifications/global", authAdmin, adminController.getGlobalNotifications);
 module.exports = router;

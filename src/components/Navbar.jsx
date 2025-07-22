@@ -114,6 +114,10 @@ return (
 تنظیمات اعلان
 </Link>
 
+<Link to="/admin/notifications/global" className="text-blue-500 hover:underline">
+اعلان‌های عمومی
+</Link>
+
 {token && userRole === "admin" && (
 <button
     onClick={() => setShowBroadcastModal(true)}

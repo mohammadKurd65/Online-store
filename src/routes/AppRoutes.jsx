@@ -43,6 +43,7 @@ import PermissionManagementPage from "../pages/PermissionManagementPage";
 import AuditLogPage from "../pages/AuditLogPage";
 import NotificationsPage from "../pages/NotificationsPage";
 import NotificationSettingsPage from "../pages/NotificationSettingsPage";
+import GlobalNotificationsPage from "../pages/GlobalNotificationsPage";
 
 
 
@@ -191,6 +192,17 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <NotificationSettingsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/notifications/global"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <GlobalNotificationsPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

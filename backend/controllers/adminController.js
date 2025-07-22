@@ -10,6 +10,7 @@ const Notification = require("../models/NotificationModel");
 const { sendNotificationToAdmin } = require("../utils/socketHandler");
 const { broadcastGlobalNotification } = require("../utils/socketHandler");
 const GlobalNotification = require("../models/GlobalNotificationModel");
+const PersistentNotification =  require("../models/persistentNotificationModel");
 
 
 exports.getNotifications = async (req, res) => {
@@ -419,6 +420,36 @@ try {
     return res.json({
     success: true,
     message: "اعلان عمومی ارسال شد.",
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+
+
+exports.getGlobalNotifications = async (req, res) => {
+try {
+    const notifications = await GlobalNotification.find().sort({ createdAt: -1 });
+    return res.json({
+    success: true,
+    data: notifications,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.deletePersistentNotification = async (req, res) => {
+const { id } = req.params;
+
+try {
+    await PersistentNotification.findByIdAndDelete(id);
+    return res.json({
+    success: true,
+    message: "اعلان با موفقیت حذف شد.",
     });
 } catch (error) {
     console.error(error);
