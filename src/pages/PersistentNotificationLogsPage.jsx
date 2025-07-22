@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { exportToCSV} from "../utils/exportToCSV";
+import { exportToExcel } from "../utils/exportToExcel";
+import { exportStyledExcel } from "../utils/exportStyledExcel";
+import { exportMultiSheetExcel } from "../utils/exportMultiSheetExcel";
+
 export default function PersistentNotificationLogsPage() {
 const [logs, setLogs] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -75,6 +79,37 @@ return (
     className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
 >
     📥 خروجی CSV
+</button>
+</div>
+    
+    {/* دکمه خروجی اکسل */}
+<div className="flex justify-end mb-6 space-x-4 space-x-reverse">
+<button
+    onClick={() => exportToCSV(logs, "لاگ_اعلان_دائمی.csv")}
+    className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+>
+    📥 خروجی CSV
+</button>
+
+<button
+    onClick={() => exportToExcel(logs, "لاگ_اعلان_دائمی.xlsx")}
+    className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+>
+    📘 خروجی اکسل
+</button>
+{/* دکمه خروجی اکسل استایل‌دار */}
+<button
+onClick={() => exportStyledExcel(logs, "لاگ_اعلان_دائمی_استایل_دار.xlsx")}
+className="px-4 py-2 text-white bg-purple-500 rounded hover:bg-purple-600"
+>
+🎨 اکسل با استایل
+</button>
+{/* دکمه خروجی اکسل چند شیتی */}
+<button
+onClick={() => exportMultiSheetExcel(logs, "لاگ_چند_برگی.xlsx")}
+className="px-4 py-2 text-white bg-indigo-500 rounded hover:bg-indigo-600"
+>
+📊 اکسل چند شیتی
 </button>
 </div>
     
