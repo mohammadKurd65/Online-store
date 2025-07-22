@@ -5,7 +5,7 @@ import { exportToCSV} from "../utils/exportToCSV";
 import { exportToExcel } from "../utils/exportToExcel";
 import { exportStyledExcel } from "../utils/exportStyledExcel";
 import { exportMultiSheetExcel } from "../utils/exportMultiSheetExcel";
-
+import { exportToPDF } from "../utils/exportToPDF";
 export default function PersistentNotificationLogsPage() {
 const [logs, setLogs] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -111,6 +111,27 @@ className="px-4 py-2 text-white bg-indigo-500 rounded hover:bg-indigo-600"
 >
 📊 اکسل چند شیتی
 </button>
+
+{/* دکمه خروجی PDF */}
+<button
+onClick={() => {
+    const summaryStats = {
+    total: logs.length,
+    creates: logs.filter(l => l.action === "create").length,
+    updates: logs.filter(l => l.action === "update").length,
+    deletes: logs.filter(l => l.action === "delete").length,
+    uniqueAdmins: new Set(logs.map(l => l.admin?._id)).size,
+    lastAction: logs[0] 
+        ? `${getActionLabel(logs[0].action)} توسط ${logs[0].admin?.username}` 
+        : "—"
+    };
+    exportToPDF(logs, summaryStats);
+}}
+className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
+>
+📄 خروجی PDF
+</button>
+
 </div>
     
     </div>
