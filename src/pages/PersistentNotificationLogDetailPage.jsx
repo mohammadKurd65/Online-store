@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import DataDiffView from "../components/DataDiffView";
 export default function PersistentNotificationLogDetailPage() {
 const { id } = useParams();
 const [log, setLog] = useState(null);
@@ -78,6 +78,14 @@ return (
             <p className="text-sm">{log.userAgent}</p>
         </div>
         </div>
+
+        {/* مقایسه داده‌ها */}
+{log.previousData && log.newData && (
+<div>
+    <label className="block mb-1 font-semibold text-gray-700">مقایسه تغییرات</label>
+    <DataDiffView oldData={log.previousData} newData={log.newData} />
+</div>
+)}
 
         {/* داده قبلی (برای update) */}
         {log.previousData && (
