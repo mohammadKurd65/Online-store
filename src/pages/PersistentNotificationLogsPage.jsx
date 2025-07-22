@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { exportToCSV} from "../utils/exportToCSV";
 export default function PersistentNotificationLogsPage() {
 const [logs, setLogs] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -66,6 +67,17 @@ return (
         </table>
         )}
     </div>
+
+{/* دکمه خروجی CSV */}
+<div className="flex justify-end mb-6">
+<button
+    onClick={() => exportToCSV(logs, "لاگ_اعلان_دائمی.csv")}
+    className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+>
+    📥 خروجی CSV
+</button>
+</div>
+    
     </div>
 );
 }
