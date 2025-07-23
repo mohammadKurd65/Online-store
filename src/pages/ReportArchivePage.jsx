@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns-jalali"; // برای تاریخ شمسی
-
+import AddTagsModal from "../components/AddTagsModal";
 export default function ReportArchivePage() {
 const [reports, setReports] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -12,6 +12,12 @@ endDate: "",
 format: "",
 tag: "",
 });
+const [showTagModal, setShowTagModal] = useState(false);
+const [selectedReport, setSelectedReport] = useState(null);
+
+const handleUpdateTags = (updatedReport) => {
+    setReports(reports.map((r) => (r._id === updatedReport._id ? updatedReport : r)));
+};
 
 const filteredReports = reports.filter((r) => {
 const matchesSearch = !filters.searchTerm || 
@@ -173,21 +179,26 @@ return (
                     {format(new Date(r.createdAt), "yyyy/MM/dd HH:mm")}
                 </td>
                 <td className="px-4 py-2 border-b">{formatFileSize(r.fileSize)}</td>
-                <td className="flex px-4 py-2 space-x-2 space-x-reverse border-b">
-                    <a
-                    href={r.fileUrl}
-                    download
-                    className="text-blue-500 hover:underline"
-                    >
-                    دانلود
-                    </a>
-                    <button
-                    onClick={() => handleDelete(r._id)}
-                    className="text-red-500 hover:underline"
-                    >
-                    حذف
-                    </button>
-                </td>
+            <td className="flex px-4 py-2 space-x-2 space-x-reverse border-b">
+            <a href={r.fileUrl} download className="text-blue-500 hover:underline">
+                دانلود
+            </a>
+            <button
+                onClick={() => {
+                setSelectedReport(r);
+                setShowTagModal(true);
+                }}
+                className="text-sm text-green-500 hover:underline"
+            >
+                ویرایش تگ‌ها
+            </button>
+            <button
+                onClick={() => handleDelete(r._id)}
+                className="text-red-500 hover:underline"
+            >
+                حذف
+            </button>
+            </td>
 
                 <td className="px-4 py-2 border-b">
 <div className="flex flex-wrap gap-1">
@@ -209,6 +220,15 @@ return (
                 </tr>
             ))}
             </tbody>
+
+  {/* مدال */}
+    <AddTagsModal
+        isOpen={showTagModal}
+        onClose={() => setShowTagModal(false)}
+        report={selectedReport}
+        onUpdate={handleUpdateTags}
+    />
+            
         </table>
         )}
     </div>

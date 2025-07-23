@@ -130,5 +130,6 @@ router.delete("/reports/templates/:id", authAdmin, reportController.deleteReport
 router.get("/reports/archive", authAdmin, reportController.getReportArchive);
 router.delete("/reports/archive/:id", authAdmin, reportController.deleteFromArchive);
 router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReportTags);
+router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReportTags);
 
 module.exports = router;

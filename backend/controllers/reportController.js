@@ -179,6 +179,11 @@ exports.updateReportTags = async (req, res) => {
 const { id } = req.params;
 const { tags } = req.body;
 
+  // اعتبارسنجی
+if (!Array.isArray(tags)) {
+    return res.status(400).json({ success: false, message: "فرمت تگ‌ها نامعتبر است." });
+}
+
 try {
     const updated = await GeneratedReport.findOneAndUpdate(
     { _id: id, admin: req.admin._id },
@@ -190,7 +195,10 @@ try {
     return res.status(404).json({ success: false, message: "گزارش یافت نشد." });
     }
 
-    return res.json({ success: true,  updated });
+    return res.json({
+    success: true,
+    updated,
+    });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
