@@ -118,6 +118,18 @@ return (
 اعلان‌های عمومی
 </Link>
 
+<Link to="/admin/reports/manage" className="text-blue-500 hover:underline">
+مدیریت گزارش‌ها
+</Link>
+
+<Link to="/admin/reports/templates" className="text-blue-500 hover:underline">
+قالب گزارش‌ها
+</Link>
+
+<Link to="/admin/reports/archive" className="text-blue-500 hover:underline">
+آرشیو گزارش‌ها
+</Link>
+
 {token && userRole === "admin" && (
 <button
     onClick={() => setShowBroadcastModal(true)}

@@ -121,5 +121,14 @@ router.get("/notifications/logs", authAdmin(["admin"]), adminController.getPersi
 router.get("/reports/scheduled", authAdmin, reportController.getAllScheduledReports);
 router.post("/reports/scheduled", authAdmin, reportController.createScheduledReport);
 router.delete("/reports/scheduled/:id", authAdmin, reportController.deleteScheduledReport);
+router.get("/reports/history", authAdmin, reportController.getGeneratedReports);
+router.delete("/reports/history/:id", authAdmin, reportController.deleteGeneratedReport);
+router.get("/reports/templates", authAdmin, reportController.getReportTemplates);
+router.post("/reports/templates", authAdmin, reportController.createReportTemplate);
+router.put("/reports/templates/:id", authAdmin, reportController.updateReportTemplate);
+router.delete("/reports/templates/:id", authAdmin, reportController.deleteReportTemplate);
+router.get("/reports/archive", authAdmin, reportController.getReportArchive);
+router.delete("/reports/archive/:id", authAdmin, reportController.deleteFromArchive);
+router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReportTags);
 
 module.exports = router;

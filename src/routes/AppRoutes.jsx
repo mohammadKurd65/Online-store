@@ -49,6 +49,9 @@ import PersistentNotificationLogsPage from "../pages/PersistentNotificationLogsP
 import PersistentNotificationLogDetailPage from "../pages/PersistentNotificationLogDetailPage";
 import ReportingDashboardPage from "../pages/ReportingDashboardPage";
 import ScheduledReportManagerPage from "../pages/ScheduledReportManagerPage";
+import ReportManagerPage from "../pages/ReportManagerPage";
+import ReportTemplateManagerPage from "../pages/ReportTemplateManagerPage";
+import ReportArchivePage from "../pages/ReportArchivePage";
 export default function AppRoutes() {
 return (
     <Routes>
@@ -264,6 +267,39 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <ScheduledReportManagerPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/manage"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <ReportManagerPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/templates"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <ReportTemplateManagerPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/archive"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <ReportArchivePage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

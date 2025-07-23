@@ -19,6 +19,7 @@ cors: {
 });
 const nodemailer = require("nodemailer");
 const path = require("path");
+const seedReportTags = require("./utils/seedReportTags");
 
 exports.sendReportByEmail = async (to, format) => {
 const transporter = nodemailer.createTransport({
@@ -92,4 +93,5 @@ const seedRoles = require("./utils/seedRoles");
 
 mongoose.connection.once("open", async () => {
 await seedRoles();
+await seedReportTags();
 });
