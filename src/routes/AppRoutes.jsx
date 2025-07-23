@@ -52,6 +52,9 @@ import ScheduledReportManagerPage from "../pages/ScheduledReportManagerPage";
 import ReportManagerPage from "../pages/ReportManagerPage";
 import ReportTemplateManagerPage from "../pages/ReportTemplateManagerPage";
 import ReportArchivePage from "../pages/ReportArchivePage";
+import TagStatisticsPage from "../pages/TagStatisticsPage";
+import TagTrendsPage from "../pages/TagTrendsPage";
+import TrendPredictionPage from "../pages/TrendPredictionPage";
 export default function AppRoutes() {
 return (
     <Routes>
@@ -300,6 +303,39 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <ReportArchivePage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/tag-stats"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <TagStatisticsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/tag-trends"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <TagTrendsPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/predict"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <TrendPredictionPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

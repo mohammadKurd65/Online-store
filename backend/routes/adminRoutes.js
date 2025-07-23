@@ -14,6 +14,7 @@ const reportController = require("../controllers/reportController");
 
 
 
+
 // مسیرهای مربوط به ادمین ها
 // ورود ادمین
 router.put("/dashboard/layout", authAdmin, adminController.saveDashboardLayout);
@@ -131,5 +132,8 @@ router.get("/reports/archive", authAdmin, reportController.getReportArchive);
 router.delete("/reports/archive/:id", authAdmin, reportController.deleteFromArchive);
 router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReportTags);
 router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReportTags);
+router.get("/reports/tags/popular", authAdmin, reportController.getPopularTags);
+router.get("/reports/tags/trends", authAdmin, reportController.getTagTrends);
+router.get("/reports/tags/predict", authAdmin, reportController.predictTagTrends);
 
 module.exports = router;

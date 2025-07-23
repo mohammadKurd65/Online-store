@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns-jalali"; // برای تاریخ شمسی
 import AddTagsModal from "../components/AddTagsModal";
+import TagCloud from "../components/TagCloud";
 export default function ReportArchivePage() {
+    const [allTags, setAllTags] = useState([]);
 const [reports, setReports] = useState([]);
 const [loading, setLoading] = useState(true);
 const [filters, setFilters] = useState({
@@ -14,6 +16,7 @@ tag: "",
 });
 const [showTagModal, setShowTagModal] = useState(false);
 const [selectedReport, setSelectedReport] = useState(null);
+// const allTags = reports.flatMap((r) => r.tags || []);
 
 const handleUpdateTags = (updatedReport) => {
     setReports(reports.map((r) => (r._id === updatedReport._id ? updatedReport : r)));
@@ -30,6 +33,7 @@ return matchesSearch && matchesTag;
 });
 
 const [availableTags, setAvailableTags] = useState(["مالی", "عملیات", "امنیت", "هفتگی", "ماهانه"]);
+
 
 useEffect(() => {
     const fetchArchive = async () => {
@@ -78,7 +82,21 @@ const handleDelete = async (id) => {
 };
 
   // فیلتر داده‌ها
+useEffect(() => {
+const fetchPopularTags = async () => {
+    try {
+    const token = localStorage.getItem("adminToken");
+    const res = await axios.get("http://localhost:5000/api/admin/reports/tags/popular", {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    setAllTags(res.data.tags);
+    } catch (err) {
+    console.error(err);
+    }
+};
 
+fetchPopularTags();
+}, [ setAllTags, setReports, setLoading, setFilters, setSelectedReport, setShowTagModal]);
 
 
 
@@ -137,6 +155,12 @@ return (
         </button>
         </div>
     </div>
+
+    <TagCloud 
+tags={allTags} 
+onTagClick={(tag) => setFilters((prev) => ({ ...prev, tag }))} 
+title="ابِر تگ گزارش‌ها" 
+/>
 
       {/* لیست گزارش‌ها */}
     <div className="overflow-hidden bg-white rounded shadow">

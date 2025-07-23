@@ -130,6 +130,18 @@ return (
 آرشیو گزارش‌ها
 </Link>
 
+<Link to="/admin/reports/tag-stats" className="text-blue-500 hover:underline">
+آمار تگ‌ها
+</Link>
+
+<Link to="/admin/reports/tag-trends" className="text-blue-500 hover:underline">
+روند تگ‌ها
+</Link>
+
+<Link to="/admin/reports/predict" className="text-blue-500 hover:underline">
+پیش‌بینی روند
+</Link>
+
 {token && userRole === "admin" && (
 <button
     onClick={() => setShowBroadcastModal(true)}
