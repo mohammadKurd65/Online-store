@@ -11,6 +11,10 @@ Tooltip,
 Legend,
 } from "chart.js";
 import axios from "axios";
+import { exportPredictionToCSV } from "../utils/exportPredictionToCSV";
+import { exportPredictionToExcel } from "../utils/exportPredictionToExcel";
+import { exportExcelWithChart } from "../utils/exportExcelWithChart";
+
 
 // ثبت کامپوننت‌های ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -151,6 +155,33 @@ return (
         <StatCard title="دوره‌های پیش‌بینی" value={data.forecast.length} color="bg-green-500" />
         <StatCard title="تگ‌های تحلیل شده" value={data.topTags.length} color="bg-purple-500" />
     </div>
+
+{/* دکمه خروجی CSV */}
+<div className="flex justify-end mb-6">
+<button
+    onClick={() => exportPredictionToCSV(data.historical, data.forecast, data.topTags)}
+    className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+>
+    📥 خروجی CSV پیش‌بینی
+</button>
+</div>
+
+{/* دکمه خروجی اکسل */}
+<button
+onClick={() => exportPredictionToExcel(data.historical, data.forecast, data.topTags)}
+className="px-4 py-2 mr-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+>
+📘 خروجی اکسل
+</button>
+    
+{/* دکمه خروجی اکسل با نمودار */}
+<button
+onClick={() => exportExcelWithChart(data.historical, data.forecast, data.topTags)}
+className="px-4 py-2 mr-2 text-white bg-purple-500 rounded hover:bg-purple-600"
+>
+📊 اکسل با نمودار
+</button>
+    
     </div>
 );
 }
