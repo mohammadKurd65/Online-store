@@ -4,12 +4,141 @@ import * as XLSX from "xlsx";
 import { generateDataEntryTemplate } from "../utils/generateDataEntryTemplate";
 
 export default function DataUploadPage() {
+const [repairPreview, setRepairPreview] = useState(null);
+const [showRepairModal, setShowRepairModal] = useState(false);
 const [file, setFile] = useState(null);
 const [uploading, setUploading] = useState(false);
 const [result, setResult] = useState(null);
 const [progress, setProgress] = useState(0);
   const [previewData, setPreviewData] = useState(null); // داده‌های پیش‌نمایش
   const [previewError, setPreviewError] = useState(null); // خطا در خواندن فایل
+
+const downloadRepairedFile = () => {
+const { repairedWorkbook } = repairPreview;
+
+const repairedFile = XLSX.write(repairedWorkbook, { 
+    bookType: "xlsx", 
+    type: "array" 
+});
+
+const blob = new Blob([repairedFile], { 
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" 
+});
+
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = `تعمیر_شده_${repairPreview.originalFile.name}`;
+a.click();
+URL.revokeObjectURL(url);
+
+setShowRepairModal(false);
+setPreviewError(null);
+  setFile(null); // اختیاری: پاک کردن فایل قدیمی
+};
+
+const loadFilePreview = (file) => {
+setFile(file);
+setResult(null);
+setProgress(0);
+setPreviewError(null);
+setPreviewData(null);
+
+const reader = new FileReader();
+reader.onload = (e) => {
+    try {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+      // ✅ 1. بررسی وجود برگه "ورود داده"
+    const worksheet = workbook.Sheets["ورود داده"];
+    if (!worksheet) {
+        setPreviewError(
+        'برگه‌ای با نام "ورود داده" پیدا نشد. لطفاً از قالب دانلودی استفاده کنید.'
+        );
+        return;
+    }
+
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    if (jsonData.length < 2) {
+        setPreviewError("فایل خالی است. حداقل یک ردیف داده وارد کنید.");
+        return;
+    }
+
+    const headers = jsonData[0];
+    const requiredColumns = [
+        "عنوان گزارش",
+        "نام گزارش",
+        "فرمت",
+        "تگ‌ها (با کاما جدا کنید)",
+        "تاریخ ایجاد (سال/ماه/روز)",
+    ];
+
+      // ✅ 2. بررسی ستون‌های ضروری
+    const missingColumns = requiredColumns.filter(col => !headers.includes(col));
+    if (missingColumns.length > 0) {
+        setPreviewError(
+        `ستون‌های زیر یافت نشدند: ${missingColumns.join(", ")}\nلطفاً از قالب اصلی استفاده کنید.`
+        );
+        return;
+    }
+
+      // ✅ 3. پیش‌نمایش داده‌ها (5 ردیف اول)
+    const rows = jsonData.slice(1, 6);
+    setPreviewData({ headers, rows });
+
+    } catch (err) {
+    setPreviewError("خطا در خواندن فایل اکسل. فایل ممکن است خراب باشد.");
+    console.error(err);
+    }
+};
+reader.onerror = () => {
+    setPreviewError("خطا در خواندن فایل.");
+};
+reader.readAsArrayBuffer(file);
+};
+
+
+const handleAutoRepair = async () => {
+if (!file) return;
+
+const reader = new FileReader();
+reader.onload = async (e) => {
+    try {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    const { workbook: repairedWorkbook, repaired, messages, jsonData } = autoRepairWorkbook(workbook);
+
+    if (!repaired) {
+        setPreviewError("هیچ مشکلی برای تعمیر یافت نشد.");
+        return;
+    }
+
+      // استخراج داده‌های تعمیر شده برای پیش‌نمایش
+    const repairedWorksheet = repairedWorkbook.Sheets["ورود داده"];
+    const repairedData = XLSX.utils.sheet_to_json(repairedWorksheet, { header: 1 });
+    const repairedHeaders = repairedData[0];
+      const repairedRows = repairedData.slice(1, 6); // 5 ردیف اول
+
+      // ذخیره پیش‌نمایش تغییرات
+    setRepairPreview({
+        messages,
+        headers: repairedHeaders,
+        rows: repairedRows,
+        originalFile: file,
+        repairedWorkbook,
+    });
+
+    setShowRepairModal(true);
+
+    } catch (err) {
+    setPreviewError("خطا در تحلیل فایل برای تعمیر.");
+    console.error(err);
+    }
+};
+reader.readAsArrayBuffer(file);
+};
 
 const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -33,41 +162,6 @@ const handleDrop = (e) => {
     }
 };
 
-const loadFilePreview = (file) => {
-    setFile(file);
-    setResult(null);
-    setProgress(0);
-    setPreviewError(null);
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-    try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const worksheet = workbook.Sheets["ورود داده"] || workbook.Sheets[workbook.SheetNames[0]];
-
-        if (!worksheet) {
-        setPreviewError("فایل اکسل معتبر نیست یا برگه‌ای پیدا نشد.");
-        return;
-        }
-
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
-        // فرض می‌کنیم ردیف اول سرستون هست
-        const headers = jsonData[0] || [];
-        const rows = jsonData.slice(1, 6); // فقط 5 ردیف اول برای پیش‌نمایش
-
-        setPreviewData({ headers, rows });
-    } catch (err) {
-        setPreviewError("خطا در خواندن فایل اکسل. فایل ممکن است خراب باشد.");
-        console.error(err);
-    }
-    };
-    reader.onerror = () => {
-    setPreviewError("خطا در خواندن فایل.");
-    };
-    reader.readAsArrayBuffer(file);
-};
 
 const handleUpload = async () => {
     if (!file) {
@@ -188,12 +282,25 @@ return (
         </div>
 
         {/* خطا در پیش‌نمایش */}
-        {previewError && (
-        <div className="p-4 mb-6 border border-red-200 rounded bg-red-50">
-            <p className="text-red-700">{previewError}</p>
-        </div>
-        )}
-
+{/* پیشنهاد تعمیر خودکار */}
+{previewError && (
+<div className="p-4 mb-6 border border-yellow-200 rounded bg-yellow-50">
+    <div className="flex items-start">
+    <svg className="h-5 w-5 text-yellow-500 mt-0.5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.487 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+    </svg>
+    <div>
+        <p className="mb-2 text-yellow-800">{previewError}</p>
+        <button
+        onClick={handleAutoRepair}
+        className="px-3 py-1 text-sm text-white bg-yellow-600 rounded hover:bg-yellow-700"
+        >
+        🛠️ تعمیر خودکار فایل
+        </button>
+    </div>
+    </div>
+</div>
+)}
         {/* پیش‌نمایش داده */}
         {previewData && !previewError && (
         <div className="mb-6">
@@ -275,6 +382,79 @@ return (
         >
         {uploading ? "در حال آپلود..." : "آپلود فایل"}
         </button>
+
+        {/* مدال پیش‌نمایش تغییرات */}
+{showRepairModal && repairPreview && (
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="w-full max-w-4xl p-6 overflow-y-auto bg-white rounded shadow-lg max-h-96">
+    <h3 className="mb-4 text-xl font-semibold">پیش‌نمایش تغییرات</h3>
+
+      {/* لیست تغییرات */}
+    <div className="mb-6">
+        <h4 className="mb-2 font-semibold">تغییرات اعمال شده:</h4>
+        <ul className="space-y-1 text-gray-700 list-disc list-inside">
+        {repairPreview.messages.map((msg, i) => (
+            <li key={i} className="text-sm">{msg}</li>
+        ))}
+        </ul>
+    </div>
+
+      {/* پیش‌نمایش داده تعمیر شده */}
+    <div>
+        <h4 className="mb-2 font-semibold">داده‌های تعمیر شده (5 ردیف اول)</h4>
+        <div className="overflow-x-auto">
+        <table className="min-w-full border rounded">
+            <thead className="bg-gray-100">
+            <tr>
+                {repairPreview.headers.map((header, i) => (
+                <th key={i} className="px-4 py-2 text-xs font-semibold text-right border-b">
+                    {header}
+                </th>
+                ))}
+            </tr>
+            </thead>
+            <tbody>
+            {repairPreview.rows.length === 0 ? (
+                <tr>
+                <td colSpan={repairPreview.headers.length} className="py-4 text-center text-gray-500">
+                    داده‌ای وجود ندارد.
+                </td>
+                </tr>
+            ) : (
+                repairPreview.rows.map((row, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                    {repairPreview.headers.map((_, j) => (
+                    <td key={j} className="px-4 py-2 text-sm text-right border-b">
+                        {row[j] !== undefined ? String(row[j]) : "-"}
+                    </td>
+                    ))}
+                </tr>
+                ))
+            )}
+            </tbody>
+        </table>
+        </div>
+    </div>
+
+      {/* دکمه‌ها */}
+    <div className="flex justify-end mt-6 space-x-4 space-x-reverse">
+        <button
+        onClick={() => setShowRepairModal(false)}
+        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+        انصراف
+        </button>
+        <button
+        onClick={downloadRepairedFile}
+        className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+        >
+        ✅ دانلود فایل تعمیر شده
+        </button>
+    </div>
+    </div>
+</div>
+)}
+        
     </div>
 
       {/* نتیجه */}
