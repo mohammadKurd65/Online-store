@@ -142,6 +142,10 @@ return (
 پیش‌بینی روند
 </Link>
 
+<Link to="/admin/reports/upload" className="text-blue-500 hover:underline">
+آپلود داده
+</Link>
+
 {token && userRole === "admin" && (
 <button
     onClick={() => setShowBroadcastModal(true)}

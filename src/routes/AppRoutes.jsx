@@ -55,6 +55,8 @@ import ReportArchivePage from "../pages/ReportArchivePage";
 import TagStatisticsPage from "../pages/TagStatisticsPage";
 import TagTrendsPage from "../pages/TagTrendsPage";
 import TrendPredictionPage from "../pages/TrendPredictionPage";
+import DataUploadPage from "../pages/DataUploadPage";
+
 export default function AppRoutes() {
 return (
     <Routes>
@@ -336,6 +338,17 @@ element={
     <ProtectedRoute>
     <RoleBasedRoute allowedRoles={["admin"]}>
         <TrendPredictionPage />
+    </RoleBasedRoute>
+    </ProtectedRoute>
+}
+/>
+
+<Route
+path="/admin/reports/upload"
+element={
+    <ProtectedRoute>
+    <RoleBasedRoute allowedRoles={["admin"]}>
+        <DataUploadPage />
     </RoleBasedRoute>
     </ProtectedRoute>
 }

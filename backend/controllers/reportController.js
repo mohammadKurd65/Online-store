@@ -2,7 +2,82 @@ const ScheduledReport = require("../models/ScheduledReportModel");
 const ReportTemplate = require("../models/ReportTemplateModel");
 const GeneratedReport = require("../models/GeneratedReportModel");
 const moment = require("moment-jalaali"); // برای تاریخ شمسی
+const ExcelJS = require("exceljs");
 
+
+exports.processDataEntryTemplate = async (req, res) => {
+if (!req.file) {
+    return res.status(400).json({ success: false, message: "فایلی آپلود نشد." });
+}
+
+try {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(req.file.path);
+    const worksheet = workbook.getWorksheet("ورود داده");
+
+    const reports = [];
+    let errors = [];
+
+    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+      if (rowNumber === 1) return; // سرستون
+
+    const [title, name, format, tags, date, count, adminName, description] = row.values.slice(1);
+
+      // اعتبارسنجی
+    if (!title || !name || !format || !date) {
+        errors.push(`ردیف ${rowNumber}: فیلدهای ضروری پر نشده‌اند.`);
+        return;
+    }
+
+    if (!["PDF", "Excel"].includes(format)) {
+        errors.push(`ردیف ${rowNumber}: فرمت باید PDF یا Excel باشد.`);
+        return;
+    }
+
+    reports.push({
+        title,
+        name,
+        format: format.toLowerCase(),
+        tags: tags ? tags.split(",").map(t => t.trim()) : [],
+        createdAt: parseJalaliDate(date),
+        count: parseInt(count) || 1,
+        adminName,
+        description: description || "",
+    });
+    });
+
+    if (errors.length > 0) {
+    return res.status(400).json({ success: false, message: "خطاهایی در فایل وجود دارد.", errors });
+    }
+
+    // ذخیره در دیتابیس
+    for (const report of reports) {
+    const newReport = new GeneratedReport({
+        ...report,
+        admin: req.admin._id,
+        fileSize: 0, // فایل واقعی وجود ندارد
+        fileUrl: "/no-file", // مجازی
+    });
+    await newReport.save();
+    }
+
+    return res.json({
+    success: true,
+    message: `${reports.length} گزارش با موفقیت وارد شد.`,
+    imported: reports.length,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای پردازش فایل." });
+}
+};
+
+// تابع تبدیل تاریخ شمسی به میلادی
+function parseJalaliDate(jalaliStr) {
+const [y, m, d] = jalaliStr.split("/").map(Number);
+  // ساده‌سازی: فقط برای ذخیره، فرض می‌کنیم تاریخ معتبره
+return new Date(y, m - 1, d);
+}
 
 // تابع ساده رگرسیون خطی
 function linearRegression(x, y) {

@@ -14,7 +14,7 @@ import axios from "axios";
 import { exportPredictionToCSV } from "../utils/exportPredictionToCSV";
 import { exportPredictionToExcel } from "../utils/exportPredictionToExcel";
 import { exportExcelWithChart } from "../utils/exportExcelWithChart";
-
+import { generateDataEntryTemplate } from "../utils/generateDataEntryTemplate";
 
 // ثبت کامپوننت‌های ChartJS
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -180,6 +180,14 @@ onClick={() => exportExcelWithChart(data.historical, data.forecast, data.topTags
 className="px-4 py-2 mr-2 text-white bg-purple-500 rounded hover:bg-purple-600"
 >
 📊 اکسل با نمودار
+</button>
+
+{/* دکمه دانلود قالب */}
+<button
+onClick={generateDataEntryTemplate}
+className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
+>
+📥 دانلود قالب ورود داده
 </button>
     
     </div>

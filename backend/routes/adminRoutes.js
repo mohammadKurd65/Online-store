@@ -7,11 +7,7 @@ const auditLogger = require("../middleware/auditLogger");
 const persistentLogger = require("../middleware/persistentLogger");
 const PersistentNotification = require("../models/persistentNotificationModel");
 const reportController = require("../controllers/reportController");
-
-
-
-
-
+const upload = require("../middleware/uploadMiddleware");
 
 
 
@@ -135,5 +131,11 @@ router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReport
 router.get("/reports/tags/popular", authAdmin, reportController.getPopularTags);
 router.get("/reports/tags/trends", authAdmin, reportController.getTagTrends);
 router.get("/reports/tags/predict", authAdmin, reportController.predictTagTrends);
+router.post(
+"/reports/upload-template",
+authAdmin,
+upload.single("file"),
+reportController.processDataEntryTemplate
+);
 
 module.exports = router;
