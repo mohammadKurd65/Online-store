@@ -131,6 +131,9 @@ router.put("/reports/archive/:id/tags", authAdmin, reportController.updateReport
 router.get("/reports/tags/popular", authAdmin, reportController.getPopularTags);
 router.get("/reports/tags/trends", authAdmin, reportController.getTagTrends);
 router.get("/reports/tags/predict", authAdmin, reportController.predictTagTrends);
+router.post("/reports/share-comparison", authAdmin, reportController.shareComparison);
+router.get("/shared/comparison/:token", reportController.getSharedComparison);
+router.get("/reports/share-analytics/:token", authAdmin, reportController.getShareAnalytics);
 router.post(
 "/reports/upload-template",
 authAdmin,

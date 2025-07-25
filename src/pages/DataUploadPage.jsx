@@ -293,6 +293,31 @@ const handleUpload = async () => {
     }
 };
 
+const handleShareComparison = async () => {
+if (!versionsToCompare.left || !versionsToCompare.right) return;
+
+try {
+    const token = localStorage.getItem("adminToken");
+    const res = await axios.post(
+    "http://localhost:5000/api/admin/reports/share-comparison",
+    {
+        versionA: versionsToCompare.left,
+        versionB: versionsToCompare.right,
+    },
+    {
+        headers: { Authorization: `Bearer ${token}` },
+    }
+    );
+
+    const link = res.data.link;
+    await navigator.clipboard.writeText(link);
+    alert("لینک اشتراک با موفقیت کپی شد!\n\n" + link);
+} catch (err) {
+    alert("خطا در اشتراک‌گذاری لینک.");
+    console.error(err);
+}
+};
+
 return (
     <div className="container py-10 mx-auto">
     <h2 className="mb-6 text-3xl font-bold">آپلود داده گزارش</h2>
@@ -783,6 +808,15 @@ className="px-4 py-2 mt-6 text-white bg-red-500 rounded hover:bg-red-600"
         )}
         </div>
     )}
+
+{/* دکمه اشتراک‌گذاری */}
+<button
+onClick={handleShareComparison}
+className="px-6 py-2 text-white bg-indigo-500 rounded hover:bg-indigo-600"
+>
+🔗 اشتراک لینک
+</button>
+    
     </div>
 );
 }

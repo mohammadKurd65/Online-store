@@ -3,7 +3,91 @@ const ReportTemplate = require("../models/ReportTemplateModel");
 const GeneratedReport = require("../models/GeneratedReportModel");
 const moment = require("moment-jalaali"); // برای تاریخ شمسی
 const ExcelJS = require("exceljs");
+const SharedComparison = require("../models/SharedComparisonModel");
+const crypto = require("crypto");
+const ShareViewLog = require("../models/ShareViewLogModel");
+const parseUserAgent = require("ua-parser-js");
 
+exports.shareComparison = async (req, res) => {
+const { versionA, versionB } = req.body;
+
+try {
+    // ایجاد توکن منحصر به فرد
+    const token = crypto.randomBytes(16).toString("hex");
+
+    const shared = new SharedComparison({
+    versionA,
+    versionB,
+    sharedBy: req.admin._id,
+    token,
+    });
+
+    await shared.save();
+
+    const shareLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/shared/comparison/${token}`;
+
+    return res.json({
+    success: true,
+    shared,
+    link: shareLink,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getSharedComparison = async (req, res) => {
+const { token } = req.params;
+const ip = req.ip;
+const userAgent = req.headers["user-agent"];
+
+try {
+    const shared = await SharedComparison.findOne({ token });
+
+    if (!shared) {
+    return res.status(404).send("<h1>مقایسه یافت نشد.</h1>");
+    }
+
+    if (shared.expiresAt < new Date()) {
+    return res.status(410).send("<h1>این لینک منقضی شده است.</h1>");
+    }
+
+    // تحلیل User Agent
+    const ua = parseUserAgent(userAgent);
+    const browser = `${ua.browser.name} ${ua.browser.version}`;
+    const os = `${ua.os.name} ${ua.os.version}`;
+    const device = ua.device.type || "Desktop";
+
+    // ثبت بازدید
+    const viewLog = new ShareViewLog({
+    sharedComparison: shared._id,
+    ip,
+    userAgent,
+    browser,
+    os,
+    device,
+      // در تولید، می‌تونی GeoIP اضافه کنی
+    });
+
+    await viewLog.save();
+
+    // افزایش تعداد بازدید
+    shared.views += 1;
+    await shared.save();
+
+    res.render("sharedComparison", {
+    versionA: shared.versionA,
+    versionB: shared.versionB,
+    createdAt: shared.createdAt,
+    expiresAt: shared.expiresAt,
+    views: shared.views,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).send("<h1>خطای سرور</h1>");
+}
+};
 
 exports.processDataEntryTemplate = async (req, res) => {
 if (!req.file) {
@@ -537,6 +621,58 @@ try {
     return res.json({
     success: true,
     tags,
+    });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+exports.getShareAnalytics = async (req, res) => {
+const { token } = req.params;
+
+try {
+    const shared = await SharedComparison.findOne({ token });
+    if (!shared) {
+    return res.status(404).json({ success: false, message: "لینک یافت نشد." });
+    }
+
+    // بررسی اینکه آیا این ادمین ایجاد کننده است
+    if (shared.sharedBy.toString() !== req.admin._id.toString()) {
+    return res.status(403).json({ success: false, message: "دسترسی غیرمجاز" });
+    }
+
+    const logs = await ShareViewLog.find({ sharedComparison: shared._id })
+    .sort({ viewedAt: -1 });
+
+    // محاسبه آمار
+    const totalViews = logs.length;
+    const uniqueIPs = new Set(logs.map(log => log.ip)).size;
+
+    const stats = {
+    totalViews,
+    uniqueVisitors: uniqueIPs,
+    firstView: logs.length > 0 ? logs[logs.length - 1].viewedAt : null,
+    lastView: logs.length > 0 ? logs[0].viewedAt : null,
+    devices: logs.reduce((acc, log) => {
+        acc[log.device] = (acc[log.device] || 0) + 1;
+        return acc;
+    }, {}),
+    browsers: logs.reduce((acc, log) => {
+        acc[log.browser] = (acc[log.browser] || 0) + 1;
+        return acc;
+    }, {}),
+    os: logs.reduce((acc, log) => {
+        acc[log.os] = (acc[log.os] || 0) + 1;
+        return acc;
+    }, {}),
+    };
+
+    return res.json({
+    success: true,
+    shared,
+    stats,
+    logs,
     });
 } catch (error) {
     console.error(error);

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>مقایسه نسخه‌های گزارش</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+    body { font-family: Tahoma, sans-serif; }
+    @media print {
+    .no-print { display: none !important; }
+    }
+</style>
+</head>
+<body class="text-gray-800 bg-gray-100">
+<div class="container px-4 py-10 mx-auto">
+    <div class="p-8 bg-white rounded shadow">
+    <h1 class="mb-6 text-3xl font-bold text-center">مقایسه نسخه‌های گزارش</h1>
+    
+    <div class="mb-6 text-center text-gray-600">
+        <p>اشتراک‌گذاری شده در: <%= createdAt.toLocaleString("fa-IR") %></p>
+        <p>منقضی می‌شود در: <%= expiresAt.toLocaleString("fa-IR") %></p>
+        <p>تعداد بازدید: <%= views %></p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-8 mb-8 lg:grid-cols-2">
+        <!-- نسخه A -->
+        <div class="p-6 border rounded">
+        <h2 class="p-2 mb-4 text-xl font-semibold text-center text-white bg-blue-500 rounded">
+            <%= versionA.type === "original" ? "نسخه اصلی" : "نسخه تعمیر شده" %>
+        </h2>
+        <p class="mb-2"><strong>فایل:</strong> <%= versionA.filename %></p>
+        <p class="mb-4"><strong>زمان:</strong> <%= new Date(versionA.timestamp).toLocaleString("fa-IR") %></p>
+        
+        <h3 class="mb-2 font-semibold">داده‌ها (5 ردیف اول)</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border rounded">
+            <thead class="bg-gray-100">
+                <tr>
+                <% versionA.headers.forEach((h, i) => { %>
+                    <th class="px-3 py-2 text-right border-b"><%= h %></th>
+                <% }); %>
+                </tr>
+            </thead>
+            <tbody>
+                <% versionA.rows.forEach((row, i) => { %>
+                <tr class="hover:bg-gray-50">
+                    <% versionA.headers.forEach((_, j) => { %>
+                    <td class="px-3 py-2 text-right border-b">
+                        <%= row[j] !== undefined ? row[j] : "-" %>
+                    </td>
+                    <% }); %>
+                </tr>
+                <% }); %>
+            </tbody>
+            </table>
+        </div>
+        </div>
+
+        <!-- نسخه B -->
+        <div class="p-6 border rounded">
+        <h2 class="p-2 mb-4 text-xl font-semibold text-center text-white bg-green-500 rounded">
+            <%= versionB.type === "original" ? "نسخه اصلی" : "نسخه تعمیر شده" %>
+        </h2>
+        <p class="mb-2"><strong>فایل:</strong> <%= versionB.filename %></p>
+        <p class="mb-4"><strong>زمان:</strong> <%= new Date(versionB.timestamp).toLocaleString("fa-IR") %></p>
+        
+        <h3 class="mb-2 font-semibold">داده‌ها (5 ردیف اول)</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border rounded">
+            <thead class="bg-gray-100">
+                <tr>
+                <% versionB.headers.forEach((h, i) => { %>
+                    <th class="px-3 py-2 text-right border-b"><%= h %></th>
+                <% }); %>
+                </tr>
+            </thead>
+            <tbody>
+                <% versionB.rows.forEach((row, i) => { %>
+                <tr class="hover:bg-gray-50">
+                    <% versionB.headers.forEach((_, j) => { %>
+                    <td class="px-3 py-2 text-right border-b">
+                        <%= row[j] !== undefined ? row[j] : "-" %>
+                    </td>
+                    <% }); %>
+                </tr>
+                <% }); %>
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+
+    <!-- تغییرات -->
+    <% if (versionB.changes && versionB.changes.length > 0) { %>
+        <div class="p-6 mb-8 border border-yellow-200 rounded bg-yellow-50">
+        <h3 class="mb-2 font-semibold text-yellow-800">تغییرات اعمال شده:</h3>
+        <ul class="space-y-1 list-disc list-inside">
+            <% versionB.changes.forEach((change, i) => { %>
+            <li class="text-sm"><%= change %></li>
+            <% }); %>
+        </ul>
+        </div>
+    <% } %>
+
+    <!-- دکمه چاپ -->
+    <div class="text-center">
+        <button onclick="window.print()" class="px-6 py-3 text-white bg-blue-500 rounded no-print hover:bg-blue-600">
+    🖨️ چاپ این صفحه
+        </button>
+    </div>
+    </div>
+</div>
+</body>
+</html>
