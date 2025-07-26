@@ -33,6 +33,17 @@ viewedAt: {
     type: Date,
     default: Date.now,
 },
+
+latitude: {
+    type: Number,
+},
+longitude: {
+    type: Number,
+},
+
+region: {
+    type: String,
+},
 });
 
 module.exports = mongoose.model("ShareViewLog", ShareViewLogSchema);

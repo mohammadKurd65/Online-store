@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from "chart.js";
-
+import RealtimeAnalyticsWidget from "../components/RealtimeAnalyticsWidget";
+import LiveMapWidget from "../components/LiveMapWidget";
+import LiveHeatmapWidget from "../components/LiveHeatmapWidget";
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
-
 export default function ShareAnalyticsPage({ token }) {
 const [data, setData] = useState(null);
 const [loading, setLoading] = useState(true);
@@ -112,6 +113,19 @@ return (
         </tbody>
         </table>
     </div>
+
+    {/* ویجت آنالیز زنده */}
+<RealtimeAnalyticsWidget token={token} />
+
+{/* نقشه زنده */}
+<LiveMapWidget token={token} />
+
+{/* نقشه گرمایی با اسلایدر زمانی */}
+<LiveHeatmapWidget 
+token={token} 
+historicalLogs={data.logs} 
+/>
+    
     </div>
 );
 }

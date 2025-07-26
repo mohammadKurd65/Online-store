@@ -7,6 +7,8 @@ const SharedComparison = require("../models/SharedComparisonModel");
 const crypto = require("crypto");
 const ShareViewLog = require("../models/ShareViewLogModel");
 const parseUserAgent = require("ua-parser-js");
+const { io } = require("../../server"); // مسیر ممکنه متفاوت باشه
+const axios = require("axios");
 
 exports.shareComparison = async (req, res) => {
 const { versionA, versionB } = req.body;
@@ -67,14 +69,51 @@ try {
     browser,
     os,
     device,
-      // در تولید، می‌تونی GeoIP اضافه کنی
+    ...geoData,
     });
+
+ // 🔍 دریافت موقعیت جغرافیایی
+    let geoData = {};
+    try {
+    const geoRes = await axios.get(`https://ipapi.co/${ip}/json/`);
+    geoData = {
+        latitude: geoRes.data.latitude,
+        longitude: geoRes.data.longitude,
+        city: geoRes.data.city,
+        country: geoRes.data.country_name,
+        region: geoRes.data.region,
+    };
+    } catch (geoError) {
+    console.error("GeoIP lookup failed", geoError);
+    }
+
+
 
     await viewLog.save();
 
     // افزایش تعداد بازدید
     shared.views += 1;
     await shared.save();
+
+    // ✅ ارسال رویداد زنده به کلاینت‌ها
+    const uniqueVisitors = await ShareViewLog.distinct("ip", { sharedComparison: shared._id }).then(ips => ips.length);
+    io.emit("new_view", {
+    sharedComparisonId: shared._id,
+    ...geoData,
+    viewedAt: new Date(),
+    token: shared.token,
+    view: {
+        viewedAt: new Date(),
+        ip,
+        device,
+        browser,
+        os,
+    },
+    stats: {
+        totalViews: shared.views,
+        uniqueVisitors,
+    }
+    });
 
     res.render("sharedComparison", {
     versionA: shared.versionA,

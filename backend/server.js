@@ -11,15 +11,32 @@ const mongoose = require("mongoose");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
-const io = require("socket.io")(server, {
-cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"],
-    }
-});
 const nodemailer = require("nodemailer");
 const path = require("path");
 const seedReportTags = require("./utils/seedReportTags");
+const socketIo = require("socket.io");
+const io = socketIo(server, {
+cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+},
+});
+// ارسال رویداد زنده وقتی کسی لینک رو باز میکنه
+io.on("connection", (socket) => {
+console.log("کاربر به سیستم آنالیز زنده متصل شد:", socket.id);
+
+socket.on("disconnect", () => {
+    console.log("کاربر قطع شد:", socket.id);
+});
+});
+
+app.use((req, res, next) => {
+res.header("Access-Control-Allow-Origin", "*");
+res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+next();
+});
+
 
 exports.sendReportByEmail = async (to, format) => {
 const transporter = nodemailer.createTransport({
@@ -95,3 +112,9 @@ mongoose.connection.once("open", async () => {
 await seedRoles();
 await seedReportTags();
 });
+
+server.listen(PORT, () => {
+console.log(`Server is running on port ${PORT}`);
+});
+
+module.exports = { server, io };
