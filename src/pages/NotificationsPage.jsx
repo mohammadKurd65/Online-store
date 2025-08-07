@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useNavigate } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';  // ✅ درست
+
 import axios from "axios";
 import BroadcastNotificationModal from "../components/BroadcastNotificationModal";
 import GlobalNotificationModal from "../components/GlobalNotificationModal";

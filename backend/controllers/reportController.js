@@ -1,33 +1,29 @@
 const ScheduledReport = require("../models/ScheduledReportModel");
 const ReportTemplate = require("../models/ReportTemplateModel");
 const GeneratedReport = require("../models/GeneratedReportModel");
-const moment = require("moment-jalaali"); // برای تاریخ شمسی
+const Notification = require("../models/NotificationModel");
+const moment = require("moment-jalaali");
 const ExcelJS = require("exceljs");
 const SharedComparison = require("../models/SharedComparisonModel");
 const crypto = require("crypto");
 const ShareViewLog = require("../models/ShareViewLogModel");
 const parseUserAgent = require("ua-parser-js");
-const { io } = require("../../server"); // مسیر ممکنه متفاوت باشه
+const { server, io } = require("../server");
 const axios = require("axios");
 
+// --- اشتراک مقایسه ---
 exports.shareComparison = async (req, res) => {
 const { versionA, versionB } = req.body;
-
 try {
-    // ایجاد توکن منحصر به فرد
     const token = crypto.randomBytes(16).toString("hex");
-
     const shared = new SharedComparison({
     versionA,
     versionB,
     sharedBy: req.admin._id,
     token,
     });
-
     await shared.save();
-
     const shareLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}/shared/comparison/${token}`;
-
     return res.json({
     success: true,
     shared,
@@ -39,23 +35,32 @@ try {
 }
 };
 
+// --- دریافت مقایسه اشتراکی و ثبت بازدید ---
 exports.getSharedComparison = async (req, res) => {
 const { token } = req.params;
 const ip = req.ip;
 const userAgent = req.headers["user-agent"];
-
 try {
     const shared = await SharedComparison.findOne({ token });
+    if (!shared) return res.status(404).send("<h1>مقایسه یافت نشد.</h1>");
+    if (shared.expiresAt < new Date()) return res.status(410).send("<h1>این لینک منقضی شده است.</h1>");
 
-    if (!shared) {
-    return res.status(404).send("<h1>مقایسه یافت نشد.</h1>");
+    // GeoIP
+    let geoData = {};
+    try {
+    const geoRes = await axios.get(`https://ipapi.co/${ip}/json/`);
+    geoData = {
+        latitude: geoRes.data.latitude,
+        longitude: geoRes.data.longitude,
+        city: geoRes.data.city,
+        country: geoRes.data.country_name,
+        region: geoRes.data.region,
+    };
+    } catch (geoError) {
+    console.error("GeoIP lookup failed", geoError);
     }
 
-    if (shared.expiresAt < new Date()) {
-    return res.status(410).send("<h1>این لینک منقضی شده است.</h1>");
-    }
-
-    // تحلیل User Agent
+    // User Agent
     const ua = parseUserAgent(userAgent);
     const browser = `${ua.browser.name} ${ua.browser.version}`;
     const os = `${ua.os.name} ${ua.os.version}`;
@@ -71,31 +76,13 @@ try {
     device,
     ...geoData,
     });
-
- // 🔍 دریافت موقعیت جغرافیایی
-    let geoData = {};
-    try {
-    const geoRes = await axios.get(`https://ipapi.co/${ip}/json/`);
-    geoData = {
-        latitude: geoRes.data.latitude,
-        longitude: geoRes.data.longitude,
-        city: geoRes.data.city,
-        country: geoRes.data.country_name,
-        region: geoRes.data.region,
-    };
-    } catch (geoError) {
-    console.error("GeoIP lookup failed", geoError);
-    }
-
-
-
     await viewLog.save();
 
-    // افزایش تعداد بازدید
+    // افزایش بازدید
     shared.views += 1;
     await shared.save();
 
-    // ✅ ارسال رویداد زنده به کلاینت‌ها
+    // ارسال رویداد زنده
     const uniqueVisitors = await ShareViewLog.distinct("ip", { sharedComparison: shared._id }).then(ips => ips.length);
     io.emit("new_view", {
     sharedComparisonId: shared._id,
@@ -128,35 +115,28 @@ try {
 }
 };
 
+// --- پردازش قالب ورود داده ---
 exports.processDataEntryTemplate = async (req, res) => {
 if (!req.file) {
     return res.status(400).json({ success: false, message: "فایلی آپلود نشد." });
 }
-
 try {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(req.file.path);
     const worksheet = workbook.getWorksheet("ورود داده");
-
     const reports = [];
     let errors = [];
-
     worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-      if (rowNumber === 1) return; // سرستون
-
+    if (rowNumber === 1) return;
     const [title, name, format, tags, date, count, adminName, description] = row.values.slice(1);
-
-      // اعتبارسنجی
     if (!title || !name || !format || !date) {
         errors.push(`ردیف ${rowNumber}: فیلدهای ضروری پر نشده‌اند.`);
         return;
     }
-
     if (!["PDF", "Excel"].includes(format)) {
         errors.push(`ردیف ${rowNumber}: فرمت باید PDF یا Excel باشد.`);
         return;
     }
-
     reports.push({
         title,
         name,
@@ -168,22 +148,18 @@ try {
         description: description || "",
     });
     });
-
     if (errors.length > 0) {
     return res.status(400).json({ success: false, message: "خطاهایی در فایل وجود دارد.", errors });
     }
-
-    // ذخیره در دیتابیس
     for (const report of reports) {
     const newReport = new GeneratedReport({
         ...report,
         admin: req.admin._id,
-        fileSize: 0, // فایل واقعی وجود ندارد
-        fileUrl: "/no-file", // مجازی
+        fileSize: 0,
+        fileUrl: "/no-file",
     });
     await newReport.save();
     }
-
     return res.json({
     success: true,
     message: `${reports.length} گزارش با موفقیت وارد شد.`,
@@ -195,37 +171,33 @@ try {
 }
 };
 
-// تابع تبدیل تاریخ شمسی به میلادی
+// --- تبدیل تاریخ شمسی به میلادی ---
 function parseJalaliDate(jalaliStr) {
 const [y, m, d] = jalaliStr.split("/").map(Number);
-  // ساده‌سازی: فقط برای ذخیره، فرض می‌کنیم تاریخ معتبره
 return new Date(y, m - 1, d);
 }
 
-// تابع ساده رگرسیون خطی
+// --- رگرسیون خطی ساده ---
 function linearRegression(x, y) {
 const n = y.length;
 let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-
 for (let i = 0; i < n; i++) {
     sumX += x[i];
     sumY += y[i];
     sumXY += x[i] * y[i];
     sumXX += x[i] * x[i];
 }
-
   const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
-
 return { slope, intercept };
 }
 
+// --- پیش‌بینی روند تگ‌ها ---
 exports.predictTagTrends = async (req, res) => {
 const { period = "monthly", forecast = 3 } = req.query;
 const adminId = req.admin._id;
-
 try {
-    // --- مرحله ۱: دریافت داده‌های تاریخی ---
+    // مرحله ۱: دریافت داده‌های تاریخی
     const pipeline = [
     { $match: { admin: adminId } },
     { $unwind: "$tags" },
@@ -261,9 +233,7 @@ try {
     },
     { $sort: { _id: 1 } },
     ];
-
     const result = await GeneratedReport.aggregate(pipeline);
-
     if (result.length < 2) {
     return res.json({
         success: true,
@@ -274,64 +244,53 @@ try {
         topTags: []
     });
     }
-
-    // --- مرحله ۲: تعیین تگ‌های برتر (5 تا) ---
+    // مرحله ۲: تعیین تگ‌های برتر (۵ تا)
     const tagCounts = {};
     result.forEach(r => {
     Object.keys(r.tags).forEach(tag => {
         tagCounts[tag] = (tagCounts[tag] || 0) + r.tags[tag];
     });
     });
-
     const topTags = Object.entries(tagCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([tag]) => tag);
 
-    // --- مرحله ۳: محاسبه پیش‌بینی با WMA (Weighted Moving Average) ---
+    // مرحله ۳: پیش‌بینی با WMA
     const wmaPredictions = {};
-    const windowSize = Math.min(3, result.length); // آخرین 3 دوره
-
+    const windowSize = Math.min(3, result.length);
     topTags.forEach(tag => {
     const values = result.map(r => r.tags[tag] || 0);
-      const weights = Array.from({ length: windowSize }, (_, i) => i + 1); // [1, 2, 3]
+    const weights = Array.from({ length: windowSize }, (_, i) => i + 1);
     const sumWeights = weights.reduce((a, b) => a + b, 0);
-
-      // پیش‌بینی برای یک دوره آینده
     const lastWindow = values.slice(-windowSize);
       const predicted = lastWindow.reduce((sum, val, i) => sum + val * weights[i], 0) / sumWeights;
     wmaPredictions[tag] = Math.max(0, Math.round(predicted));
     });
 
-    // --- مرحله ۴: ساخت داده‌های نمایشی ---
+    // مرحله ۴: ساخت داده‌های نمایشی
     const historical = result.map(item => {
     const periodLabel = period === "monthly"
         ? moment(item._id, "YYYY-MM").format("jYYYY/jMM")
         : `هفته ${item._id.split("-")[1]}`;
-
     return {
         period: periodLabel,
         tags: item.tags,
     };
     });
 
-    const forecast = [];
+    const forecastArr = [];
     let lastPeriod = result[result.length - 1]._id;
-
     for (let i = 1; i <= forecast; i++) {
     const futurePeriod = addPeriod(lastPeriod, period, i);
     const futureLabel = period === "monthly"
         ? moment(futurePeriod, "YYYY-MM").format("jYYYY/jMM")
         : `هفته ${futurePeriod.split("-")[1]}`;
-
-      // در پیش‌بینی پیشرفته، می‌تونیم از آخرین پیش‌بینی به عنوان ورودی بعدی استفاده کنیم
-      const forecastedTags = { ...wmaPredictions }; // در این نسخه ساده، همیشه همین مقدار
-
-    forecast.push({
+    const forecastedTags = { ...wmaPredictions };
+    forecastArr.push({
         period: futureLabel,
         tags: forecastedTags
     });
-
     lastPeriod = futurePeriod;
     }
 
@@ -339,7 +298,7 @@ try {
     success: true,
     predictions: wmaPredictions,
     historical,
-    forecast,
+    forecast: forecastArr,
     topTags,
     });
 } catch (error) {
@@ -348,28 +307,27 @@ try {
 }
 };
 
-// تابع افزودن دوره
+// --- افزودن دوره ---
 function addPeriod(period, type, months) {
 const [year, month] = period.split("-");
 const date = new Date(parseInt(year), parseInt(month) - 1);
 date.setMonth(date.getMonth() + months);
 return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
+
+// --- روند تگ‌ها ---
 exports.getTagTrends = async (req, res) => {
 const { period = "monthly", topN = 5, limit = 12 } = req.query;
 const adminId = req.admin._id;
-
 try {
-    // تعیین بازه زمانی
     let dateField, dateFormat;
     if (period === "weekly") {
     dateField = "week";
     dateFormat = "YYYY-[هفته ]W";
     } else {
     dateField = "month";
-      dateFormat = "jYYYY/jMM"; // شمسی
+    dateFormat = "jYYYY/jMM";
     }
-
     const pipeline = [
     { $match: { admin: adminId } },
     { $unwind: "$tags" },
@@ -408,73 +366,57 @@ try {
     { $limit: parseInt(limit) },
     { $sort: { _id: 1 } },
     ];
-
     const result = await GeneratedReport.aggregate(pipeline);
-
-    // تبدیل تاریخ به شمسی (اگر ماهانه)
     const trends = result.map(item => {
-      const periodLabel = period === "monthly"
+    const periodLabel = period === "monthly"
         ? moment(item._id, "YYYY-MM").format("jYYYY/jMM")
         : `هفته ${item._id.split("-")[1]}`;
-
-      return {
+    return {
         period: periodLabel,
         tags: item.tags,
-      };
+    };
     });
-
-    // استخراج topN تگ
     const tagCounts = {};
     trends.forEach(t => {
-      Object.keys(t.tags).forEach(tag => {
+    Object.keys(t.tags).forEach(tag => {
         tagCounts[tag] = (tagCounts[tag] || 0) + t.tags[tag];
-      });
     });
-
+    });
     const topTags = Object.entries(tagCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, parseInt(topN))
-      .map(([tag]) => tag);
-
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, parseInt(topN))
+    .map(([tag]) => tag);
     return res.json({
-      success: true,
-       trends,
-      topTags,
+    success: true,
+    trends,
+    topTags,
     });
-  } catch (error) {
+} catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
-  }
+}
 };
 
+// --- آرشیو گزارش‌ها ---
 exports.getReportArchive = async (req, res) => {
 const { search, startDate, endDate, format, tag } = req.query;
 const query = { admin: req.admin._id };
-
 if (search) {
     query.$or = [
     { name: { $regex: search, $options: "i" } },
     { title: { $regex: search, $options: "i" } },
     ];
 }
-
 if (startDate || endDate) {
     query.createdAt = {};
     if (startDate) query.createdAt.$gte = new Date(startDate);
     if (endDate) query.createdAt.$lte = new Date(endDate);
 }
-
-if (format) {
-    query.format = format;
-}
-
-if (tag) {
-    query.tags = tag;
-}
-
+if (format) query.format = format;
+if (tag) query.tags = tag;
 try {
     const reports = await GeneratedReport.find(query).sort({ createdAt: -1 });
-    return res.json({ success: true,  reports });
+    return res.json({ success: true, reports });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
@@ -488,21 +430,19 @@ try {
     if (!report) {
     return res.status(404).json({ success: false, message: "گزارش یافت نشد." });
     }
-
-    // حذف فایل از دیسک (اختیاری)
-    // fs.unlinkSync(report.fileUrl);
-
+    // fs.unlinkSync(report.fileUrl); // اختیاری
     return res.json({ success: true, message: "گزارش از آرشیو حذف شد." });
-  } catch (error) {
+} catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
-  }
+}
 };
 
+// --- قالب‌های گزارش ---
 exports.getReportTemplates = async (req, res) => {
 try {
     const templates = await ReportTemplate.find({ admin: req.admin._id });
-    return res.json({ success: true,  templates });
+    return res.json({ success: true, templates });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
@@ -516,7 +456,7 @@ try {
     admin: req.admin._id,
     });
     const saved = await template.save();
-    return res.status(201).json({ success: true,  saved });
+    return res.status(201).json({ success: true, saved });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
@@ -534,7 +474,7 @@ try {
     if (!updated) {
     return res.status(404).json({ success: false, message: "قالب یافت نشد." });
     }
-    return res.json({ success: true,  updated });
+    return res.json({ success: true, updated });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });
@@ -552,6 +492,7 @@ try {
 }
 };
 
+// --- گزارش‌های زمان‌بندی شده ---
 exports.getAllScheduledReports = async (req, res) => {
 try {
     const reports = await ScheduledReport.find({ admin: req.admin._id });
@@ -596,6 +537,7 @@ try {
 }
 };
 
+// --- گزارش‌های تولید شده ---
 exports.getGeneratedReports = async (req, res) => {
 try {
     const reports = await GeneratedReport.find({ admin: req.admin._id }).sort({ createdAt: -1 });
@@ -617,26 +559,22 @@ try {
 }
 };
 
+// --- ویرایش تگ‌های گزارش ---
 exports.updateReportTags = async (req, res) => {
 const { id } = req.params;
 const { tags } = req.body;
-
-  // اعتبارسنجی
 if (!Array.isArray(tags)) {
     return res.status(400).json({ success: false, message: "فرمت تگ‌ها نامعتبر است." });
 }
-
 try {
     const updated = await GeneratedReport.findOneAndUpdate(
     { _id: id, admin: req.admin._id },
     { tags },
     { new: true }
     );
-
     if (!updated) {
     return res.status(404).json({ success: false, message: "گزارش یافت نشد." });
     }
-
     return res.json({
     success: true,
     updated,
@@ -647,6 +585,7 @@ try {
 }
 };
 
+// --- تگ‌های محبوب ---
 exports.getPopularTags = async (req, res) => {
 try {
     const tags = await GeneratedReport.aggregate([
@@ -656,7 +595,6 @@ try {
     { $sort: { count: -1 } },
     { $limit: 50 },
     ]);
-
     return res.json({
     success: true,
     tags,
@@ -667,27 +605,21 @@ try {
 }
 };
 
+// --- آنالیتیکس اشتراک ---
 exports.getShareAnalytics = async (req, res) => {
 const { token } = req.params;
-
 try {
     const shared = await SharedComparison.findOne({ token });
     if (!shared) {
     return res.status(404).json({ success: false, message: "لینک یافت نشد." });
     }
-
-    // بررسی اینکه آیا این ادمین ایجاد کننده است
     if (shared.sharedBy.toString() !== req.admin._id.toString()) {
     return res.status(403).json({ success: false, message: "دسترسی غیرمجاز" });
     }
-
     const logs = await ShareViewLog.find({ sharedComparison: shared._id })
     .sort({ viewedAt: -1 });
-
-    // محاسبه آمار
     const totalViews = logs.length;
     const uniqueIPs = new Set(logs.map(log => log.ip)).size;
-
     const stats = {
     totalViews,
     uniqueVisitors: uniqueIPs,
@@ -706,13 +638,48 @@ try {
         return acc;
     }, {}),
     };
-
     return res.json({
     success: true,
     shared,
     stats,
     logs,
     });
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "خطای سرور" });
+}
+};
+
+// --- نوتیفیکیشن ---
+const createNotification = async (userId, type, title, message, data = {}) => {
+const notification = new Notification({
+    user: userId,
+    type,
+    title,
+    message,
+    data,
+});
+await notification.save();
+io.to(`admin:${userId}`).emit("new_notification", notification);
+};
+
+// نمونه استفاده از createNotification در یک هندلر:
+exports.createReportAndNotify = async (req, res) => {
+try {
+    // ... تولید گزارش ...
+    const newReport = new GeneratedReport({
+      // ... مقادیر ...
+    admin: req.admin._id,
+    });
+    await newReport.save();
+    await createNotification(
+    req.admin._id,
+    "REPORT",
+    "گزارش جدید تولید شد",
+    `گزارش "${newReport.title}" با موفقیت تولید شد.`,
+    { reportId: newReport._id }
+    );
+    return res.json({ success: true, report: newReport });
 } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: "خطای سرور" });

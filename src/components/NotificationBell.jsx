@@ -19,6 +19,9 @@ const [settings, setSettings] = useState({
     enableEmail: false,
 });
 
+const [isOpen, setIsOpen] = useState(false);
+
+
   // دریافت اعلان‌های قبلی
 useEffect(() => {
     const fetchNotifications = async () => {

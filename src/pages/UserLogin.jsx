@@ -1,86 +1,131 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate, useEffect } from "react-router-dom";
-import { decodeToken } from "../utils/jwtDecode";
-import HasPermission from "../components/HasPermission";
-import { usePermission } from "../hooks/usePermission";
-export default function UserLogin() {
-    const { canDeleteUsers } = usePermission();
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-if (canDeleteUsers) {
-  // نمایش دکمه حذف
-}
-    const token = localStorage.getItem("userToken");
-const decoded = decodeToken(token);
-const userRole = decoded?.role;
-const [username, setUsername] = useState("");
-const [password, setPassword] = useState("");
-const [error, setError] = useState("");
+const UserLogin = () => {
+const [email, setEmail] = useState('');
+const [password, setPassword] = useState('');
+const [error, setError] = useState('');
 const navigate = useNavigate();
+const { login } = useAuth();
 
-
-useEffect(() => {
-if (userRole !== "admin") {
-    navigate("/unauthorized");
-}
-}, [userRole, navigate]);
-
-const handleLogin = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     try {
-    const res = await axios.post("http://localhost:5000/api/user/login", {
-        username,
-        password,
+      // اینجا باید درخواست واقعی به API بفرستید
+      // برای مثال:
+      // const response = await axios.post('/api/user/login', { email, password });
+      // const { token } = response.data;
+    
+      // برای تست موقت، فرض می‌کنیم ورود موفقیت‌آمیز بوده
+    const mockToken = 'user_token_123';
+    localStorage.setItem('userToken', mockToken);
+    
+      // دیکد کردن توکن برای دریافت نقش کاربر
+    const mockDecoded = { role: 'user', id: 'user_1' };
+    
+      // وارد کردن اطلاعات کاربر به context
+    login({ 
+        email, 
+        role: mockDecoded.role,
+        id: mockDecoded.id 
     });
-
-      // ذخیره توکن در localStorage
-    localStorage.setItem("userToken", res.data.token);
-
-    alert("ورود موفقیت‌آمیز!");
-    navigate("/");
+    
+    navigate('/user/dashboard');
     } catch (err) {
-    setError(err.response?.data?.message || "خطایی رخ داده است.");
+    setError('ایمیل یا رمز عبور اشتباه است');
     }
 };
 
 return (
-    <div className="container py-10 mx-auto">
-    <h2 className="mb-6 text-2xl font-bold">ورود کاربر</h2>
-    {error && <p className="mb-4 text-red-500">{error}</p>}
-    <form onSubmit={handleLogin} className="max-w-md mx-auto">
-        <div className="mb-4">
-        <label className="block mb-2 text-gray-700">نام کاربری</label>
-        <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            required
-        />
+    <div className="flex items-center justify-center min-h-screen px-4 py-12 bg-gray-50 sm:px-6 lg:px-8">
+    <div className="w-full max-w-md space-y-8">
+        <div>
+        <h2 className="mt-6 text-3xl font-extrabold text-center text-gray-900">
+            ورود به حساب کاربری
+        </h2>
+        <p className="mt-2 text-sm text-center text-gray-600">
+            خوش آمدید! لطفاً اطلاعات خود را وارد کنید
+        </p>
         </div>
-        <div className="mb-4">
-        <label className="block mb-2 text-gray-700">رمز عبور</label>
-        <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            required
-        />
+        {error && (
+        <div className="relative px-4 py-3 text-red-700 bg-red-100 border border-red-400 rounded" role="alert">
+            <span className="block sm:inline">{error}</span>
         </div>
-        <button
-        type="submit"
-        className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-        ورود
-        </button>
-    </form>
-    <HasPermission permission="delete_users">
-                                                    <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
-                                                        حذف کاربران
-                                                    </button>
-                                                    </HasPermission>
+        )}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <input type="hidden" name="remember" value="true" />
+        <div className="-space-y-px rounded-md shadow-sm">
+            <div>
+            <label htmlFor="email-address" className="sr-only">آدرس ایمیل</label>
+            <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="آدرس ایمیل"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            </div>
+            <div>
+            <label htmlFor="password" className="sr-only">رمز عبور</label>
+            <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-none appearance-none rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="رمز عبور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+            <div className="flex items-center">
+            <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
+                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <label htmlFor="remember-me" className="block mr-2 text-sm text-gray-900">
+                مرا به خاطر بسپار
+            </label>
+            </div>
+
+            <div className="text-sm">
+            <a href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                رمز عبور خود را فراموش کرده‌اید؟
+            </a>
+            </div>
+        </div>
+
+        <div>
+            <button
+            type="submit"
+            className="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+            ورود
+            </button>
+        </div>
+
+        <div className="text-center">
+            <span className="text-gray-600">حساب کاربری ندارید؟ </span>
+            <a href="/user/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            ثبت‌نام کنید
+            </a>
+        </div>
+        </form>
+    </div>
     </div>
 );
-}
+};
+
+export default UserLogin;

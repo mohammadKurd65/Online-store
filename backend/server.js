@@ -97,9 +97,23 @@ app.use(express.json());
 // Routes
 app.use("/api/payment", paymentRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/admin", adminRoutes);
+app.use('/api/admin', adminRoutes.default || adminRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api", productRoutes);
+// قبل از خط 102
+
+console.log("Admin Routes Type:", typeof adminRoutes);
+console.log("Admin Routes has default:", 'default' in adminRoutes);
+
+// خط 102 را اینطوری تغییر دهید
+if (typeof adminRoutes === 'function') {
+app.use('/api/admin', adminRoutes);
+} else if (adminRoutes && adminRoutes.default) {
+console.log("Using default export for admin routes");
+app.use('/api/admin', adminRoutes.default);
+} else {
+console.error("Admin routes is not a valid router!");
+process.exit(1);
+}
 app.use("/images", express.static("public/images"));
 
 app.listen(PORT, () => {
@@ -111,6 +125,25 @@ const seedRoles = require("./utils/seedRoles");
 mongoose.connection.once("open", async () => {
 await seedRoles();
 await seedReportTags();
+});
+
+// مدیریت خطا برای پورت اشغال‌شده
+// const server = app.listen(PORT, () => {
+// console.log(`Server running on port ${PORT}`);
+// });
+
+server.on('error', (error) => {
+if (error.code === 'EADDRINUSE') {
+    console.log(`Port ${PORT} is already in use. Trying port ${PORT + 1}...`);
+    setTimeout(() => {
+    server.close();
+    app.listen(PORT + 1, () => {
+        console.log(`Server running on port ${PORT + 1}`);
+    });
+    }, 1000);
+} else {
+    console.error(error);
+}
 });
 
 server.listen(PORT, () => {

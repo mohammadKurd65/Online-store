@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';  // ✅ درست
 import { signInWithEmailAndPassword } from "../firebase";
-import { useNavigate, useEffect } from "react-router-dom";
 import { decodeToken } from "../utils/jwtDecode";
 import { usePermission } from "../hooks/usePermission";
 export default function Login() {

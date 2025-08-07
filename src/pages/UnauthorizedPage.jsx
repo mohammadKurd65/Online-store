@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';  // ✅ درست
+
 import { Button } from '@mui/material';
 import { usePermission } from '../hooks/usePermission';
 const UnauthorizedPage = () => {

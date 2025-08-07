@@ -35,6 +35,16 @@ const NotificationSchema = new mongoose.Schema(
     type: mongoose.Schema.Types.ObjectId,
     refPath: "entityType",
     },
+    user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admin",
+    required: true,
+},
+createdAt: {
+    type: Date,
+    default: Date.now,
+},
+
 },
 { timestamps: true }
 );

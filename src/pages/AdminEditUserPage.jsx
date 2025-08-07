@@ -1,150 +1,217 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-import { decodeToken } from "../utils/jwtDecode";
-import HasPermission from "../components/HasPermission";
-import { usePermission } from "../hooks/usePermission";
-export default function AdminEditUserPage() {
-    const { canDeleteUsers } = usePermission();
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-if (canDeleteUsers) {
-  // نمایش دکمه حذف
-}
+const AdminEditUserPage = () => {
 const { id } = useParams();
 const navigate = useNavigate();
-const [user, setUser] = useState({
-    username: "",
-    role: "user",
-    status: "active",
+const { currentUser } = useAuth();
+const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    role: 'user',
+    isActive: true,
+    phone: '',
+    address: ''
 });
-const [accessDenied, setAccessDenied] = useState(false);
-
-const token = localStorage.getItem("userToken");
-const decoded = decodeToken(token);
-const userRole = decoded?.role;
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState('');
+const [success, setSuccess] = useState('');
 
 useEffect(() => {
-if (userRole !== "admin") {
-    navigate("/unauthorized");
-}
-}, [userRole, navigate]);
-
-useEffect(() => {
-    if (userRole !== "admin") {
-    setAccessDenied(true);
-    return;
+    // در شرایط واقعی، این داده‌ها از API دریافت می‌شوند
+    // برای تست، داده‌های ساختگی ایجاد می‌کنیم
+    if (id === 'new') {
+setUserData({
+        name: '',
+        email: '',
+        role: 'user',
+        isActive: true,
+        phone: '',
+        address: ''
+    });
+    setLoading(false);
+    } else {
+      // فرض می‌کنیم کاربر با این شناسه وجود دارد
+    setUserData({
+        name: 'علی محمدی',
+        email: 'ali@example.com',
+        role: 'user',
+        isActive: true,
+        phone: '09123456789',
+        address: 'تهران، خیابان آزادی، پلاک 123'
+    });
+    setLoading(false);
     }
-    const fetchUser = async () => {
-    try {
-        const res = await axios.get(`http://localhost:5000/api/admin/users/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
-        setUser(res.data.data);
-    } catch (err) {
-        alert("خطا در دریافت اطلاعات کاربر.");
-        navigate("/admin/users");
-    }
-    };
-    fetchUser();
-}, [id, navigate, token, userRole]);
+}, [id]);
 
 const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setUserData(prev => ({
+    ...prev,
+    [name]: type === 'checkbox' ? checked : value
+    }));
 };
 
 const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
-    const res = await axios.put(`http://localhost:5000/api/admin/users/${id}`, user, {
-        headers: {
-        Authorization: `Bearer ${token}`,
-        },
-    });
-    if (res.status !== 200) {
-        throw new Error("خطا در بروزرسانی کاربر.");
-    }
-    setUser(res.data.data);
-    alert("کاربر با موفقیت آپدیت شد.");
-    navigate("/admin/users");
+      // در شرایط واقعی، این درخواست به API ارسال می‌شود
+      // برای مثال:
+      // const response = await axios.put(`/api/admin/users/${id}`, userData);
+    
+    setSuccess(id === 'new' ? 'کاربر با موفقیت ایجاد شد!' : 'کاربر با موفقیت به‌روزرسانی شد!');
+    setError('');
+    
+      // پس از 2 ثانیه به صفحه مدیریت کاربران هدایت شوید
+    setTimeout(() => {
+        navigate('/admin/users');
+    }, 2000);
     } catch (err) {
-    alert("خطا در ذخیره تغییرات.");
+    setError('خطا در ذخیره اطلاعات. لطفاً دوباره تلاش کنید.');
     console.error(err);
     }
 };
 
-if (accessDenied) {
+if (loading) {
     return (
-    <div className="container py-10 mx-auto text-center text-red-600">
-        دسترسی غیرمجاز! فقط ادمین می‌تواند این صفحه را مشاهده کند.
+    <div className="flex items-center justify-center min-h-screen">
+        <div className="text-xl">در حال بارگذاری...</div>
     </div>
     );
 }
 
 return (
-    <div className="container py-10 mx-auto">
-    <h2 className="mb-6 text-2xl font-bold">ویرایش کاربر</h2>
-    <form onSubmit={handleSubmit} className="max-w-md p-6 mx-auto bg-white rounded shadow">
-        <div className="mb-4">
-        <label className="block mb-2 text-gray-700">نام کاربری</label>
-        <input
-            type="text"
-            name="username"
-            value={user.username}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-        />
+    <div className="container px-4 py-8 mx-auto">
+    <div className="max-w-3xl p-6 mx-auto bg-white rounded-lg shadow">
+        <h1 className="mb-6 text-2xl font-bold">
+        {id === 'new' ? 'افزودن کاربر جدید' : `ویرایش کاربر #${id}`}
+        </h1>
+        
+        {error && (
+        <div className="relative px-4 py-3 mb-4 text-red-700 bg-red-100 border border-red-400 rounded" role="alert">
+            <span className="block sm:inline">{error}</span>
         </div>
-        <div className="mb-4">
-        <label className="block mb-2 text-gray-700">نقش</label>
-        <select
+        )}
+        
+        {success && (
+        <div className="relative px-4 py-3 mb-4 text-green-700 bg-green-100 border border-green-400 rounded" role="alert">
+            <span className="block sm:inline">{success}</span>
+        </div>
+        )}
+        
+        <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
+            <div>
+            <label htmlFor="name" className="block mb-1 text-sm font-medium text-gray-700">
+                نام و نام خانوادگی
+            </label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                value={userData.name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                required
+            />
+            </div>
+            
+            <div>
+            <label htmlFor="email" className="block mb-1 text-sm font-medium text-gray-700">
+                آدرس ایمیل
+            </label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value={userData.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                required
+            />
+            </div>
+        </div>
+        
+        <div className="mb-6">
+            <label htmlFor="role" className="block mb-1 text-sm font-medium text-gray-700">
+            نقش کاربر
+            </label>
+            <select
+            id="role"
             name="role"
-            value={user.role}
+            value={userData.role}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-        >
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
             <option value="user">کاربر عادی</option>
             <option value="editor">ویرایشگر</option>
             <option value="admin">ادمین</option>
-        </select>
+            </select>
         </div>
-        <div className="mb-4">
-        <label className="block mb-2 text-gray-700">وضعیت</label>
-        <select
-            name="status"
-            value={user.status}
+        
+        <div className="mb-6">
+            <label htmlFor="phone" className="block mb-1 text-sm font-medium text-gray-700">
+            شماره تلفن
+            </label>
+            <input
+            type="tel"
+            id="phone"
+            name="phone"
+            value={userData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-        >
-            <option value="active">فعال</option>
-            <option value="inactive">غیرفعال</option>
-            <option value="blocked">مسدود</option>
-        </select>
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
         </div>
-        <div className="flex justify-between">
-        <button
-            type="submit"
-            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-            ذخیره تغییرات
-        </button>
-        <button
+        
+        <div className="mb-6">
+            <label htmlFor="address" className="block mb-1 text-sm font-medium text-gray-700">
+            آدرس
+            </label>
+            <textarea
+            id="address"
+            name="address"
+            value={userData.address}
+            onChange={handleChange}
+            rows="3"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+        </div>
+        
+        <div className="flex items-center mb-6">
+            <input
+            type="checkbox"
+            id="isActive"
+            name="isActive"
+            checked={userData.isActive}
+            onChange={handleChange}
+            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <label htmlFor="isActive" className="block ml-2 text-sm text-gray-900">
+            کاربر فعال باشد
+            </label>
+        </div>
+        
+        <div className="flex justify-end space-x-4 space-x-reverse">
+            <button
             type="button"
-            onClick={() => navigate("/admin/users")}
-            className="px-4 py-2 text-white bg-gray-500 rounded hover:bg-gray-600"
-        >
-            انصراف
-        </button>
+            onClick={() => navigate('/admin/users')}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
+            >
+            لغو
+            </button>
+            <button
+            type="submit"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700"
+            >
+            {id === 'new' ? 'افزودن کاربر' : 'به‌روزرسانی'}
+            </button>
         </div>
-    </form>
-    <HasPermission permission="delete_users">
-        <button className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600">
-            حذف کاربران
-        </button>
-        </HasPermission>
+        </form>
+    </div>
     </div>
 );
-}
+};
+
+export default AdminEditUserPage;

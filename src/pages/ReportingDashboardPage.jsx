@@ -202,7 +202,7 @@ return (
     <h3 className="text-lg">{title}</h3>
     <p className="mt-2 text-xl font-bold">{value}</p>
     </div>
-  ;
+);
 }
 
 // تابع ترجمه عملیات
